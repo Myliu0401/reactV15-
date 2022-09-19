@@ -166,14 +166,27 @@ var ReactCompositeComponentMixin = {
     this._nativeContainerInfo = nativeContainerInfo;  // 首次执行时为 集装信息，为一个对象，存储参数的一些信息，存到实例中
 
 
-    var publicProps = this._processProps(this._currentElement.props);  // 获取属性，如果不是开发环境则直接将参数返回
-    var publicContext = this._processContext(context); // 获取重新进行赋值后的上下文
+    /* 
+        获取属性，如果不是开发环境则直接将参数返回
+    
+    */
+    var publicProps = this._processProps(this._currentElement.props);  
 
-    var Component = this._currentElement.type; // Construct函数
+    var publicContext = this._processContext(context); // 首次执行时返回emptyObject
+
+    var Component = this._currentElement.type; // 首次执行时为 TopLevelWrapper函数
 
 
-  
-    var inst = this._constructComponent(publicProps, publicContext);  // 该函数中会new Construct函数,并返回实例
+    /* 
+          该函数中会new Construct函数,并返回实例
+          首次执行时，该Construct函数为TopLevelWrapper函数
+          首次执行返回的对象，对象中的属性有
+            rootID为1
+            原型上的isReactComponent属性为一个对象
+            原型上的render属性为一个函数，返回根组件
+    
+    */
+    var inst = this._constructComponent(publicProps, publicContext); 
     var renderedElement;
 
     // 判断是否是无状态组件
@@ -214,19 +227,38 @@ var ReactCompositeComponentMixin = {
       );
     }
 
-    inst.props = publicProps;
-    inst.context = publicContext;
-    inst.refs = emptyObject;
-    inst.updater = ReactUpdateQueue;
+    inst.props = publicProps;         // 首次执行时该属性为根组件
+    inst.context = publicContext;     // 首次执行时该属性为emptyObject
+    inst.refs = emptyObject;          // emptyObject
+    inst.updater = ReactUpdateQueue;  // 为ReactUpdateQueue模块的ReactUpdateQueue对象  
+    /* 
+          首次执行时，经过上面的赋值
+          inst对象变成了
+          {
+             rootID:1,
+             props: 根组件,
+             context: emptyObject,
+             refs: emptyObject,
+             updater: ReactUpdateQueue模块的ReactUpdateQueue对象,
+             原型:{
+               isReactComponent:{},
+               render(props) =>  props // 返回根组件
+             }
+          }
+    
+    */
 
-    this._instance = inst;
 
-   
-    ReactInstanceMap.set(inst, this); 
+
+    this._instance = inst; // 将其添加到组件初始化实例的_instance中
+
+    
     /* 
        该函数执行完后 inst中拥有_reactInternalInstance属性，该属性为this
     
     */
+    ReactInstanceMap.set(inst, this); 
+
 
     if (__DEV__) {
       warning(
@@ -280,10 +312,19 @@ var ReactCompositeComponentMixin = {
       );
     }
 
-    var initialState = inst.state;
+
+    /* 
+         首次执行后
+         inst对象多一个属性state为null
+    
+    */
+    var initialState = inst.state; // 首次执行时为null
     if (initialState === undefined) {
       inst.state = initialState = null;
     }
+
+
+
     invariant(
       typeof initialState === 'object' && !Array.isArray(initialState),
       '%s.state: must be set to an object or null',
@@ -296,7 +337,7 @@ var ReactCompositeComponentMixin = {
 
     var markup;
 
-    // 判断是否有错
+    // 判断是否有错,首次执行该属性为undefined
     if (inst.unstable_handleError) {
       markup = this.performInitialMountWithErrorHandling(
         renderedElement,
@@ -306,6 +347,15 @@ var ReactCompositeComponentMixin = {
         context
       );
     } else {
+
+      /* 
+          首次执行时
+           renderedElement为undefined
+           nativeParent为null
+           nativeContainerInfo为集装信息，为一个对象，存储参数的一些信息
+           transaction为事务
+           context为上下文
+      */
       markup = this.performInitialMount(renderedElement, nativeParent, nativeContainerInfo, transaction, context);
     }
 
@@ -316,9 +366,16 @@ var ReactCompositeComponentMixin = {
     return markup;
   },
 
+
+  /**
+   * 
+   * @param {*} publicProps     首次执行时为根组件
+   * @param {*} publicContext   首次执行时为emptyObject
+   * @returns 
+   */
   _constructComponent: function(publicProps, publicContext) {
     if (__DEV__) {
-      ReactCurrentOwner.current = this;
+      ReactCurrentOwner.current = this;  
       try {
         return this._constructComponentWithoutOwner(publicProps, publicContext);
       } finally {
@@ -329,12 +386,34 @@ var ReactCompositeComponentMixin = {
     }
   },
 
-  _constructComponentWithoutOwner: function(publicProps, publicContext) {
-    var Component = this._currentElement.type;
 
-    // 判断是不是跟组件的包装层
+  /**
+   *  
+   * @param {*} publicProps      首次执行时为根组件
+   * @param {*} publicContext    首次执行时为emptyObject
+   * @returns 
+   */
+  _constructComponentWithoutOwner: function(publicProps, publicContext) {
+
+    /* 
+         首次执行时为 TopLevelWrapper函数
+    
+    */
+    var Component = this._currentElement.type;  
+
+
+    // 判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数
     if (shouldConstruct(Component)) {
-      return new Component(publicProps, publicContext, ReactUpdateQueue);
+
+      return new Component(publicProps, publicContext, ReactUpdateQueue);  // 执行TopLevelWrapper函数
+      /* 
+         new 该TopLevelWrapper函数返回一个实例，该实例包含以下属性
+         rootID为1
+         原型上的isReactComponent属性为一个对象
+         原型上的render属性为函数，该函数返回根组件
+      
+      */
+
     } else {
       return Component(publicProps, publicContext, ReactUpdateQueue);
     }
@@ -369,10 +448,45 @@ var ReactCompositeComponentMixin = {
     return markup;
   },
 
+
+
+  /**
+   * 
+   * @param {*} renderedElement       首次执行时为undefined
+   * @param {*} nativeParent          首次执行时为null
+   * @param {*} nativeContainerInfo 
+   * @param {*} transaction 
+   * @param {*} context 
+   * @returns 
+   */
   performInitialMount: function(renderedElement, nativeParent, nativeContainerInfo, transaction, context) {
+    /* 
+         首次执行时为 new TopLevelWrapper 返回的独对象
+         该对象经过mountComponent函数的操作后变成
+         {
+             rootID:1,
+             props: 根组件,
+             context: emptyObject,
+             refs: emptyObject,
+             updater: ReactUpdateQueue模块的ReactUpdateQueue对象,
+             state: null,
+             _reactInternalInstance: this
+             原型:{
+               isReactComponent:{},
+               render(props) =>  props // 返回根组件
+             }
+          }
+    
+    */
     var inst = this._instance;
 
-    // 判断是否有该生命周期
+
+
+    /* 
+        判断是否有该生命周期
+        因为首次执行时inst对象为 new TopLevelWrapper函数返回的对象，所以首次时没有该生命周期
+    
+    */
     if (inst.componentWillMount) {
 
       inst.componentWillMount(); //执行生命周期
@@ -382,14 +496,34 @@ var ReactCompositeComponentMixin = {
       }
     }
 
+
+    /* 
+        首次执行时该属性为 undefined
+    
+    */
     if (renderedElement === undefined) {
-      renderedElement = this._renderValidatedComponent(); // 该函数会间接调用render获得节点
+      /* 
+          首次执行时返回根组件
+      
+      */
+      renderedElement = this._renderValidatedComponent(); 
     }
 
-    this._renderedNodeType = ReactNodeTypes.getType(renderedElement); // 获取节点类型
+
+    /* 
+         获取子节点的类型，但首次执行时是根节点，因为根节点被ReactElement包装多一层
+         并且将子节点类型添加到组件初始化实例的_renderedNodeType属性中
+    
+    */
+    this._renderedNodeType = ReactNodeTypes.getType(renderedElement); 
+
+    /* 
+        初始化子节点
+    
+    */
     this._renderedComponent = this._instantiateReactComponent(
       renderedElement
-    ); // render函数返回的节点组件的入口实例
+    ); 
 
     // 进行递归渲染子节点
     var markup = ReactReconciler.mountComponent(
@@ -477,13 +611,15 @@ var ReactCompositeComponentMixin = {
     if (!contextTypes) {
       return emptyObject;  // 如果没有，则直接返回 emptyObject对象
     }
+
     var maskedContext = {};
 
+    // 遍历该类型
     for (var contextName in contextTypes) {
-      maskedContext[contextName] = context[contextName];
+      maskedContext[contextName] = context[contextName]; // 将该上下文中的属性赋值到另一个对象中
     }
 
-    return maskedContext; 
+    return maskedContext; // 返回该新对象
   },
 
   /**
@@ -492,7 +628,7 @@ var ReactCompositeComponentMixin = {
    * @private
    */
   _processContext: function(context) {
-    var maskedContext = this._maskContext(context);
+    var maskedContext = this._maskContext(context); // 首次执行时返回 emptyObject
 
     // 判断是否是开发环境
     if (__DEV__) {
@@ -505,7 +641,7 @@ var ReactCompositeComponentMixin = {
         );
       }
     }
-
+    
     return maskedContext;
   },
 
@@ -909,8 +1045,35 @@ var ReactCompositeComponentMixin = {
    * @protected
    */
   _renderValidatedComponentWithoutOwnerOrContext: function() {
-    var inst = this._instance;
-    var renderedComponent = inst.render();
+
+    /* 
+        首次执行时组件初始化实例中该_instance属性为 new TopLevelWrapper函数返回的对象
+          首次时该对象为
+          {
+             rootID:1,
+             props: 根组件,
+             context: emptyObject,
+             refs: emptyObject,
+             updater: ReactUpdateQueue模块的ReactUpdateQueue对象,
+             state: null,
+             _reactInternalInstance: this
+             原型:{
+               isReactComponent:{},
+               render(props) =>  props // 返回根组件
+             }
+          }
+    
+    */
+    var inst = this._instance;  
+
+
+
+    /* 
+         首次时执行时返回根组件
+    
+    */
+    var renderedComponent = inst.render();  
+
     if (__DEV__) {
 
       if (renderedComponent === undefined &&
@@ -927,14 +1090,27 @@ var ReactCompositeComponentMixin = {
    * @private
    */
   _renderValidatedComponent: function() {
+
     var renderedComponent;
-    ReactCurrentOwner.current = this;
+
+    ReactCurrentOwner.current = this;  // 将该对象中的current属性置为 组件初始化的实例
+
+
+    // 捕获错误
     try {
-      renderedComponent =
-        this._renderValidatedComponentWithoutOwnerOrContext();
+
+      /* 
+          首次执行时renderedComponent为根组件
+      
+      */
+      renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
+
     } finally {
-      ReactCurrentOwner.current = null;
+
+      ReactCurrentOwner.current = null;  // 将该对象中的current属性还原为 null
+
     }
+
     invariant(
       // TODO: An `isValidNode` function would probably be more appropriate
       renderedComponent === null || renderedComponent === false ||
@@ -943,7 +1119,8 @@ var ReactCompositeComponentMixin = {
         'returned undefined, an array or some other invalid object.',
       this.getName() || 'ReactCompositeComponent'
     );
-    return renderedComponent;
+
+    return renderedComponent;  // 首次执行时返回根组件
   },
 
   /**
@@ -1018,8 +1195,8 @@ var ReactCompositeComponentMixin = {
     return inst;
   },
 
-  // Stub
-  _instantiateReactComponent: null,
+  //因为对 ReactCompositeComponentWrapper函数的原型进行扩展时，增加了该instantiateReactComponent
+  _instantiateReactComponent: null,  
 
 };
 

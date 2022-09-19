@@ -16,18 +16,27 @@ var ReactElement = require('ReactElement');
 var invariant = require('invariant');
 
 var ReactNodeTypes = {
-  NATIVE: 0,
-  COMPOSITE: 1,
-  EMPTY: 2,
+  NATIVE: 0, // 空组件
+  COMPOSITE: 1, // 自定义组件
+  EMPTY: 2,  // dom组件，也就是标签
 
   getType: function(node) {
+
+    // 判断是否是空节点
     if (node === null || node === false) {
+
       return ReactNodeTypes.EMPTY;
-    } else if (ReactElement.isValidElement(node)) {
-      if (typeof node.type === 'function') {
+
+    } else if (ReactElement.isValidElement(node)) { // 判断是否是 标签节点和组件节点
+
+      if (typeof node.type === 'function') {  // 判断是否是组件节点
+
         return ReactNodeTypes.COMPOSITE;
+
       } else {
+
         return ReactNodeTypes.NATIVE;
+
       }
     }
     invariant(false, 'Unexpected node: %s', node);
