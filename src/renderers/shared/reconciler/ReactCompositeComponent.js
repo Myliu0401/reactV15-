@@ -141,16 +141,15 @@ var ReactCompositeComponentMixin = {
     this._calledComponentWillUnmount = false;
   },
 
+
+
   /**
-   * 
-   * 该函数控制渲染阶段
-   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction  事务
-   * @param {?object} nativeParent   父级实例，最高级为null
-   * @param {?object} nativeContainerInfo   父级实例信息，最高级为null
-   * @param {?object} context   上次文
-   * @return {?string} Rendered markup to be inserted into the DOM.  节点
-   * @final
-   * @internal
+   * 该函数控制组件的渲染阶段
+   * @param {*} transaction              事务
+   * @param {*} nativeParent             首次执行时为null
+   * @param {*} nativeContainerInfo      首次为集装信息，为一个对象，存储参数的一些信息
+   * @param {*} context                  上下文
+   * @returns 
    */
   mountComponent: function(
     transaction,
@@ -158,13 +157,16 @@ var ReactCompositeComponentMixin = {
     nativeContainerInfo,
     context
   ) {
-    this._context = context;
-    this._mountOrder = nextMountID++;
-    this._nativeParent = nativeParent;
-    this._nativeContainerInfo = nativeContainerInfo;
+    
+    // this为组件初始化的实例
+
+    this._context = context;   // 将上下文存到实例的_context属性中
+    this._mountOrder = nextMountID++;  // 首次执行时为1,存到实例的_mountOrder属性中
+    this._nativeParent = nativeParent; // 首次执行时为null，存到实例中
+    this._nativeContainerInfo = nativeContainerInfo;  // 首次执行时为 集装信息，为一个对象，存储参数的一些信息，存到实例中
 
 
-    var publicProps = this._processProps(this._currentElement.props);  // 获取属性
+    var publicProps = this._processProps(this._currentElement.props);  // 获取属性，如果不是开发环境则直接将参数返回
     var publicContext = this._processContext(context); // 获取重新进行赋值后的上下文
 
     var Component = this._currentElement.type; // Construct函数
@@ -462,17 +464,15 @@ var ReactCompositeComponentMixin = {
   },
 
   /**
-   * Filters the context object to only contain keys specified in
-   * `contextTypes`
    *
    * @param {object} context   上下文
    * @return {?object}  重新赋值后的上下文
    * @private
    */
   _maskContext: function(context) {
-    var Component = this._currentElement.type; // 函数
+    var Component = this._currentElement.type; // 函数,首次时为TopLevelWrapper函数
 
-    var contextTypes = Component.contextTypes; // 上下文类型
+    var contextTypes = Component.contextTypes; // 函数的类型，首次时为undefined
 
     if (!contextTypes) {
       return emptyObject;  // 如果没有，则直接返回 emptyObject对象
@@ -552,9 +552,6 @@ var ReactCompositeComponentMixin = {
   },
 
   /**
-   * Processes props by setting default values for unspecified props and
-   * asserting that the props are valid. Does not mutate its argument; returns
-   * a new props object with defaults merged in.
    *
    * @param {object} newProps   属性
    * @return {object}

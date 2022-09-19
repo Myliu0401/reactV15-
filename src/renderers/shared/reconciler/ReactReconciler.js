@@ -24,17 +24,15 @@ function attachRefs() {
 
 var ReactReconciler = {
 
-  /**
-   * Initializes the component, renders markup, and registers event listeners.
-   *
-   * @param {ReactComponent} internalInstance   组件初始化实例
-   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction  事务
-   * @param {?object} the 首次为null
-   * @param {?object} info 首次为集装信息，为一个对象，存储参数的一些信息
-   * @return {?string} Rendered markup to be inserted into the DOM.
-   * @final
-   * @internal
-   */
+/**
+ * 
+ * @param {*} internalInstance        组件初始化的实例
+ * @param {*} transaction             事务
+ * @param {*} nativeParent            首次时为null
+ * @param {*} nativeContainerInfo     首次为集装信息，为一个对象，存储参数的一些信息
+ * @param {*} context                 上下文
+ * @returns 
+ */
   mountComponent: function(
     internalInstance,  // 组件初始化实例
     transaction, // 事务
@@ -42,12 +40,14 @@ var ReactReconciler = {
     nativeContainerInfo, //  首次为集装信息，为一个对象，存储参数的一些信息
     context // 上下文
   ) {
+
     var markup = internalInstance.mountComponent(
       transaction, // 事务
       nativeParent, // 首次为null
       nativeContainerInfo, // 首次为集装信息，为一个对象，存储参数的一些信息
       context // 上下文
     );
+    
     if (internalInstance._currentElement &&
         internalInstance._currentElement.ref != null) {
       transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
@@ -56,6 +56,7 @@ var ReactReconciler = {
       ReactInstrumentation.debugTool.onMountComponent(internalInstance);
     }
     return markup;
+
   },
 
   /**

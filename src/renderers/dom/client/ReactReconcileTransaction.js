@@ -27,6 +27,7 @@ var SELECTION_RESTORATION = {
    * @return {Selection} Selection information.
    */
   initialize: ReactInputSelection.getSelectionInformation,
+  
   /**
    * @param {Selection} sel Selection information returned from `initialize`.
    */
@@ -90,27 +91,16 @@ var TRANSACTION_WRAPPERS = [
   ON_DOM_READY_QUEUEING,
 ];
 
+
+
 /**
- * Currently:
- * - The order that these are listed in the transaction is critical:
- * - Suppresses events.
- * - Restores selection range.
- *
- * Future:
- * - Restore document/overflow scroll positions that were unintentionally
- *   modified via DOM insertions above the top viewport boundary.
- * - Implement/integrate with customized constraint based layout system and keep
- *   track of which dimensions must be remeasured.
- *
- * @class ReactReconcileTransaction
+ * 
+ * @param {Boolean} useCreateElement  布尔值
  */
 function ReactReconcileTransaction(useCreateElement) {
-  this.reinitializeTransaction();
-  // Only server-side rendering really needs this option (see
-  // `ReactServerRendering`), but server-side uses
-  // `ReactServerRenderingTransaction` instead. This option is here so that it's
-  // accessible and defaults to false when `ReactDOMComponent` and
-  // `ReactTextComponent` checks it in `mountComponent`.`
+
+  this.reinitializeTransaction();  // 该函数为事务模块中的reinitializeTransaction函数
+
   this.renderToStaticMarkup = false;
   this.reactMountReady = CallbackQueue.getPooled(null);
   this.useCreateElement = useCreateElement;
@@ -125,7 +115,7 @@ var Mixin = {
    *   TODO: convert to array<TransactionWrapper>
    */
   getTransactionWrappers: function() {
-    return TRANSACTION_WRAPPERS;
+    return TRANSACTION_WRAPPERS; // 返回事务要处理的数组
   },
 
   /**
@@ -161,6 +151,16 @@ var Mixin = {
 // 对ReactReconcileTransaction函数的原型进行扩展
 Object.assign(ReactReconcileTransaction.prototype, Transaction.Mixin, Mixin);
 
+
+
+/* 
+    向ReactReconcileTransaction函数的静态属性注入某些功能
+    注入完之后，静态属性将拥有下面这些属性
+    instancePool为空数组
+    getPooled为PooledClass模块的oneArgumentPooler函数
+    poolSize为10
+    release为PooledClass模块的standardReleaser函数
+*/
 PooledClass.addPoolingTo(ReactReconcileTransaction); // 会对参数注入某些功能
 
 module.exports = ReactReconcileTransaction;

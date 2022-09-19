@@ -83,15 +83,22 @@ var Mixin = {
    * "PooledClass".
    */
   reinitializeTransaction: function() {
+
     this.transactionWrappers = this.getTransactionWrappers(); // 获取事务的数组
 
     //  判断是否有该属性
     if (this.wrapperInitData) {
-      this.wrapperInitData.length = 0;
+
+      this.wrapperInitData.length = 0; // 将该数组长度置为0
+
     } else {
-      this.wrapperInitData = [];
+
+      this.wrapperInitData = []; // 该属性会在事务处理时存储东西
+
     }
+
     this._isInTransaction = false;
+
   },
 
   _isInTransaction: false,

@@ -13,22 +13,29 @@
 
 var invariant = require('invariant');
 
+
 /**
- * Static poolers. Several custom versions for each potential number of
- * arguments. A completely generic pooler is easy to implement, but would
- * require accessing the `arguments` object. In each of these, `this` refers to
- * the Class itself, not an instance. If any others are needed, simply add them
- * here, or in their own files.
+ * 
+ * @param {Boolean} copyFieldsFrom 布尔值
+ * @returns 
  */
 var oneArgumentPooler = function(copyFieldsFrom) {
-  var Klass = this; 
+
+  var Klass = this; // ReactReconcileTransaction函数执行时，this为ReactReconcileTransaction
+   
   // 判断数组中是否有值
   if (Klass.instancePool.length) {
-    var instance = Klass.instancePool.pop();
-    Klass.call(instance, copyFieldsFrom);
-    return instance;
+
+    var instance = Klass.instancePool.pop(); // 截取数组的最后一项并返回，数组也会随着变化
+
+    Klass.call(instance, copyFieldsFrom);  // 执行该函数，比将this修改为截取数组的最后哪一项
+
+    return instance; // 返回截取数组的最后一项
+
   } else {
-    return new Klass(copyFieldsFrom);
+
+    return new Klass(copyFieldsFrom); // 该ReactReconcileTransaction函数会创建事务
+
   }
 };
 
@@ -97,14 +104,20 @@ var DEFAULT_POOLER = oneArgumentPooler;
  * @param {Function} pooler 函数
  */
 var addPoolingTo = function(CopyConstructor, pooler) {
-  var NewKlass = CopyConstructor;
+  var NewKlass = CopyConstructor; // 先将第一个函数参数存到变量中
+
   NewKlass.instancePool = []; // 赋值为一个数组
+
   NewKlass.getPooled = pooler || DEFAULT_POOLER; // 是否有第二个参数，有就将该值属性赋值为第二参数函数
+
+  // 判断第一个参数函数中是否没有有该poolSize属性
   if (!NewKlass.poolSize) {
     NewKlass.poolSize = DEFAULT_POOL_SIZE; // 默认为10
   }
-  NewKlass.release = standardReleaser;
-  return NewKlass;
+
+  NewKlass.release = standardReleaser; // 将该函数添加到第一个参数函数的静态属性中
+
+  return NewKlass; // 返回第一个参数函数
 };
 
 var PooledClass = {

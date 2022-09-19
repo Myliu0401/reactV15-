@@ -117,6 +117,8 @@ function mountComponentIntoNode(
   context
 ) {
   var markerName;
+
+  // 首次执行时该属性为false
   if (ReactFeatureFlags.logTopLevelRenders) {
     var wrappedElement = wrapperInstance._currentElement.props;
     var type = wrappedElement.type;
@@ -149,6 +151,10 @@ function mountComponentIntoNode(
   );
 }
 
+
+
+
+
 /**
  * 首次时该函数的this为null
  *
@@ -163,21 +169,31 @@ function batchedMountComponentIntoNode(
   context  // 上下文
 ) {
 
-  // 创建事务
+  /* 
+        创建事务
+        首次执行时最终会 new ReactReconcileTransaction 这个函数，并传一个true进去
+         
+        该事务拥有以下属性
+          transactionWrappers为ReactReconcileTransaction模块的TRANSACTION_WRAPPERS事务数组
+          wrapperInitData为空数组
+          _isInTransaction为false
+          以及原型上的Transaction模块的属性
+  
+  */
   var transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
     /* useCreateElement */
-    !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement
+    !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement // ReactDOMFeatureFlags.useCreateElement为true
   );
   
-  // 再次执行事务
+  // 再次执行事务, 事务原型上的perform方法
   transaction.perform(
     mountComponentIntoNode,
     null,
-    componentInstance,
-    container,
-    transaction,
-    shouldReuseMarkup,
-    context
+    componentInstance, // 组件初始化的实例
+    container,  // 容器
+    transaction,  // 事务
+    shouldReuseMarkup,  // 布尔
+    context // 上下文
   );
 
   
@@ -363,9 +379,11 @@ var ReactMount = {
     shouldReuseMarkup,
     context
   ) {
-    // Various parts of our code (such as ReactCompositeComponent's
-    // _renderValidatedComponent) assume that calls to render aren't nested;
-    // verify that that's the case.
+
+
+   /* 
+      我们代码的各个部分（例如ReactCompositeComponent的_renderValidatedComponent）假定渲染调用没有嵌套；确认情况属实。
+   */
     warning(
       ReactCurrentOwner.current == null,
       '_renderNewRootComponent(): Render methods should be a pure function ' +
@@ -384,6 +402,8 @@ var ReactMount = {
       ),
       '_registerComponent(...): Target container is not a DOM element.'
     );
+
+
 
     ReactBrowserEventEmitter.ensureScrollValueMonitoring(); //侦听窗口滚动和调整大小事件
 

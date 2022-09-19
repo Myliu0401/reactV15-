@@ -246,6 +246,8 @@ var ReactUpdatesInjection = {
       ReconcileTransaction,
       'ReactUpdates: must provide a reconcile transaction class'
     );
+
+    
     ReactUpdates.ReactReconcileTransaction = ReconcileTransaction;  //ReconcileTransaction为ReactReconcileTransaction模块的ReactReconcileTransaction函数
   },
 
