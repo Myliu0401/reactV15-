@@ -153,7 +153,14 @@ var ReactMultiChild = {
    * @lends {ReactMultiChild.prototype}
    */
   Mixin: {
-
+    
+    /**
+     * 会调用ReactChildReconciler模块的的instantiateChildren函数得到一个对象，对象中包含子节点初始化后的实例
+     * @param {*} nestedChildren 子节点
+     * @param {*} transaction    事务
+     * @param {*} context        上下文
+     * @returns 
+     */
     _reconcilerInstantiateChildren: function(nestedChildren, transaction, context) {
       if (__DEV__) {
         if (this._currentElement) {
@@ -202,17 +209,20 @@ var ReactMultiChild = {
     },
 
     /**
-     * Generates a "mount image" for each of the supplied children. In the case
-     * of `ReactDOMComponent`, a mount image is a string of markup.
+     * 为每个提供的子级生成一个“装载映像”。在这种情况下对于`ReactDOMComponent`，装载映像是一个标记字符串。
      *
-     * @param {?object} nestedChildren Nested child maps.
-     * @return {array} An array of mounted representations.
+     * @param {} nestedChildren   子节点
+     * @param {} transaction      事务
+     * @param {} context          上下文
      * @internal
      */
     mountChildren: function(nestedChildren, transaction, context) {
+
+      // 该函数会返回一个对象，该对象中包含初始化后的子节点，值为初始化实例
       var children = this._reconcilerInstantiateChildren(
         nestedChildren, transaction, context
       );
+
       this._renderedChildren = children;
       var mountImages = [];
       var index = 0;

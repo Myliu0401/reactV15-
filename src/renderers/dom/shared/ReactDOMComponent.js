@@ -546,6 +546,7 @@ ReactDOMComponent.Mixin = {
         namespaceURI === DOMNamespaces.svg && parentTag === 'foreignobject') {
       namespaceURI = DOMNamespaces.html;
     }
+    
     if (namespaceURI === DOMNamespaces.html) {
       if (this._tag === 'svg') {
         namespaceURI = DOMNamespaces.svg;
@@ -598,7 +599,7 @@ ReactDOMComponent.Mixin = {
       // 第一个参数为组件初始化实例，第二个为标签
       ReactDOMComponentTree.precacheNode(this, el); // 处理组件初始化实例和标签，将标签存到组件初始化实例中，并将组件初始化实例存到标签的随机属性中
 
-      this._flags |= Flags.hasCachedChildNodes;  // 相加并且后的结果赋值给this._flags
+      this._flags |= Flags.hasCachedChildNodes;  // 相加后的结果赋值给this._flags
 
       if (!this._nativeParent) {
         DOMPropertyOperations.setAttributeForRoot(el);  // 给该节点添加一个属性，为data-reactroot，表示根标签
@@ -786,13 +787,14 @@ ReactDOMComponent.Mixin = {
 
         // 验证文本是否符合作为该标签的子节点。参数为 lazyTree对象、文本
         DOMLazyTree.queueText(lazyTree, contentToUse); 
+
       } else if (childrenToUse != null) {
         // 子节点不是文本的情况下
         
         var mountImages = this.mountChildren(
-          childrenToUse,
-          transaction,
-          context
+          childrenToUse, // 子节点
+          transaction,   // 事务
+          context        // 上下文
         );
         for (var i = 0; i < mountImages.length; i++) {
           DOMLazyTree.queueChild(lazyTree, mountImages[i]);

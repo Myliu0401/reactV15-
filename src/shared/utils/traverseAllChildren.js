@@ -48,10 +48,11 @@ function getComponentKey(component, index) {
 }
 
 /**
- * @param {?*} children Children tree container.
- * @param {!string} nameSoFar Name of the key path so far.
- * @param {!function} callback Callback to invoke with each child found.
- * @param {?*} traverseContext Used to pass information throughout the traversal
+ * 处理子节点
+ * @param {?*} children 子节点
+ * @param {!string} nameSoFar 秘钥名称
+ * @param {!function} callback 回调函数
+ * @param {?*} traverseContext 存储子节点初始化的实例
  * process.
  * @return {!number} The number of children in this subtree.
  */
@@ -61,36 +62,44 @@ function traverseAllChildrenImpl(
   callback,
   traverseContext
 ) {
-  var type = typeof children;
+  var type = typeof children;  // 获取子节点类型
 
+  // 判断子节点是否是这两种类型
   if (type === 'undefined' || type === 'boolean') {
-    // All of the above are perceived as null.
+    // 这两种类型会被视为无效
     children = null;
   }
 
-  if (children === null ||
-      type === 'string' ||
-      type === 'number' ||
-      ReactElement.isValidElement(children)) {
+  /* 
+      子节点是否为null 或者 为字符串文本 或者 为数字文本 或者是react元素 （只能定义和dom标签）
+      循环子节点时，最终都会进来这里调用回调，去向traverseContext注入子节点初始化实例
+  */
+  if (children === null || type === 'string' || type === 'number' || ReactElement.isValidElement(children)) {
+
+    // 该回调会向traverseContext对象注入初始化子节点实例
     callback(
-      traverseContext,
-      children,
-      // If it's the only child, treat the name as if it was wrapped in an array
-      // so that it's consistent if the number of children grows.
-      nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar
+      traverseContext, // 对象
+
+      children,  // 子节点
+
+      // 如果它是唯一的子级，则将名称视为包装在数组中所以如果孩子的数量增加，这是一致的。
+      nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar 
     );
     return 1;
   }
 
   var child;
   var nextName;
-  var subtreeCount = 0; // Count of children found in the current subtree.
-  var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR;
+  var subtreeCount = 0; // 在当前子树中找到的子级计数.
+  var nextNamePrefix = nameSoFar === '' ? SEPARATOR : nameSoFar + SUBSEPARATOR; // 秘钥
 
+  // 判断子节点是否是数组
   if (Array.isArray(children)) {
+
+    // 循环数组
     for (var i = 0; i < children.length; i++) {
       child = children[i];
-      nextName = nextNamePrefix + getComponentKey(child, i);
+      nextName = nextNamePrefix + getComponentKey(child, i); // 拼接字符串，表示下一个节点的字符串
       subtreeCount += traverseAllChildrenImpl(
         child,
         nextName,
@@ -179,22 +188,21 @@ function traverseAllChildrenImpl(
 }
 
 /**
- * Traverses children that are typically specified as `props.children`, but
- * might also be specified through attributes:
+ * 遍历通常指定为“props”的子对象。孩子们，但是也可以通过属性指定：
  *
  * - `traverseAllChildren(this.props.children, ...)`
  * - `traverseAllChildren(this.props.leftPanelChildren, ...)`
  *
- * The `traverseContext` is an optional argument that is passed through the
- * entire traversal. It can be used to store accumulations or anything else that
- * the callback might find relevant.
+ * “traverseContext”是一个可选参数，它通过整个遍历。它可以用来存储堆积物或任何其他回调可能与此相关。
  *
- * @param {?*} children Children tree object.
- * @param {!function} callback To invoke upon traversing each child.
- * @param {?*} traverseContext Context for traversal.
+ * @param {?*} children 子节点
+ * @param {!function} callback 回调
+ * @param {?*} traverseContext 存储子节点实例的对象
  * @return {!number} The number of children in this subtree.
  */
 function traverseAllChildren(children, callback, traverseContext) {
+
+  // 判断子节点是否为空，如果是则返回 0
   if (children == null) {
     return 0;
   }

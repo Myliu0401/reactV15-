@@ -19,9 +19,17 @@ var shouldUpdateReactComponent = require('shouldUpdateReactComponent');
 var traverseAllChildren = require('traverseAllChildren');
 var warning = require('warning');
 
+
+/**
+ * 做子节点组件初始化并注入到对象中
+ * @param {*} childInstances   存储子节点初始化实例的对象
+ * @param {*} child            子节点 
+ * @param {*} name             秘钥名称
+ */
 function instantiateChild(childInstances, child, name) {
   // We found a component instance.
   var keyUnique = (childInstances[name] === undefined);
+
   if (__DEV__) {
     warning(
       keyUnique,
@@ -31,8 +39,10 @@ function instantiateChild(childInstances, child, name) {
       KeyEscapeUtils.unescape(name)
     );
   }
+
+  // 判断是否有子节点并且有对象中目前没有该实例
   if (child != null && keyUnique) {
-    childInstances[name] = instantiateReactComponent(child);
+    childInstances[name] = instantiateReactComponent(child); // 初始化子节点，并存储到对象中
   }
 }
 
@@ -43,20 +53,29 @@ function instantiateChild(childInstances, child, name) {
  */
 var ReactChildReconciler = {
   /**
-   * Generates a "mount image" for each of the supplied children. In the case
-   * of `ReactDOMComponent`, a mount image is a string of markup.
-   *
-   * @param {?object} nestedChildNodes Nested child maps.
-   * @return {?object} A set of child instances.
-   * @internal
+   * 
+   * @param {*} nestedChildNodes 子节点
+   * @param {*} transaction      事务
+   * @param {*} context          上下文
+   * @returns 
    */
   instantiateChildren: function(nestedChildNodes, transaction, context) {
+    // 判断子节点是否为空，为空则直接结束
     if (nestedChildNodes == null) {
       return null;
-    }
+    };
+
+    // 创建一个对象，用来存储子节点初始化的实例
     var childInstances = {};
-    traverseAllChildren(nestedChildNodes, instantiateChild, childInstances);
-    return childInstances;
+
+    /* 
+         nestedChildNodes参数为子节点
+         instantiateChild参数为回调，该回调会向childInstances对象注入子节点初始化的实例
+         childInstances存储子节点初始化的实例对象
+    */
+    traverseAllChildren(nestedChildNodes, instantiateChild, childInstances);  // 处理子节点
+
+    return childInstances;  // 返回存储子节点初始化的实例的对象
   },
 
   /**

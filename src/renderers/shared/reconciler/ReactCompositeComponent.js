@@ -168,7 +168,6 @@ var ReactCompositeComponentMixin = {
 
     /* 
         获取属性，如果不是开发环境则直接将参数返回
-    
     */
     var publicProps = this._processProps(this._currentElement.props);
 
@@ -184,6 +183,9 @@ var ReactCompositeComponentMixin = {
             rootID为1
             原型上的isReactComponent属性为一个对象
             原型上的render属性为一个函数，返回根组件
+
+          
+          如果不是首次则返回自定义组件的函数的返回值
     
     */
     var inst = this._constructComponent(publicProps, publicContext);
@@ -216,8 +218,7 @@ var ReactCompositeComponentMixin = {
       }
 
       var propsMutated = inst.props !== publicProps;
-      var componentName =
-        Component.displayName || Component.name || 'Component';
+      var componentName = Component.displayName || Component.name || 'Component';
 
       warning(
         inst.props === undefined || !propsMutated,
@@ -227,7 +228,7 @@ var ReactCompositeComponentMixin = {
       );
     }
 
-    inst.props = publicProps;         // 首次执行时该属性为根组件
+    inst.props = publicProps;         // 首次执行时该属性为根组件，否则为传给自定义组件的属性
     inst.context = publicContext;     // 首次执行时该属性为emptyObject
     inst.refs = emptyObject;          // emptyObject
     inst.updater = ReactUpdateQueue;  // 为ReactUpdateQueue模块的ReactUpdateQueue对象  
@@ -316,7 +317,6 @@ var ReactCompositeComponentMixin = {
     /* 
          首次执行后
          inst对象多一个属性state为null
-    
     */
     var initialState = inst.state; // 首次执行时为null
     if (initialState === undefined) {
@@ -415,7 +415,7 @@ var ReactCompositeComponentMixin = {
       */
 
     } else {
-      return Component(publicProps, publicContext, ReactUpdateQueue);
+      return Component(publicProps, publicContext, ReactUpdateQueue); // 执行自定义组件的函数
     }
   },
 
@@ -451,12 +451,12 @@ var ReactCompositeComponentMixin = {
 
 
   /**
-   * 
+   * 执行初始装载
    * @param {*} renderedElement       首次执行时为undefined
    * @param {*} nativeParent          首次执行时为null
-   * @param {*} nativeContainerInfo 
-   * @param {*} transaction 
-   * @param {*} context 
+   * @param {*} nativeContainerInfo   集装信息，为一个对象，存储参数的一些信息
+   * @param {*} transaction           事务
+   * @param {*} context               上下文
    * @returns 
    */
   performInitialMount: function (renderedElement, nativeParent, nativeContainerInfo, transaction, context) {
@@ -504,7 +504,6 @@ var ReactCompositeComponentMixin = {
     if (renderedElement === undefined) {
       /* 
           首次执行时返回根组件
-      
       */
       renderedElement = this._renderValidatedComponent();
     }
@@ -513,13 +512,12 @@ var ReactCompositeComponentMixin = {
     /* 
          获取子节点的类型，但首次执行时是根节点，因为根节点被ReactElement包装多一层
          并且将子节点类型添加到组件初始化实例的_renderedNodeType属性中
-    
     */
     this._renderedNodeType = ReactNodeTypes.getType(renderedElement);
 
+
     /* 
         初始化子节点
-    
     */
     this._renderedComponent = this._instantiateReactComponent(
       renderedElement
@@ -527,11 +525,11 @@ var ReactCompositeComponentMixin = {
 
     // 进行递归渲染子节点
     var markup = ReactReconciler.mountComponent(
-      this._renderedComponent,
-      transaction,
-      nativeParent,
-      nativeContainerInfo,
-      this._processChildContext(context)
+      this._renderedComponent,  // 初始化子节点的实例
+      transaction,              // 事务
+      nativeParent,             // 首次执行时为null
+      nativeContainerInfo,      // 集装的一些参数信息
+      this._processChildContext(context)  // 上下文
     );
 
     return markup;

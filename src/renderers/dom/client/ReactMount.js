@@ -101,7 +101,7 @@ function internalGetID(node) {
 }
 
 /**
- * Mounts this component and inserts it into the DOM.
+ * 装载此组件并将其插入DOM。
  * 首次执行时this为null
  *
  * @param {ReactComponent} componentInstance 组件初始化的实例
@@ -371,6 +371,7 @@ var ReactMount = {
    * @param {ReactElement} nextElement 要渲染的元素,该元素是经过进一层封装过的
    * @param {DOMElement} container 要渲染到的容器
    * @param {boolean} shouldReuseMarkup 是否跳过该标记插入
+   * @param {Object} context  上下文
    * @return {ReactComponent} nextComponent 返回一个渲染后的组件
    */
   _renderNewRootComponent: function(
@@ -541,6 +542,8 @@ var ReactMount = {
 
           };
 
+          这个结构也是bebal转义后的结构
+
     
     */
     var nextWrappedElement = ReactElement(
@@ -588,7 +591,7 @@ var ReactMount = {
 
     /* 
         如果reactRootElement没值，则containerHasReactMarkup为null
-        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性如果containerHasReactMarkup则为该属性，如果containerHasReactMarkup则为null
+        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性 如果containerHasReactMarkup则为该属性，如果containerHasReactMarkup则为null
     
     */
     var containerHasReactMarkup = reactRootElement && !!internalGetID(reactRootElement);
@@ -664,6 +667,7 @@ var ReactMount = {
 
 
   /**
+   * 入口函数
    * 将React组件呈现到提供的“容器”中的DOM中。
    *
    * 如果之前有将React组件呈现到“容器”中，则将对其执行更新，并仅更改必要的DOM以反映最新的React组件。
