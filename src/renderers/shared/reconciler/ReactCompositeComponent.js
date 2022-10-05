@@ -44,7 +44,7 @@ function StatelessComponent(Component) {
 
 }
 
-StatelessComponent.prototype.render = function() {
+StatelessComponent.prototype.render = function () {
   var Component = ReactInstanceMap.get(this)._currentElement.type;
   var element = Component(this.props, this.context, this.updater);
   warnIfInvalidElement(Component, element); // 进行警告验证
@@ -113,7 +113,7 @@ var ReactCompositeComponentMixin = {
    * @final
    * @internal
    */
-  construct: function(element) {
+  construct: function (element) {
     this._currentElement = element;  // 将其存到实例的_currentElement属性中
     this._rootNodeID = null;
     this._instance = null;
@@ -151,13 +151,13 @@ var ReactCompositeComponentMixin = {
    * @param {*} context                  上下文
    * @returns 
    */
-  mountComponent: function(
+  mountComponent: function (
     transaction,
     nativeParent,
     nativeContainerInfo,
     context
   ) {
-    
+
     // this为组件初始化的实例
 
     this._context = context;   // 将上下文存到实例的_context属性中
@@ -170,7 +170,7 @@ var ReactCompositeComponentMixin = {
         获取属性，如果不是开发环境则直接将参数返回
     
     */
-    var publicProps = this._processProps(this._currentElement.props);  
+    var publicProps = this._processProps(this._currentElement.props);
 
     var publicContext = this._processContext(context); // 首次执行时返回emptyObject
 
@@ -186,7 +186,7 @@ var ReactCompositeComponentMixin = {
             原型上的render属性为一个函数，返回根组件
     
     */
-    var inst = this._constructComponent(publicProps, publicContext); 
+    var inst = this._constructComponent(publicProps, publicContext);
     var renderedElement;
 
     // 判断是否是无状态组件
@@ -205,7 +205,7 @@ var ReactCompositeComponentMixin = {
     }
 
     if (__DEV__) {
-      
+
       if (inst.render == null) {
         warning(
           false,
@@ -252,12 +252,12 @@ var ReactCompositeComponentMixin = {
 
     this._instance = inst; // 将其添加到组件初始化实例的_instance中
 
-    
+
     /* 
        该函数执行完后 inst中拥有_reactInternalInstance属性，该属性为this
     
     */
-    ReactInstanceMap.set(inst, this); 
+    ReactInstanceMap.set(inst, this);
 
 
     if (__DEV__) {
@@ -373,9 +373,9 @@ var ReactCompositeComponentMixin = {
    * @param {*} publicContext   首次执行时为emptyObject
    * @returns 
    */
-  _constructComponent: function(publicProps, publicContext) {
+  _constructComponent: function (publicProps, publicContext) {
     if (__DEV__) {
-      ReactCurrentOwner.current = this;  
+      ReactCurrentOwner.current = this;
       try {
         return this._constructComponentWithoutOwner(publicProps, publicContext);
       } finally {
@@ -393,13 +393,13 @@ var ReactCompositeComponentMixin = {
    * @param {*} publicContext    首次执行时为emptyObject
    * @returns 
    */
-  _constructComponentWithoutOwner: function(publicProps, publicContext) {
+  _constructComponentWithoutOwner: function (publicProps, publicContext) {
 
     /* 
          首次执行时为 TopLevelWrapper函数
     
     */
-    var Component = this._currentElement.type;  
+    var Component = this._currentElement.type;
 
 
     // 判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数
@@ -419,7 +419,7 @@ var ReactCompositeComponentMixin = {
     }
   },
 
-  performInitialMountWithErrorHandling: function(
+  performInitialMountWithErrorHandling: function (
     renderedElement,
     nativeParent,
     nativeContainerInfo,
@@ -431,7 +431,7 @@ var ReactCompositeComponentMixin = {
     try {
       markup = this.performInitialMount(renderedElement, nativeParent, nativeContainerInfo, transaction, context);
     } catch (e) {
-     
+
       transaction.rollback(checkpoint);
       this._instance.unstable_handleError(e);
       if (this._pendingStateQueue) {
@@ -442,7 +442,7 @@ var ReactCompositeComponentMixin = {
       this._renderedComponent.unmountComponent(true);
       transaction.rollback(checkpoint);
 
-    
+
       markup = this.performInitialMount(renderedElement, nativeParent, nativeContainerInfo, transaction, context);
     }
     return markup;
@@ -459,7 +459,7 @@ var ReactCompositeComponentMixin = {
    * @param {*} context 
    * @returns 
    */
-  performInitialMount: function(renderedElement, nativeParent, nativeContainerInfo, transaction, context) {
+  performInitialMount: function (renderedElement, nativeParent, nativeContainerInfo, transaction, context) {
     /* 
          首次执行时为 new TopLevelWrapper 返回的独对象
          该对象经过mountComponent函数的操作后变成
@@ -506,7 +506,7 @@ var ReactCompositeComponentMixin = {
           首次执行时返回根组件
       
       */
-      renderedElement = this._renderValidatedComponent(); 
+      renderedElement = this._renderValidatedComponent();
     }
 
 
@@ -515,7 +515,7 @@ var ReactCompositeComponentMixin = {
          并且将子节点类型添加到组件初始化实例的_renderedNodeType属性中
     
     */
-    this._renderedNodeType = ReactNodeTypes.getType(renderedElement); 
+    this._renderedNodeType = ReactNodeTypes.getType(renderedElement);
 
     /* 
         初始化子节点
@@ -523,7 +523,7 @@ var ReactCompositeComponentMixin = {
     */
     this._renderedComponent = this._instantiateReactComponent(
       renderedElement
-    ); 
+    );
 
     // 进行递归渲染子节点
     var markup = ReactReconciler.mountComponent(
@@ -535,9 +535,9 @@ var ReactCompositeComponentMixin = {
     );
 
     return markup;
-  }, 
+  },
 
-  getNativeNode: function() {
+  getNativeNode: function () {
     return ReactReconciler.getNativeNode(this._renderedComponent);
   },
 
@@ -547,7 +547,7 @@ var ReactCompositeComponentMixin = {
    * @final
    * @internal
    */
-  unmountComponent: function(safely) {
+  unmountComponent: function (safely) {
     if (!this._renderedComponent) {
       return;
     }
@@ -603,7 +603,7 @@ var ReactCompositeComponentMixin = {
    * @return {?object}  重新赋值后的上下文
    * @private
    */
-  _maskContext: function(context) {
+  _maskContext: function (context) {
     var Component = this._currentElement.type; // 函数,首次时为TopLevelWrapper函数
 
     var contextTypes = Component.contextTypes; // 函数的类型，首次时为undefined
@@ -627,7 +627,7 @@ var ReactCompositeComponentMixin = {
    * @return {?object}
    * @private
    */
-  _processContext: function(context) {
+  _processContext: function (context) {
     var maskedContext = this._maskContext(context); // 首次执行时返回 emptyObject
 
     // 判断是否是开发环境
@@ -641,7 +641,7 @@ var ReactCompositeComponentMixin = {
         );
       }
     }
-    
+
     return maskedContext;
   },
 
@@ -650,7 +650,7 @@ var ReactCompositeComponentMixin = {
    * @return {object}
    * @private
    */
-  _processChildContext: function(currentContext) {
+  _processChildContext: function (currentContext) {
     var Component = this._currentElement.type; // 获取组件函数
     var inst = this._instance;
     if (__DEV__) {
@@ -693,7 +693,7 @@ var ReactCompositeComponentMixin = {
    * @return {object}
    * @private
    */
-  _processProps: function(newProps) {
+  _processProps: function (newProps) {
     // 判断是否是开发环境
     if (__DEV__) {
       var Component = this._currentElement.type;
@@ -716,7 +716,7 @@ var ReactCompositeComponentMixin = {
    * @param {string} location e.g. "prop", "context", "child context"
    * @private
    */
-  _checkPropTypes: function(propTypes, props, location) {
+  _checkPropTypes: function (propTypes, props, location) {
     // TODO: Stop validating prop types here and only use the element
     // validation.
     var componentName = this.getName();
@@ -771,14 +771,14 @@ var ReactCompositeComponentMixin = {
    * @param {*} transaction 事务
    * @param {*} nextContext 上下文
    */
-  receiveComponent: function(nextElement, transaction, nextContext) {
+  receiveComponent: function (nextElement, transaction, nextContext) {
     var prevElement = this._currentElement; // 旧元素
     var prevContext = this._context;  // 就上下文
 
     this._pendingElement = null;
 
     // 调用更新组件          事务        旧元素        新元素        旧上下文     新上下文
-    this.updateComponent(transaction, prevElement, nextElement, prevContext, nextContext );
+    this.updateComponent(transaction, prevElement, nextElement, prevContext, nextContext);
   },
 
   /**
@@ -788,7 +788,7 @@ var ReactCompositeComponentMixin = {
    * @param {ReactReconcileTransaction} transaction
    * @internal
    */
-  performUpdateIfNecessary: function(transaction) {
+  performUpdateIfNecessary: function (transaction) {
     if (this._pendingElement != null) {
       ReactReconciler.receiveComponent(
         this,
@@ -824,7 +824,7 @@ var ReactCompositeComponentMixin = {
    * @internal
    * @overridable
    */
-  updateComponent: function(
+  updateComponent: function (
     transaction,  // 事务
     prevParentElement,  // 旧元素
     nextParentElement,  // 新元素
@@ -859,11 +859,11 @@ var ReactCompositeComponentMixin = {
     }
 
     var nextState = this._processPendingState(nextProps, nextContext); // 获取新状态
-   
+
     //                                                                                                          新属性    新状态     新上下文                                
     var shouldUpdate = this._pendingForceUpdate || !inst.shouldComponentUpdate || inst.shouldComponentUpdate(nextProps, nextState, nextContext);
 
-    
+
 
     if (__DEV__) {
       warning(
@@ -874,7 +874,7 @@ var ReactCompositeComponentMixin = {
       );
     }
 
- 
+
     // 会根据shouldComponentUpdate生命周期返回的布尔值来判断是否需要重新渲染
     if (shouldUpdate) {
       this._pendingForceUpdate = false;
@@ -900,7 +900,7 @@ var ReactCompositeComponentMixin = {
     }
   },
 
-  _processPendingState: function(props, context) {
+  _processPendingState: function (props, context) {
     var inst = this._instance;
     var queue = this._pendingStateQueue;
     var replace = this._pendingReplaceState;
@@ -938,7 +938,7 @@ var ReactCompositeComponentMixin = {
    * @param {?object} unmaskedContext 新上下文
    * @private
    */
-  _performComponentUpdate: function(
+  _performComponentUpdate: function (
     nextElement,
     nextProps,
     nextState,
@@ -959,7 +959,7 @@ var ReactCompositeComponentMixin = {
       prevState = inst.state;     // 存储就状态
       prevContext = inst.context; // 存储旧上下文
     }
-   
+
     // 判断是否有该生命周期
     if (inst.componentWillUpdate) {
       //                        新属性      新状态     新上下文
@@ -988,12 +988,12 @@ var ReactCompositeComponentMixin = {
    * @param {ReactReconcileTransaction} transaction  事务
    * @param {Object} context  新上下文
    * @internal
-   */ 
-  _updateRenderedComponent: function(transaction, context) {
+   */
+  _updateRenderedComponent: function (transaction, context) {
     var prevComponentInstance = this._renderedComponent; // 获取实例 --- 初始化组件入口的那个实例
     var prevRenderedElement = prevComponentInstance._currentElement; // 旧节点
     var nextRenderedElement = this._renderValidatedComponent(); //该函数会调用组件的render函数，获得新的节点
-    
+
     // 判断新旧节点是否没有发生变化        旧元素               新元素
     if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
 
@@ -1034,7 +1034,7 @@ var ReactCompositeComponentMixin = {
    *
    * @protected
    */
-  _replaceNodeWithMarkup: function(oldNativeNode, nextMarkup) {
+  _replaceNodeWithMarkup: function (oldNativeNode, nextMarkup) {
     ReactComponentEnvironment.replaceNodeWithMarkup(
       oldNativeNode,
       nextMarkup
@@ -1044,7 +1044,7 @@ var ReactCompositeComponentMixin = {
   /**
    * @protected
    */
-  _renderValidatedComponentWithoutOwnerOrContext: function() {
+  _renderValidatedComponentWithoutOwnerOrContext: function () {
 
     /* 
         首次执行时组件初始化实例中该_instance属性为 new TopLevelWrapper函数返回的对象
@@ -1064,7 +1064,7 @@ var ReactCompositeComponentMixin = {
           }
     
     */
-    var inst = this._instance;  
+    var inst = this._instance;
 
 
 
@@ -1072,24 +1072,24 @@ var ReactCompositeComponentMixin = {
          首次时执行时返回根组件
     
     */
-    var renderedComponent = inst.render();  
+    var renderedComponent = inst.render();
 
     if (__DEV__) {
 
       if (renderedComponent === undefined &&
-          inst.render._isMockFunction) {
-    
+        inst.render._isMockFunction) {
+
         renderedComponent = null;
       }
     }
 
     return renderedComponent;
   },
-  
+
   /**
    * @private
    */
-  _renderValidatedComponent: function() {
+  _renderValidatedComponent: function () {
 
     var renderedComponent;
 
@@ -1116,7 +1116,7 @@ var ReactCompositeComponentMixin = {
       renderedComponent === null || renderedComponent === false ||
       ReactElement.isValidElement(renderedComponent),
       '%s.render(): A valid React element (or null) must be returned. You may have ' +
-        'returned undefined, an array or some other invalid object.',
+      'returned undefined, an array or some other invalid object.',
       this.getName() || 'ReactCompositeComponent'
     );
 
@@ -1131,7 +1131,7 @@ var ReactCompositeComponentMixin = {
    * @final
    * @private
    */
-  attachRef: function(ref, component) {
+  attachRef: function (ref, component) {
     var inst = this.getPublicInstance();
     invariant(inst != null, 'Stateless function components cannot have refs.');
     var publicComponentInstance = component.getPublicInstance();
@@ -1158,7 +1158,7 @@ var ReactCompositeComponentMixin = {
    * @final
    * @private
    */
-  detachRef: function(ref) {
+  detachRef: function (ref) {
     var refs = this.getPublicInstance().refs;
     delete refs[ref];
   },
@@ -1169,7 +1169,7 @@ var ReactCompositeComponentMixin = {
    * @return {string} The name or null.
    * @internal
    */
-  getName: function() {
+  getName: function () {
     var type = this._currentElement.type;
     var constructor = this._instance && this._instance.constructor;
     return (
@@ -1187,7 +1187,7 @@ var ReactCompositeComponentMixin = {
    * @return {ReactComponent} the public component instance.
    * @internal
    */
-  getPublicInstance: function() {
+  getPublicInstance: function () {
     var inst = this._instance;
     if (inst instanceof StatelessComponent) {
       return null;
@@ -1196,7 +1196,7 @@ var ReactCompositeComponentMixin = {
   },
 
   //因为对 ReactCompositeComponentWrapper函数的原型进行扩展时，增加了该instantiateReactComponent
-  _instantiateReactComponent: null,  
+  _instantiateReactComponent: null,
 
 };
 
