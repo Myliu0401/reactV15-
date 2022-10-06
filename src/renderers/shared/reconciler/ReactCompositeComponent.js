@@ -185,7 +185,7 @@ var ReactCompositeComponentMixin = {
             原型上的render属性为一个函数，返回根组件
 
           
-          如果不是首次则返回自定义组件的函数的返回值
+          如果不是首次则返回自定义组件的函数的返回值，在这个15版本中，创建自定义组件是由 react.createClass 函数进行创建，会返回一个函数出来，由该方法创建自定义组件时，配置由参数进行传递  
     
     */
     var inst = this._constructComponent(publicProps, publicContext);
@@ -1085,13 +1085,14 @@ var ReactCompositeComponentMixin = {
   },
 
   /**
+   * 渲染组件
    * @private
    */
   _renderValidatedComponent: function () {
 
     var renderedComponent;
 
-    ReactCurrentOwner.current = this;  // 将该对象中的current属性置为 组件初始化的实例
+    ReactCurrentOwner.current = this;  // 将该对象中的current属性置为 组件初始化的实例，存储当前正在处理的组件
 
 
     // 捕获错误
@@ -1099,13 +1100,15 @@ var ReactCompositeComponentMixin = {
 
       /* 
           首次执行时renderedComponent为根组件
+
+            返回的render函数的返回值
       
       */
       renderedComponent = this._renderValidatedComponentWithoutOwnerOrContext();
 
     } finally {
 
-      ReactCurrentOwner.current = null;  // 将该对象中的current属性还原为 null
+      ReactCurrentOwner.current = null;  // 将该对象中的current属性还原为 null, 处理完毕后将其置空
 
     }
 

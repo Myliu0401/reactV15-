@@ -26,12 +26,15 @@ function ReactDOMContainerInfo(topLevelWrapper, node) {
   var info = {
     _topLevelWrapper: topLevelWrapper, // 组件初始化的实例
     _idCounter: 1,
-    _ownerDocument: node ?
-      node.nodeType === DOC_NODE_TYPE ? node : node.ownerDocument :
-      null, 
-    _node: node,
-    _tag: node ? node.nodeName.toLowerCase() : null,
-    _namespaceURI: node ? node.namespaceURI : null,
+
+    /* 
+       节点类型是否是9
+       如果是，则该属性为节点。如果不是，则该属性为文档节点
+    */
+    _ownerDocument: node ? node.nodeType === DOC_NODE_TYPE ? node : node.ownerDocument : null, 
+    _node: node, // 节点
+    _tag: node ? node.nodeName.toLowerCase() : null,  // 首次为装修渲染组件的dom容器的名称
+    _namespaceURI: node ? node.namespaceURI : null,   // 首次为装渲染组件的dom容器的文档url
   };
   if (__DEV__) {
     info._ancestorInfo = node ?

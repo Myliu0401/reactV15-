@@ -503,6 +503,10 @@ ReactDOMComponent.Mixin = {
         break;
       case 'button':
         //getNativeProps为DisabledInputUtils模块的的getNativeProps函数，判断处理后返回props属性
+        /* 
+              如果是禁用的属性disabled，则返回原来的props
+              否则返回除鼠标事件以外的属性对象
+        */
         props = ReactDOMButton.getNativeProps(this, props, nativeParent); // 对props变量进行重新赋值
         break;
       case 'input':
@@ -528,8 +532,8 @@ ReactDOMComponent.Mixin = {
 
     assertValidProps(this, props); // 判断指定的属性是否有效
 
-    // We create tags in the namespace of their parent container, except HTML 我们在其父容器的命名空间中创建标记，HTML除外
-    // tags get no namespace.  标签没有名称空间
+    // 我们在其父容器的命名空间中创建标记，HTML除外
+    // 标签没有名称空间
     var namespaceURI;
     var parentTag;
 
@@ -538,23 +542,29 @@ ReactDOMComponent.Mixin = {
       namespaceURI = nativeParent._namespaceURI;
       parentTag = nativeParent._tag;
     } else if (nativeContainerInfo._tag) { // 是否有标签
-      namespaceURI = nativeContainerInfo._namespaceURI;
-      parentTag = nativeContainerInfo._tag;
+      namespaceURI = nativeContainerInfo._namespaceURI;  // 装载渲染组件的dom容器的文档url
+      parentTag = nativeContainerInfo._tag;              // 装载渲染组件的dom容器的标签名称
     }
 
-    if (namespaceURI == null ||
-        namespaceURI === DOMNamespaces.svg && parentTag === 'foreignobject') {
-      namespaceURI = DOMNamespaces.html;
+    /* 
+        判断是否需要修正w3c文档地址
+        判断dom容器w3c的url是否为null 或者 w3c是svg类型的 
+        并且 容器为foreignobject标签
+    */
+    if (namespaceURI == null || namespaceURI === DOMNamespaces.svg && parentTag === 'foreignobject') {
+      namespaceURI = DOMNamespaces.html;  // 修正w3c文档地址
     }
     
+    // 判断是否是xhtml地址
     if (namespaceURI === DOMNamespaces.html) {
+      // 判断容器类型，进行修正文档地址
       if (this._tag === 'svg') {
         namespaceURI = DOMNamespaces.svg;
       } else if (this._tag === 'math') {
         namespaceURI = DOMNamespaces.mathml;
       }
     }
-    this._namespaceURI = namespaceURI;
+    this._namespaceURI = namespaceURI;  // 存储容器的3wc地址到初始化实例中
 
     if (__DEV__) {
       var parentInfo;
@@ -572,18 +582,22 @@ ReactDOMComponent.Mixin = {
         validateDOMNesting.updatedAncestorInfo(parentInfo, this._tag, this);
     }
 
-    var mountImage;
+    var mountImage;  
+
+    /* 
+        该useCreateElement属性为开始 ReactDOM.render时里面处理的shouldReuseMarkup参数
+    */
     if (transaction.useCreateElement) {
-      var ownerDocument = nativeContainerInfo._ownerDocument;
+      var ownerDocument = nativeContainerInfo._ownerDocument; // 获取文档节点
       var el;
       if (namespaceURI === DOMNamespaces.html) {
 
         // 判断标签是否是script标签
         if (this._tag === 'script') {
-          // Create the script via .innerHTML so its "parser-inserted" flag is
-          // set to true and it does not execute
+         // 通过.innerHTML创建脚本，使其“parser-inserted”标志为设置为true，则不执行
+
           var div = ownerDocument.createElement('div'); // 创建div标签
-          var type = this._currentElement.type; 
+          var type = this._currentElement.type;  // 为标签名称 如 div、span
           div.innerHTML = `<${type}></${type}>`; // 将div的子节点设为script标签
           el = div.removeChild(div.firstChild);  // 删除后返回子节点
         } else {
@@ -605,7 +619,7 @@ ReactDOMComponent.Mixin = {
         DOMPropertyOperations.setAttributeForRoot(el);  // 给该节点添加一个属性，为data-reactroot，表示根标签
       }
 
-      this._updateDOMProperties(null, props, transaction);
+      this._updateDOMProperties(null, props, transaction);  // 对属性进行对比验证
 
       // 参数为标签
       var lazyTree = DOMLazyTree(el); // 会返回一个对象，对象中有node、children、html、text这些属性
@@ -876,12 +890,6 @@ ReactDOMComponent.Mixin = {
   /**
    * 通过检测特性值的差异来协调特性，以及根据需要更新DOM。这个函数可能是最简单的性能优化的关键路径。
    *
-   * TODO: Benchmark whether checking for changed values in memory actually
-   *       improves performance (especially statically positioned elements).
-   * TODO: Benchmark the effects of putting this at the top since 99% of props
-   *       do not change for a given reconciliation.
-   * TODO: Benchmark areas that can be improved with caching.
-   *
    * @private
    * @param {object} lastProps   上一次属性
    * @param {object} nextProps   下一次属性
@@ -892,57 +900,68 @@ ReactDOMComponent.Mixin = {
     var styleName;
     var styleUpdates;
 
-    // 遍历上一次属性
+    // 遍历旧属性
     for (propKey in lastProps) {
 
-      // 下一次属性中是否有该属性或者上一次中没有该属性或者是上一次属性中为null
-      if (nextProps.hasOwnProperty(propKey) ||
-         !lastProps.hasOwnProperty(propKey) ||
-         lastProps[propKey] == null) {
+      // 新props中是否拥有该旧props的属性 或者 该属性是在旧props的原型上 或者 该属性为null
+      if (nextProps.hasOwnProperty(propKey) || !lastProps.hasOwnProperty(propKey) || lastProps[propKey] == null) {
         continue;  // 越过本次循环
       }
 
       // 判断该属性是否为 style
       if (propKey === STYLE) {
-        var lastStyle = this._previousStyleCopy; // 一开始为null
+        var lastStyle = this._previousStyleCopy; // 初始化实例中的属性，最开始该属性为null
 
-        // 遍历该属性
+        // 遍历该 style属性
         for (styleName in lastStyle) { 
+
+          // 判断该 style属性中是否拥有该属性
           if (lastStyle.hasOwnProperty(styleName)) {
-            styleUpdates = styleUpdates || {};
-            styleUpdates[styleName] = '';
+            styleUpdates = styleUpdates || {}; // 如果该styleUpdates没有值，就赋值为空对象
+            styleUpdates[styleName] = '';      // 将该styleUpdates属性中设置值，并且为空字符串
           }
         }
 
-        // 在重新赋值为null
+        // 再重新赋值为null
         this._previousStyleCopy = null;
 
       } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断是否是执行的属性
         if (lastProps[propKey]) {
-          // Only call deleteListener if there was a listener previously or
-          // else willDeleteListener gets called when there wasn't actually a
-          // listener (e.g., onClick={null})
+        /*
+          仅当以前有侦听器或 willDeleteListener在没有侦听器（例如，onClick={null}） 
+        */
           deleteListener(this, propKey);
         }
-      } else if (
-          DOMProperty.properties[propKey] ||
-          DOMProperty.isCustomAttribute(propKey)) {
+      } else if (DOMProperty.properties[propKey] || DOMProperty.isCustomAttribute(propKey)) {
           DOMPropertyOperations.deleteValueForProperty(getNode(this), propKey);
       }
     };
 
-    // 遍历下一次属性
+    // 遍历新属性
     for (propKey in nextProps) {
-      var nextProp = nextProps[propKey];
-      var lastProp =
-        propKey === STYLE ? this._previousStyleCopy :
-        lastProps != null ? lastProps[propKey] : undefined;
-      if (!nextProps.hasOwnProperty(propKey) ||
-          nextProp === lastProp ||
-          nextProp == null && lastProp == null) {
+
+      var nextProp = nextProps[propKey]; // 属性值
+
+      /* 
+         该属性名是否是 style
+         如果是则 将lastProp设置为组件初始化实例中的_previousStyleCopy属性
+         如果不是 则判断参数lastProps是不是不等于null，如果是，则lastProp属性为 lastProps中的值，否则为undefined 
+         
+         该判断的目的就是为了获取旧属性的style值
+      */
+      var lastProp = propKey === STYLE ? this._previousStyleCopy : lastProps != null ? lastProps[propKey] : undefined;
+
+      /* 
+         如果该属性不在新属性中而是在原型中 或者 新属性跟旧属性相同  或者新属性等于null 并且就属性等于null 则跳过这次循环
+      */
+      if (!nextProps.hasOwnProperty(propKey) || nextProp === lastProp || nextProp == null && lastProp == null) {
         continue;
       }
+
+      // 判断该属性是否是 style
       if (propKey === STYLE) {
+
+        // 判断是否有值
         if (nextProp) {
           if (__DEV__) {
             checkAndWarnForMutatedStyle(
@@ -952,29 +971,37 @@ ReactDOMComponent.Mixin = {
             );
             this._previousStyle = nextProp;
           }
-          nextProp = this._previousStyleCopy = Object.assign({}, nextProp);
+
+          // 将style的值混入到新对象中，并赋值给初始化实例的_previousStyleCopy属性，并重新赋值给当前的nextProp属性
+          nextProp = this._previousStyleCopy = Object.assign({}, nextProp); 
         } else {
-          this._previousStyleCopy = null;
+          this._previousStyleCopy = null;  // style没有值，就将初始化实例中的_previousStyleCopy设置null
         }
+
+        // 判断有没有旧的style属性
         if (lastProp) {
-          // Unset styles on `lastProp` but not on `nextProp`.
+          // 取消设置`lastProp`上的样式，但不取消设置`nextProp`的样式。
+          // 遍历旧属性的style值
           for (styleName in lastProp) {
-            if (lastProp.hasOwnProperty(styleName) &&
-                (!nextProp || !nextProp.hasOwnProperty(styleName))) {
-              styleUpdates = styleUpdates || {};
-              styleUpdates[styleName] = '';
+            
+            // 判断旧style中有该属性 并且 没有新style或者新属性style中没有该旧属性style中的值
+            if (lastProp.hasOwnProperty(styleName) && (!nextProp || !nextProp.hasOwnProperty(styleName))) {
+              styleUpdates = styleUpdates || {}; // 该属性如果没有值就赋值为空对象
+              styleUpdates[styleName] = '';  // 将旧的style属性设置到该属性中，并置为空
             }
           }
-          // Update styles that changed since `lastProp`.
+
+          // 更新自`lastProp`以来更改的样式。
+          // 遍历新的style属性值
           for (styleName in nextProp) {
-            if (nextProp.hasOwnProperty(styleName) &&
-                lastProp[styleName] !== nextProp[styleName]) {
-              styleUpdates = styleUpdates || {};
-              styleUpdates[styleName] = nextProp[styleName];
+            // 判断新style属性中有该属性 并且 旧style属性中该值不等于新值
+            if (nextProp.hasOwnProperty(styleName) && lastProp[styleName] !== nextProp[styleName]) {
+              styleUpdates = styleUpdates || {};  // 该属性如果没有值就赋值为空对象
+              styleUpdates[styleName] = nextProp[styleName];// 新属性赋值进去
             }
           }
         } else {
-          // Relies on `updateStylesByID` not mutating `styleUpdates`.
+          // 直接将新的style值赋值上去
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) {

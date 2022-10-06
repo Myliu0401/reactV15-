@@ -19,18 +19,18 @@ var invariant = require('invariant');
 var EventPluginOrder = null;
 
 /**
- * Injectable mapping from names to event plugin modules.
+ * 从名称到事件插件模块的可注入映射。
  */
 var namesToPlugins = {};
 
 /**
- * Recomputes the plugin list using the injected plugins and plugin ordering.
+ * 使用注入的插件和插件顺序重新计算插件列表。
  *
  * @private
  */
 function recomputePluginOrdering() {
   if (!EventPluginOrder) {
-    // Wait until an `EventPluginOrder` is injected.
+    // 等待注入`EventPluginOrder`。
     return;
   }
   for (var pluginName in namesToPlugins) {
@@ -86,6 +86,7 @@ function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
   EventPluginRegistry.eventNameDispatchConfigs[eventName] = dispatchConfig;
 
   var phasedRegistrationNames = dispatchConfig.phasedRegistrationNames;
+
   if (phasedRegistrationNames) {
     for (var phaseName in phasedRegistrationNames) {
       if (phasedRegistrationNames.hasOwnProperty(phaseName)) {
@@ -124,9 +125,12 @@ function publishRegistrationName(registrationName, PluginModule, eventName) {
     'registration name, `%s`.',
     registrationName
   );
-  EventPluginRegistry.registrationNameModules[registrationName] = PluginModule;
-  EventPluginRegistry.registrationNameDependencies[registrationName] =
-    PluginModule.eventTypes[eventName].dependencies;
+
+  // 建立合成事件名与事件插件的映射
+  EventPluginRegistry.registrationNameModules[registrationName] = PluginModule; 
+
+  // 建立合成事件名与原生事件的映射
+  EventPluginRegistry.registrationNameDependencies[registrationName] = PluginModule.eventTypes[eventName].dependencies;
 
   if (__DEV__) {
     var lowerCasedName = registrationName.toLowerCase();
@@ -153,12 +157,20 @@ var EventPluginRegistry = {
   eventNameDispatchConfigs: {},
 
   /**
-   * Mapping from registration name to plugin module
+   * 用于保存合成事件名与事件插件的映射，比如某个合成事件属于哪个事件插件
+   * 如：onClick: {
+   *      eventTypes: {},
+   *      extractEvents: func
+   * }
    */
   registrationNameModules: {},
 
   /**
-   * Mapping from registration name to event name
+   * 用于保存合成事件与原生事件的映射关系，比如某个合成事件是由哪些原生事件组合模拟的
+   * 如: {
+   *    onClick: ['click'],
+   *    onChange: ['input','change',...]
+   * }
    */
   registrationNameDependencies: {},
 
@@ -191,34 +203,42 @@ var EventPluginRegistry = {
   },
 
   /**
-   * Injects plugins to be used by `EventPluginHub`. The plugin names must be
-   * in the ordering injected by `injectEventPluginOrder`.
+   * 注入要由`EventPluginHub`使用的插件。插件名称必须为在“injectEventPluginOrder”注入的顺序中。
    *
-   * Plugins can be injected as part of page initialization or on-the-fly.
-   *
-   * @param {object} injectedNamesToPlugins Map from names to plugin modules.
+   * 插件可以作为页面初始化的一部分注入，也可以动态注入。
+   *  
+   * @param {object} injectedNamesToPlugins 从名称映射到插件模块。
    * @internal
    * @see {EventPluginHub.injection.injectEventPluginsByName}
    */
   injectEventPluginsByName: function(injectedNamesToPlugins) {
     var isOrderingDirty = false;
+
+    // 遍历该参数对象
     for (var pluginName in injectedNamesToPlugins) {
+
+      // 判断参数对象中属性是否在原型上，如果是则跳过本次循环
       if (!injectedNamesToPlugins.hasOwnProperty(pluginName)) {
         continue;
       }
+
+      // 获取参数对象中的属性值
       var PluginModule = injectedNamesToPlugins[pluginName];
-      if (!namesToPlugins.hasOwnProperty(pluginName) ||
-          namesToPlugins[pluginName] !== PluginModule) {
+
+      // 判断namesToPlugins对象中是否没有该属性 或者 namesToPlugins对象中该属性值不等于PluginModule
+      if (!namesToPlugins.hasOwnProperty(pluginName) || namesToPlugins[pluginName] !== PluginModule) {
         invariant(
           !namesToPlugins[pluginName],
           'EventPluginRegistry: Cannot inject two different event plugins ' +
           'using the same name, `%s`.',
           pluginName
         );
-        namesToPlugins[pluginName] = PluginModule;
-        isOrderingDirty = true;
+        namesToPlugins[pluginName] = PluginModule; // 将该属性值存到namesToPlugins对象中
+        isOrderingDirty = true; // 设置为true
       }
     }
+
+    // 只要有进入存储 该属性就为true
     if (isOrderingDirty) {
       recomputePluginOrdering();
     }

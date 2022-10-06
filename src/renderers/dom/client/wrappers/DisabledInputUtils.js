@@ -39,7 +39,7 @@ var DisabledInputUtils = {
       return props;
     }
 
-    // Copy the props, except the mouse listeners
+    // 复制道具，鼠标侦听器除外
     var nativeProps = {};
     for (var key in props) {
       if (!disableableMouseListenerNames[key] && props.hasOwnProperty(key)) {

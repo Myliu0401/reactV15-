@@ -177,6 +177,9 @@ function batchedMountComponentIntoNode(
           transactionWrappers为ReactReconcileTransaction模块的TRANSACTION_WRAPPERS事务数组
           wrapperInitData为空数组
           _isInTransaction为false
+          renderToStaticMarkup为false
+          reactMountReady为 new CallbackQueue 得到的实例对象
+          useCreateElement为执行getPooled时传递的参数
           以及原型上的Transaction模块的属性
   
   */
