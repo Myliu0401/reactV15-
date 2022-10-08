@@ -170,8 +170,10 @@ function getInstanceFromNode(node) {
 }
 
 /**
- * Given a ReactDOMComponent or ReactDOMTextComponent, return the corresponding
- * DOM node.
+ * 获取dom
+ * 给定ReactDOMComponent或ReactDOMTextComponent，返回相应的DOM节点。
+ * @param {Object} inst 组件初始化的实例对象
+ * @returns node
  */
 function getNodeFromInstance(inst) {
   // Without this first invariant, passing a non-DOM-component triggers the next

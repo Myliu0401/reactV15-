@@ -207,7 +207,9 @@ var HTMLDOMPropertyConfig = {
     htmlFor: 'for',
     httpEquiv: 'http-equiv',
   },
+
   DOMPropertyNames: {
+    
   },
 };
 

@@ -12,15 +12,30 @@
 'use strict';
 
 var keyOf = require('keyOf');
+/* 
+源码
+function (oneKeyObj) {
+  var key;
+  for (key in oneKeyObj) {
+    if (!oneKeyObj.hasOwnProperty(key)) {
+      continue;
+    }
+    return key;
+  }
+  return null;
+};
+
+
+*/
+
+
+
 
 /**
- * Module that is injectable into `EventPluginHub`, that specifies a
- * deterministic ordering of `EventPlugin`s. A convenient way to reason about
- * plugins, without having to package every one of them. This is better than
- * having plugins be ordered in the same order that they are injected because
- * that ordering would be influenced by the packaging order.
- * `ResponderEventPlugin` must occur before `SimpleEventPlugin` so that
- * preventing default on events is convenient in `SimpleEventPlugin` handlers.
+ * 可注入到`EventPluginHub`中的模块，该模块指定`EventPlugin`s的确定性排序。
+ * 一种方便的推理方式插件，而不必打包每个插件。
+ * 这比让插件按照注入的顺序排序，因为该顺序将受到包装顺序的影响。
+ * `ResponderEventPlugin`必须出现在`SimpleEventPlugin'之前，以便在“SimpleEventPlugin”处理程序中，防止默认事件非常便。
  */
 var DefaultEventPluginOrder = [
   keyOf({ResponderEventPlugin: null}),
@@ -31,5 +46,7 @@ var DefaultEventPluginOrder = [
   keyOf({SelectEventPlugin: null}),
   keyOf({BeforeInputEventPlugin: null}),
 ];
+
+/*  DefaultEventPluginOrder = ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin']  */
 
 module.exports = DefaultEventPluginOrder;

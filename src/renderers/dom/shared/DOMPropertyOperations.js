@@ -187,17 +187,20 @@ var DOMPropertyOperations = {
   },
 
   /**
-   * Deletes the value for a property on a node.
+   * 删除节点上特性的值。
    *
-   * @param {DOMElement} node
-   * @param {string} name
+   * @param {DOMElement} node    dom节点
+   * @param {string} name        属性名
    */
   deleteValueForProperty: function(node, name) {
     if (__DEV__) {
       ReactDOMInstrumentation.debugTool.onDeleteValueForProperty(node, name);
     }
-    var propertyInfo = DOMProperty.properties.hasOwnProperty(name) ?
-        DOMProperty.properties[name] : null;
+
+    // 判断存储库中是否有该属性，有就获取该属性
+    var propertyInfo = DOMProperty.properties.hasOwnProperty(name) ? DOMProperty.properties[name] : null;
+
+    // 判断该属性是否有值
     if (propertyInfo) {
       var mutationMethod = propertyInfo.mutationMethod;
       if (mutationMethod) {
@@ -214,10 +217,10 @@ var DOMPropertyOperations = {
           }
         }
       } else {
-        node.removeAttribute(propertyInfo.attributeName);
+        node.removeAttribute(propertyInfo.attributeName); // 从dom中删除该属性
       }
-    } else if (DOMProperty.isCustomAttribute(name)) {
-      node.removeAttribute(name);
+    } else if (DOMProperty.isCustomAttribute(name)) { // 通过存储的正则看能不能配置得到该属性名
+      node.removeAttribute(name); // 从dom中直接删除该属性
     }
   },
 

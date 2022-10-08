@@ -65,7 +65,9 @@ var DOMPropertyInjection = {
     var DOMPropertyNames = domPropertyConfig.DOMPropertyNames || {};
     var DOMMutationMethods = domPropertyConfig.DOMMutationMethods || {};
 
+    // 判断该参数中是否有正则
     if (domPropertyConfig.isCustomAttribute) {
+      // 将正则表达式存储起来
       DOMProperty._isCustomAttributeFunctions.push(
         domPropertyConfig.isCustomAttribute
       );
@@ -81,9 +83,9 @@ var DOMPropertyInjection = {
         propName
       );
 
-      var lowerCased = propName.toLowerCase();
-      var propConfig = Properties[propName];
-
+      var lowerCased = propName.toLowerCase(); // 将该属性名变成小写存到变量中
+      var propConfig = Properties[propName];   // 获取该属性的值
+ 
       var propertyInfo = {
         attributeName: lowerCased,
         attributeNamespace: null,

@@ -632,11 +632,18 @@ var SimpleEventPlugin = {
     }
   },
 
+  /**
+   * 
+   * @param {*} inst 组件初始化的实例对象
+   * @param {*} registrationName  事件名称
+   */
   willDeleteListener: function(inst, registrationName) {
+
+    // 判断该事件是否是 onClick 事件
     if (registrationName === ON_CLICK_KEY) {
       var id = inst._rootNodeID;
-      onClickListeners[id].remove();
-      delete onClickListeners[id];
+      onClickListeners[id].remove();   // 删除事件的处理函数
+      delete onClickListeners[id];     // 删除事件的处理函数
     }
   },
 

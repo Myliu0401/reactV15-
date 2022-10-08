@@ -131,16 +131,18 @@ var EventPluginHub = {
   },
 
   /**
-   * Deletes a listener from the registration bank.
+   * 从注册库中删除侦听器。
    *
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
+   * @param {object} inst this 也就是组件初始化实例
+   * @param {string} registrationName 事件名
    */
   deleteListener: function(inst, registrationName) {
-    var PluginModule =
-      EventPluginRegistry.registrationNameModules[registrationName];
+    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName]; // 取出事件库中对应的模块
+
+    // 判断有没有对应的事件库 并且 该事件库中有willDeleteListener函数
     if (PluginModule && PluginModule.willDeleteListener) {
-      PluginModule.willDeleteListener(inst, registrationName);
+
+      PluginModule.willDeleteListener(inst, registrationName); // 执行该对应事件库中的willDeleteListener函数
     }
 
     var bankForRegistrationName = listenerBank[registrationName];

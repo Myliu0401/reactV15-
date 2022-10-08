@@ -896,9 +896,9 @@ ReactDOMComponent.Mixin = {
    * @param {?DOMElement} node   事务
    */
   _updateDOMProperties: function(lastProps, nextProps, transaction) {
-    var propKey;
-    var styleName;
-    var styleUpdates;
+    var propKey;  // 遍历时，属性当前项的名字
+    var styleName;  // style遍历时, 属性的当前项的名字
+    var styleUpdates; // 存储style属性对象中的属性，并且属性赋值为空字符串
 
     // 遍历旧属性
     for (propKey in lastProps) {
@@ -910,6 +910,7 @@ ReactDOMComponent.Mixin = {
 
       // 判断该属性是否为 style
       if (propKey === STYLE) {
+        // 旧样式style的副本
         var lastStyle = this._previousStyleCopy; // 初始化实例中的属性，最开始该属性为null
 
         // 遍历该 style属性
@@ -925,15 +926,16 @@ ReactDOMComponent.Mixin = {
         // 再重新赋值为null
         this._previousStyleCopy = null;
 
-      } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断是否是执行的属性
-        if (lastProps[propKey]) {
-        /*
-          仅当以前有侦听器或 willDeleteListener在没有侦听器（例如，onClick={null}） 
-        */
-          deleteListener(this, propKey);
+      } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断是否是事件名
+        if (lastProps[propKey]) { // 判断该事件中有没有值
+        
+          deleteListener(this, propKey);  // 从事件存储库中删除该事件
         }
-      } else if (DOMProperty.properties[propKey] || DOMProperty.isCustomAttribute(propKey)) {
-          DOMPropertyOperations.deleteValueForProperty(getNode(this), propKey);
+        
+      } else if (DOMProperty.properties[propKey] || DOMProperty.isCustomAttribute(propKey)) {  // 判断是否是特殊的属性 如 type color data-xxx 等等
+
+          // 第一个参数为dom节点，第二个为属性名
+          DOMPropertyOperations.deleteValueForProperty(getNode(this), propKey);  // 该函数中会从dom中删除该属性
       }
     };
 
@@ -944,15 +946,15 @@ ReactDOMComponent.Mixin = {
 
       /* 
          该属性名是否是 style
-         如果是则 将lastProp设置为组件初始化实例中的_previousStyleCopy属性
-         如果不是 则判断参数lastProps是不是不等于null，如果是，则lastProp属性为 lastProps中的值，否则为undefined 
+         如果是则 将lastProp设置为组件初始化实例中的_previousStyleCopy属性，也就是将旧样式的副本赋值给lastProp变量
+         如果不是 则判断参数lastProps是不是不等于null，如果是，则lastProp属性为 lastProps中的值，否则为undefined，赋值给lastProp变量
          
          该判断的目的就是为了获取旧属性的style值
       */
       var lastProp = propKey === STYLE ? this._previousStyleCopy : lastProps != null ? lastProps[propKey] : undefined;
 
       /* 
-         如果该属性不在新属性中而是在原型中 或者 新属性跟旧属性相同  或者新属性等于null 并且就属性等于null 则跳过这次循环
+         新属性中该属性是在原型上 或者 新的属性值等于旧的属性值 或者 新属性值为null 并且 旧属性值为null 则跳过本次循环
       */
       if (!nextProps.hasOwnProperty(propKey) || nextProp === lastProp || nextProp == null && lastProp == null) {
         continue;
@@ -973,6 +975,7 @@ ReactDOMComponent.Mixin = {
           }
 
           // 将style的值混入到新对象中，并赋值给初始化实例的_previousStyleCopy属性，并重新赋值给当前的nextProp属性
+          // 相当于克隆一份副本给_previousStyleCopy
           nextProp = this._previousStyleCopy = Object.assign({}, nextProp); 
         } else {
           this._previousStyleCopy = null;  // style没有值，就将初始化实例中的_previousStyleCopy设置null
@@ -1004,7 +1007,7 @@ ReactDOMComponent.Mixin = {
           // 直接将新的style值赋值上去
           styleUpdates = nextProp;
         }
-      } else if (registrationNameModules.hasOwnProperty(propKey)) {
+      } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断该属性是否是事件
         if (nextProp) {
           enqueuePutListener(this, propKey, nextProp, transaction);
         } else if (lastProp) {
