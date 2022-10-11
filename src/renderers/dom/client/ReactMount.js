@@ -133,7 +133,7 @@ function mountComponentIntoNode(
     wrapperInstance,  // 组件初始化的实例
     transaction, // 事务
     null,
-    ReactDOMContainerInfo(wrapperInstance, container), // 集装信息，为一个对象，存储参数的一些信息
+    ReactDOMContainerInfo(wrapperInstance, container), //集装信息，主要存储容器和包装后的根组件的一些信息
     context // 上下文
   );
 

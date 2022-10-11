@@ -12,6 +12,35 @@
 'use strict';
 
 var keyMirror = require('keyMirror');
+/* 
+   源码  相当于重新生成了一个 key == value 的结构
+   var keyMirror = function(obj) {
+    var ret = {};
+    var key;
+    
+    // 对参数的控制，必须是对象
+    if (!(obj instanceof Object && !Array.isArray(obj))) {
+        throw new Error('keyMirror(...): Argument must be an object.');
+    }
+    
+    // 简单的遍历，将对应 K 赋值给 Map[K]
+    for (key in obj) {
+        // 只拷贝自己的属性
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
+        ret[key] = key;
+    }
+    
+    return ret;
+};
+
+
+
+
+*/
+
+
 
 var PropagationPhases = keyMirror({bubbled: null, captured: null});
 

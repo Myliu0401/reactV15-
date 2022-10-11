@@ -155,14 +155,34 @@ var topEventMapping = {
 var topListenersIDKey = '_reactListenersID' + String(Math.random()).slice(2);
 
 function getListeningForDocument(mountAt) {
-  // In IE8, `mountAt` is a host object and doesn't have `hasOwnProperty`
-  // directly.
+  // 在IE8中，“mountAt”是主机对象，没有“hasOwnProperty”`
+  
+  // 判断该文档节点中有没有 topListenersIDKey这个属性，如果没有则进行该判断
   if (!Object.prototype.hasOwnProperty.call(mountAt, topListenersIDKey)) {
-    mountAt[topListenersIDKey] = reactTopListenersCounter++;
-    alreadyListeningTo[mountAt[topListenersIDKey]] = {};
+    mountAt[topListenersIDKey] = reactTopListenersCounter++;  // 表示当前事件处理器的数量 
+
+
+    alreadyListeningTo[mountAt[topListenersIDKey]] = {}; // 向该对象中存储一个对象，属性名执行该函数时事件处理函数的数量，属性值为一个对象
   }
-  return alreadyListeningTo[mountAt[topListenersIDKey]];
-}
+  return alreadyListeningTo[mountAt[topListenersIDKey]];  // 返回当前存储的对象
+
+  /* 
+      执行该函数过后，文档节点中将多了以下属性
+       
+      {
+        ...文档节点原有的属性,
+        [topListenersIDKey]: 当前事件处理函数的数量。 该属性会根据事件增加而数值增加
+      }
+  
+    
+      这个ReactBrowserEventEmitter模块的alreadyListeningTo属性为存储事件的处理函数
+  */
+};
+
+
+
+
+
 
 /**
  * `ReactBrowserEventEmitter` is used to attach top-level event listeners. For
@@ -177,9 +197,9 @@ function getListeningForDocument(mountAt) {
 var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
 
   /**
-   * Injectable event backend
+   * 可注入事件后端
    */
-  ReactEventListener: null,
+  ReactEventListener: null,  // 该属性为ReactEventListener模块
 
   injection: {
     /**
@@ -187,9 +207,9 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
      */
     injectReactEventListener: function(ReactEventListener) {
       ReactEventListener.setHandleTopLevel(
-        ReactBrowserEventEmitter.handleTopLevel
+        ReactBrowserEventEmitter.handleTopLevel  // 该参数为ReactEventEmitterMixin模块中的handleTopLevel函数
       );
-      ReactBrowserEventEmitter.ReactEventListener = ReactEventListener;
+      ReactBrowserEventEmitter.ReactEventListener = ReactEventListener; // 该参数为ReactEventListener模块
     },
   },
 
@@ -232,22 +252,40 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
    * Also, `keyup`/`keypress`/`keydown` do not bubble to the window on IE, but
    * they bubble to document.
    *
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
-   * @param {object} contentDocumentHandle Document which owns the container
+   * 
+   * 事件注册
+   * @param {string} registrationName 事件名
+   * @param {object} contentDocumentHandle 文档节点
    */
   listenTo: function(registrationName, contentDocumentHandle) {
-    var mountAt = contentDocumentHandle;
-    var isListening = getListeningForDocument(mountAt);
-    var dependencies =
-      EventPluginRegistry.registrationNameDependencies[registrationName];
 
-    var topLevelTypes = EventConstants.topLevelTypes;
+    var mountAt = contentDocumentHandle; // 将文档节点存到变量中
+
+    var isListening = getListeningForDocument(mountAt); // 返回当前存储的对象
+    
+
+    // React 事件和绑定在根节点的 topEvent 的转化关系，如：onClick -> topClick
+    var dependencies = EventPluginRegistry.registrationNameDependencies[registrationName]; // 获取合成事件与原生事件映射关系的数组
+    /* 
+        registrationNameDependencies: {
+          onClick: ['topClick'],
+          ...
+        }
+    
+    */
+
+
+
+    var topLevelTypes = EventConstants.topLevelTypes; // 获取一个对象 该对象里的属性为 key === value 如 { ABC:ABC }
+
+    // 循环合成事件与原生事件的映射数组
     for (var i = 0; i < dependencies.length; i++) {
-      var dependency = dependencies[i];
-      if (!(
-            isListening.hasOwnProperty(dependency) &&
-            isListening[dependency]
-          )) {
+      var dependency = dependencies[i]; // 获取该项为事件名 如 topClick
+
+      // 判断该存储对象中是否没有该原生事件名 
+      if (!(isListening.hasOwnProperty(dependency) && isListening[dependency])) {
+
+        // 判断对应的原生事件中有没该事件
         if (dependency === topLevelTypes.topWheel) {
           if (isEventSupported('wheel')) {
             ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
@@ -270,7 +308,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
               mountAt
             );
           }
-        } else if (dependency === topLevelTypes.topScroll) {
+        } else if (dependency === topLevelTypes.topScroll) { // 判断对应的原生事件中有没有该事件
 
           if (isEventSupported('scroll', true)) {
             ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(
@@ -285,8 +323,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
               ReactBrowserEventEmitter.ReactEventListener.WINDOW_HANDLE
             );
           }
-        } else if (dependency === topLevelTypes.topFocus ||
-            dependency === topLevelTypes.topBlur) {
+        } else if (dependency === topLevelTypes.topFocus || dependency === topLevelTypes.topBlur) { // 判断对应的原生事件中有没有这两个事件的其中一个
 
           if (isEventSupported('focus', true)) {
             ReactBrowserEventEmitter.ReactEventListener.trapCapturedEvent(
@@ -317,15 +354,19 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
           // to make sure blur and focus event listeners are only attached once
           isListening[topLevelTypes.topBlur] = true;
           isListening[topLevelTypes.topFocus] = true;
-        } else if (topEventMapping.hasOwnProperty(dependency)) {
+        } else if (topEventMapping.hasOwnProperty(dependency)) { // 判断是否是这些事件中的其中一个 
+         
+          // 进行事件的注册
           ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
-            dependency,
-            topEventMapping[dependency],
-            mountAt
+            dependency,  // 合成事件对应源码名 如： topClick
+            topEventMapping[dependency], // 合成事件对应的原生事件名 如: click
+            mountAt  // 文档节点
           );
+
+
         }
 
-        isListening[dependency] = true;
+        isListening[dependency] = true; // 对该对象进行赋值，属性名为事件名如 topClick  值为true。下次有其他dom注册该事件，就进不了这个判断
       }
     }
   },

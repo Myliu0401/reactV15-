@@ -212,7 +212,18 @@ function assertValidProps(component, props) {
   );
 }
 
+
+/**
+ *  负责事件注册。
+ * 
+ * @param {*} inst                 组件初始化实例
+ * @param {*} registrationName     React 事件，如：onClick、onChange
+ * @param {*} listener             事件处理函数
+ * @param {*} transaction          事务
+ * @returns 
+ */
 function enqueuePutListener(inst, registrationName, listener, transaction) {
+
   if (__DEV__) {
     // IE8 has no API for event capturing and the `onScroll` event doesn't
     // bubble.
@@ -221,14 +232,24 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
       'This browser doesn\'t support the `onScroll` event'
     );
   }
-  var containerInfo = inst._nativeContainerInfo;
+
+  var containerInfo = inst._nativeContainerInfo;   // 集装信息，主要存储容器和包装后的根组件的一些信息
+
+  // 判断有没有容器节点，并且该容器节点的类型为 11(文档片段节点) 
   var isDocumentFragment = containerInfo._node && containerInfo._node.nodeType === DOC_FRAGMENT_TYPE;
+
+  // 判断该容器类型是否是文档片段节点 如果是 则为该文档片段节点 如果不是则获取该文档节点  // doc 为找到的 document 节点
   var doc = isDocumentFragment ? containerInfo._node : containerInfo._ownerDocument;
+
+  // 判断是否没有文档节点
   if (!doc) {
     // Server rendering.
-    return;
+    return; // 直接结束
   }
+
+  // 参数为 事件名、文档节点, 进行事件注册
   listenTo(registrationName, doc);
+
   transaction.getReactMountReady().enqueue(putListener, {
     inst: inst,
     registrationName: registrationName,
@@ -484,7 +505,7 @@ ReactDOMComponent.Mixin = {
     this._rootNodeID = globalIdCounter++;
     this._domID = nativeContainerInfo._idCounter++;
     this._nativeParent = nativeParent;
-    this._nativeContainerInfo = nativeContainerInfo;
+    this._nativeContainerInfo = nativeContainerInfo; // 集装信息，为一个对象，存储一些基础信息
 
     var props = this._currentElement.props;  // props属性
 
@@ -1008,8 +1029,13 @@ ReactDOMComponent.Mixin = {
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断该属性是否是事件
+        // 判断该属性有没有值
         if (nextProp) {
-          enqueuePutListener(this, propKey, nextProp, transaction);
+          /* 
+              参数为 组件初始化实例、事件名、属性值、事务
+
+          */
+          enqueuePutListener(this, propKey, nextProp, transaction); 
         } else if (lastProp) {
           deleteListener(this, propKey);
         }

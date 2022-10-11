@@ -54,6 +54,8 @@ function recomputePluginOrdering() {
       'the plugin ordering, `%s`.',
       pluginName
     );
+
+    // 判断该数组中有没有该索引，有就跳过本次循环
     if (EventPluginRegistry.plugins[pluginIndex]) {
       continue;
     }
@@ -63,7 +65,7 @@ function recomputePluginOrdering() {
       'method, but `%s` does not.',
       pluginName
     );
-    EventPluginRegistry.plugins[pluginIndex] = PluginModule; // 按EventPluginOrder数组中的索引注入
+    EventPluginRegistry.plugins[pluginIndex] = PluginModule; // 按EventPluginOrder数组中的索引注入，根据EventPluginOrder数组的顺序进行注入
 
 
     /* 
@@ -77,10 +79,11 @@ function recomputePluginOrdering() {
 
     // 遍历该对模块中的事件
     for (var eventName in publishedEvents) {
+
       invariant(
         publishEventForPlugin(
-          publishedEvents[eventName], // 模块中的属性
-          PluginModule, // 模块
+          publishedEvents[eventName], // 模块中事件名的属性值
+          PluginModule, // 事件的模块 如：简单事件
           eventName // 原生事件名
         ),
         'EventPluginRegistry: Failed to publish event `%s` for plugin `%s`.',
@@ -94,9 +97,9 @@ function recomputePluginOrdering() {
 /**
  * 发布事件，以便可以由提供的插件发送。
  *
- * @param {object} dispatchConfig 事件的调度配置。
- * @param {object} PluginModule 发布事件的插件。
- * @param {String} eventName 事件名
+ * @param {object} dispatchConfig 事件模块中的调度配置。
+ * @param {object} PluginModule 发布事件的插件。事件模块   如：简单事件
+ * @param {String} eventName 原生事件名
  * @return {boolean} 如果事件已成功发布，则为True。
  * @private
  */
@@ -107,9 +110,11 @@ function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
     'event name, `%s`.',
     eventName
   );
-  EventPluginRegistry.eventNameDispatchConfigs[eventName] = dispatchConfig;
 
-  var phasedRegistrationNames = dispatchConfig.phasedRegistrationNames; // 事件配置中的phasedRegistrationNames属性
+  // 向对象eventNameDispatchConfigs中存储 属性名为原生事件名，属性值为事件模块中的调度配置
+  EventPluginRegistry.eventNameDispatchConfigs[eventName] = dispatchConfig; 
+
+  var phasedRegistrationNames = dispatchConfig.phasedRegistrationNames; // 事件模块中的调度配置中的phasedRegistrationNames属性
 
   // 判断该属性中是否有值
   if (phasedRegistrationNames) {
@@ -122,7 +127,7 @@ function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
         var phasedRegistrationName = phasedRegistrationNames[phaseName]; // 获取该对象中属性，也就是事件名 如 onClick
         publishRegistrationName(
           phasedRegistrationName, // 原生换成react中的事件名
-          PluginModule, // 发布事件的插件。
+          PluginModule, // 发布事件的插件，事件模块。
           eventName // 原生事件名
         );
       }
@@ -146,7 +151,7 @@ function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
  * 发布用于标识已调度事件的注册名称可以与`EventPluginHub一起使用。putListener`注册侦听器。
  *
  * @param {string} registrationName 原生事件名转成react中的事件名
- * @param {object} PluginModule 发布事件的插件
+ * @param {object} PluginModule 发布事件的插件，事件模块
  * @param {String} eventName  原生事件名
  * @private
  */
@@ -162,7 +167,7 @@ function publishRegistrationName(registrationName, PluginModule, eventName) {
   EventPluginRegistry.registrationNameModules[registrationName] = PluginModule; 
 
   // 建立合成事件名与原生事件的映射
-  EventPluginRegistry.registrationNameDependencies[registrationName] = PluginModule.eventTypes[eventName].dependencies;
+  EventPluginRegistry.registrationNameDependencies[registrationName] = PluginModule.eventTypes[eventName].dependencies; 
 
   if (__DEV__) {
     var lowerCasedName = registrationName.toLowerCase();
@@ -172,20 +177,20 @@ function publishRegistrationName(registrationName, PluginModule, eventName) {
 }
 
 /**
- * Registers plugins so that they can extract and dispatch events.
+ * 注册插件，以便它们可以提取和分发事件。
  *
  * @see {EventPluginHub}
  */
 var EventPluginRegistry = {
 
   /**
-   * Ordered list of injected plugins.
+   * 注入插件的有序列表。
    */
   plugins: [],
 
   /**
    * 从事件名称映射到调度配置
-   * {click: {phasedRegistrationNames: {
+   * eventNameDispatchConfigs: {click: {phasedRegistrationNames: {
          bubbled: keyOf({onClick: true}),
          captured: keyOf({onClickCapture: true}),
       },}}
@@ -196,7 +201,8 @@ var EventPluginRegistry = {
    * 用于保存合成事件名与事件插件的映射，比如某个合成事件属于哪个事件插件
    * 如：onClick: {
    *      eventTypes: {},
-   *      extractEvents: func
+   *      extractEvents: func,
+   *      ...
    * }
    */
   registrationNameModules: {},
@@ -240,6 +246,8 @@ var EventPluginRegistry = {
 
     recomputePluginOrdering();
   },
+
+
 
   /**
    * 注入要由`EventPluginHub`使用的插件。插件名称必须为在“injectEventPluginOrder”注入的顺序中。

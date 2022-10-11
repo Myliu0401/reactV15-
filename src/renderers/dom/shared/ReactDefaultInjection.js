@@ -59,11 +59,11 @@ function inject() {
    * them).
    */
   ReactInjection.EventPluginHub.injectEventPluginsByName({
-    SimpleEventPlugin: SimpleEventPlugin,
-    EnterLeaveEventPlugin: EnterLeaveEventPlugin,
-    ChangeEventPlugin: ChangeEventPlugin,
-    SelectEventPlugin: SelectEventPlugin,
-    BeforeInputEventPlugin: BeforeInputEventPlugin,
+    SimpleEventPlugin: SimpleEventPlugin,    // 简单事件插件
+    EnterLeaveEventPlugin: EnterLeaveEventPlugin, // 进入离开事件插件
+    ChangeEventPlugin: ChangeEventPlugin,  // 更改事件插件
+    SelectEventPlugin: SelectEventPlugin,  // 选择事件插件 
+    BeforeInputEventPlugin: BeforeInputEventPlugin, // 输入事件插件之前
   });
 
   ReactInjection.NativeComponent.injectGenericComponentClass(

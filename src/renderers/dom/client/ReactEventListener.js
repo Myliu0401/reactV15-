@@ -94,7 +94,7 @@ var ReactEventListener = {
   WINDOW_HANDLE: ExecutionEnvironment.canUseDOM ? window : null,
 
   setHandleTopLevel: function(handleTopLevel) {
-    ReactEventListener._handleTopLevel = handleTopLevel;
+    ReactEventListener._handleTopLevel = handleTopLevel;  // 该_handleTopLevel属性为ReactEventEmitterMixin模块中的handleTopLevel函数
   },
 
   setEnabled: function(enabled) {
@@ -107,26 +107,55 @@ var ReactEventListener = {
 
 
   /**
-   * Traps top-level events by using event bubbling.
+   * 使用事件冒泡捕获顶级事件。
    *
-   * @param {string} topLevelType Record from `EventConstants`.
-   * @param {string} handlerBaseName Event name (e.g. "click").
-   * @param {object} handle Element on which to attach listener.
+   * @param {string} topLevelType 源码中的事件名 如： topClick 
+   * @param {string} handlerBaseName 对应的原生事件名  如: click
+   * @param {object} handle 文档节点
    * @return {?object} An object with a remove function which will forcefully
    *                  remove the listener.
    * @internal
    */
   trapBubbledEvent: function(topLevelType, handlerBaseName, handle) {
-    var element = handle;
+
+    var element = handle;  // 将文档节点存到变量中
+
+
     if (!element) {
-      return null;
+      return null;  // 没有文档节点直接结束
     }
-    return EventListener.listen(
-      element,
-      handlerBaseName,
-      ReactEventListener.dispatchEvent.bind(null, topLevelType)
+
+
+    return EventListener.listen( 
+      element,        // 文档节点
+      handlerBaseName, // 对应原生事件名
+      ReactEventListener.dispatchEvent.bind(null, topLevelType) // 生成一个函数，该函数this为null, 参数为topLevelType
     );
+    /* 
+        // 三个参数为 Document（挂载节点）、原生 DOM Event、事件绑定函数
+
+     listen: function listen(target, eventType, callback) {
+
+         // 去除浏览器兼容部分，留下核心后
+         target.addEventListener(eventType, callback, false);  // 绑定事件
+
+         // 返回一个解绑的函数
+         return {
+             remove: function remove() {
+                 target.removeEventListener(eventType, callback, false);  // 解绑事件
+             }
+
+         }
+
+     }
+    
+    
+    */
   },
+
+
+
+
 
   /**
    * Traps a top-level event by using event capturing.
