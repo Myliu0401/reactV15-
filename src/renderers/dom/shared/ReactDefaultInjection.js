@@ -43,20 +43,20 @@ function inject() {
   }
   alreadyInjected = true;
 
+  // 注入ReactEventListener
   ReactInjection.EventEmitter.injectReactEventListener(
     ReactEventListener
   );
 
   /**
-   * Inject modules for resolving DOM hierarchy and plugin ordering.
+   * 注入模块以解析DOM层次结构和插件顺序。
    */
   ReactInjection.EventPluginHub.injectEventPluginOrder(DefaultEventPluginOrder);
   ReactInjection.EventPluginUtils.injectComponentTree(ReactDOMComponentTree);
   ReactInjection.EventPluginUtils.injectTreeTraversal(ReactDOMTreeTraversal);
 
   /**
-   * Some important event plugins included by default (without having to require
-   * them).
+   * 默认包含一些重要的事件插件（无需要求它们）。
    */
   ReactInjection.EventPluginHub.injectEventPluginsByName({
     SimpleEventPlugin: SimpleEventPlugin,    // 简单事件插件

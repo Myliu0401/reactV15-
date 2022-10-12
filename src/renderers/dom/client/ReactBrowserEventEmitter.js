@@ -206,6 +206,8 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
      * @param {object} ReactEventListener
      */
     injectReactEventListener: function(ReactEventListener) {
+
+      // 向ReactEventListener模块中的_handleTopLevel属性赋值为传递的参数
       ReactEventListener.setHandleTopLevel(
         ReactBrowserEventEmitter.handleTopLevel  // 该参数为ReactEventEmitterMixin模块中的handleTopLevel函数
       );

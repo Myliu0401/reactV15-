@@ -250,6 +250,7 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
   // 参数为 事件名、文档节点, 进行事件注册
   listenTo(registrationName, doc);
 
+  // 向CallbackQueue模块中存储回调和信息对象
   transaction.getReactMountReady().enqueue(putListener, {
     inst: inst,
     registrationName: registrationName,
@@ -435,8 +436,14 @@ function validateDangerousTag(tag) {
   }
 }
 
+/**
+ * 
+ * @param {*} tagName  标签名
+ * @param {*} props    属性
+ * @returns 
+ */
 function isCustomComponent(tagName, props) {
-  return tagName.indexOf('-') >= 0 || props.is != null;
+  return tagName.indexOf('-') >= 0 || props.is != null; 
 }
 
 var globalIdCounter = 1;
@@ -1033,13 +1040,23 @@ ReactDOMComponent.Mixin = {
         if (nextProp) {
           /* 
               参数为 组件初始化实例、事件名、属性值、事务
-
+              注册事件
           */
           enqueuePutListener(this, propKey, nextProp, transaction); 
-        } else if (lastProp) {
-          deleteListener(this, propKey);
+
+        } else if (lastProp) {  // 判断旧属性中有没有该属性值
+
+          deleteListener(this, propKey);  // 删除注册的事件处理函数
+
         }
-      } else if (isCustomComponent(this._tag, nextProps)) {
+
+      } else if (isCustomComponent(this._tag, nextProps)) {  // 判断是否是自定义标签 即标签名有没有 - 符号，或者 有is属性不等于null undefined
+        
+        /* 
+            判断是否不是这几个特殊属性之一
+            children、dangerouslySetInnerHTML、suppressContentEditableWarning
+        
+        */
         if (!RESERVED_PROPS.hasOwnProperty(propKey)) {
           DOMPropertyOperations.setValueForAttribute(
             getNode(this),
@@ -1047,23 +1064,23 @@ ReactDOMComponent.Mixin = {
             nextProp
           );
         }
-      } else if (
-          DOMProperty.properties[propKey] ||
-          DOMProperty.isCustomAttribute(propKey)) {
-        var node = getNode(this);
-        // If we're updating to null or undefined, we should remove the property
-        // from the DOM node instead of inadvertently setting to a string. This
-        // brings us in line with the same behavior we have on initial render.
+      } else if (DOMProperty.properties[propKey] || DOMProperty.isCustomAttribute(propKey)) {// 判断是否是特殊的属性 如 type color data-xxx 等等
+
+        var node = getNode(this); // 获取该dom节点
+
+        // 判断该属性有没有值
         if (nextProp != null) {
-          DOMPropertyOperations.setValueForProperty(node, propKey, nextProp);
-        } else {
-          DOMPropertyOperations.deleteValueForProperty(node, propKey);
+          DOMPropertyOperations.setValueForProperty(node, propKey, nextProp);  // 更新属性
+        } else { 
+          DOMPropertyOperations.deleteValueForProperty(node, propKey);  // 删除属性
         }
       }
     };
 
-
+    // 判断有没有值
     if (styleUpdates) {
+
+      // 将属性设置到dom节点上
       CSSPropertyOperations.setValueForStyles(
         getNode(this),
         styleUpdates,

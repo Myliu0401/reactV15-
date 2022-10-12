@@ -128,11 +128,11 @@ var DOMPropertyOperations = {
   },
 
   /**
-   * Sets the value for a property on a node.
+   * 设置节点上特性的值。
    *
-   * @param {DOMElement} node
-   * @param {string} name
-   * @param {*} value
+   * @param {DOMElement} node  dom节点
+   * @param {string} name      属性名
+   * @param {*} value          属性值
    */
   setValueForProperty: function(node, name, value) {
     if (__DEV__) {

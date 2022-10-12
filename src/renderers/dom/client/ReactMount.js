@@ -408,7 +408,6 @@ var ReactMount = {
     );
 
 
-
     ReactBrowserEventEmitter.ensureScrollValueMonitoring(); //侦听窗口滚动和调整大小事件
 
 

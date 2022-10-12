@@ -102,7 +102,15 @@ function ReactReconcileTransaction(useCreateElement) {
   this.reinitializeTransaction();  // 该函数为事务模块中的reinitializeTransaction函数
 
   this.renderToStaticMarkup = false;
-  this.reactMountReady = CallbackQueue.getPooled(null);
+  this.reactMountReady = CallbackQueue.getPooled(null); // 执行后该属性为CallbackQueue实例
+  /* 
+     实例中的属性
+      _callbacks为null
+      _contexts为null
+  
+  */
+
+
   this.useCreateElement = useCreateElement;
 }
 

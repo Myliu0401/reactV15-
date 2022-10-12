@@ -48,8 +48,7 @@ var ReactReconciler = {
       context // 上下文
     );
     
-    if (internalInstance._currentElement &&
-        internalInstance._currentElement.ref != null) {
+    if (internalInstance._currentElement && internalInstance._currentElement.ref != null) {
       transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
     }
     if (__DEV__) {

@@ -34,17 +34,17 @@ function CallbackQueue() {
 Object.assign(CallbackQueue.prototype, {
 
   /**
-   * Enqueues a callback to be invoked when `notifyAll` is invoked.
+   * 对调用`notifyAll`时要调用的回调进行排队。
    *
-   * @param {function} callback Invoked when `notifyAll` is invoked.
+   * @param {function} callback 回调函数
    * @param {?object} context Context to call `callback` with.
    * @internal
    */
   enqueue: function(callback, context) {
-    this._callbacks = this._callbacks || [];
-    this._contexts = this._contexts || [];
-    this._callbacks.push(callback);
-    this._contexts.push(context);
+    this._callbacks = this._callbacks || [];   // 向实例中该属性注入为数组
+    this._contexts = this._contexts || [];     // 向实例中该属性注入为数组
+    this._callbacks.push(callback);            // 添加回调到数组中
+    this._contexts.push(context);              // 添加对象信息到数组中
   },
 
   /**
@@ -101,6 +101,15 @@ Object.assign(CallbackQueue.prototype, {
 
 });
 
-PooledClass.addPoolingTo(CallbackQueue);
+PooledClass.addPoolingTo(CallbackQueue);  // 对CallbackQueue函数的静态属性进行扩展
+/* 
+   扩展后该函数拥有以下静态属性
+   instancePool为空数组
+   getPooled为PooledClass模块中的oneArgumentPooler函数
+   poolSize为10
+   release为PooledClass模块中的standardReleaser函数
+
+
+*/
 
 module.exports = CallbackQueue;
