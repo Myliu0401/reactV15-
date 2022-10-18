@@ -27,6 +27,8 @@ var processStyleName = memoizeStringOnly(function(styleName) {
 
 var hasShorthandPropertyBug = false;
 var styleFloatAccessor = 'cssFloat';
+
+
 if (ExecutionEnvironment.canUseDOM) {
   var tempStyle = document.createElement('div').style;
   try {

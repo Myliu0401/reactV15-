@@ -651,17 +651,31 @@ ReactDOMComponent.Mixin = {
 
 
       // 参数为 null  属性  事务
-      this._updateDOMProperties(null, props, transaction);  // 对属性进行对比验证
+      this._updateDOMProperties(null, props, transaction);  
+      // 对属性进行处理，其中对包含在节点上设置属性、样式、以及向文档节点注册事件
 
 
 
-      // 参数为标签
+      // 参数为创建好的节点
       var lazyTree = DOMLazyTree(el); // 会返回一个对象，对象中有node、children、html、text这些属性
+      /* 
+             该函数得到一个对象
+             {
+                node: node, 
+                children: [],
+                html: null,
+                text: null,
+             };
+      
+      */
+
+
+
 
       // 参数为 事务、属性、上下文、lazyTree对象
       this._createInitialChildren(transaction, props, context, lazyTree); // 会递归渲染子节点
 
-      mountImage = lazyTree;
+      mountImage = lazyTree;  // 这个时候lazyTree对象已经被填充好了
     } else {
       var tagOpen = this._createOpenTagMarkupAndPutListeners(transaction, props);
       var tagContent = this._createContentMarkup(transaction, props, context);
@@ -817,7 +831,7 @@ ReactDOMComponent.Mixin = {
 
   // 参数为 事务、属性、上下文、lazyTree对象
   _createInitialChildren: function(transaction, props, context, lazyTree) {
-    // Intentional use of != to avoid catching zero/false.
+ 
     var innerHTML = props.dangerouslySetInnerHTML; // 属性中是否拥有dangerouslySetInnerHTML属性
 
     if (innerHTML != null) {
@@ -829,14 +843,19 @@ ReactDOMComponent.Mixin = {
 
     } else {
 
-      var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null; // 子节点是否是字符串或数字
-      var childrenToUse = contentToUse != null ? null : props.children; // 判断子节点是否是字符串或数字，如果不是则为dom组件、自定义组件、数组等
+      // 判断子节点是否是字符串或数字
+      var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null; 
+
+      // 判断子节点是否是字符串或数字，如果不是则为dom组件、自定义组件、数组等
+      var childrenToUse = contentToUse != null ? null : props.children; 
+
+
       if (contentToUse != null) {
 
         // 验证文本是否符合作为该标签的子节点。参数为 lazyTree对象、文本
         DOMLazyTree.queueText(lazyTree, contentToUse); 
 
-      } else if (childrenToUse != null) {
+      } else if (childrenToUse != null) {  // 判断子节点是否有值
         // 子节点不是文本的情况下
         
         var mountImages = this.mountChildren(
@@ -1042,7 +1061,7 @@ ReactDOMComponent.Mixin = {
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断该属性是否是事件
-        
+
         // 判断该属性有没有值
         if (nextProp) {
           /* 

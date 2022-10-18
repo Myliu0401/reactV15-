@@ -25,8 +25,7 @@ var setTextContent = require('setTextContent');
  *
  * See https://github.com/spicyj/innerhtml-vs-createelement-vs-clonenode.
  */
-var enableLazy = ( 
-  typeof document !== 'undefined' && typeof document.documentMode === 'number' 
+var enableLazy = (typeof document !== 'undefined' && typeof document.documentMode === 'number' 
   || 
   typeof navigator !== 'undefined' && typeof navigator.userAgent === 'string' && /\bEdge\/\d/.test(navigator.userAgent)
 );
@@ -82,15 +81,23 @@ function queueHTML(tree, html) {
 
   // 判断window环境中是否符合条件
   if (enableLazy) {
-    tree.html = html;
+    tree.html = html; 
   } else {
     tree.node.innerHTML = html; // 为标签的innerHTML属性注入html，相当于添加子节点
   }
 }
 
+
+/**
+ * 
+ * @param {*} tree   lazyTree对象
+ * @param {*} text   文本
+ */
 function queueText(tree, text) {
+
+  // 判断window环境中是否符合条件
   if (enableLazy) {
-    tree.text = text;
+    tree.text = text;  // 将文本存到lazyTree对象中
   } else {
     setTextContent(tree.node, text); // 给标签的textContent属性设置为text参数
   }
