@@ -851,6 +851,7 @@ ReactDOMComponent.Mixin = {
 
 
       if (contentToUse != null) {
+        // 进来这里，那么子节点就是字符串或数字
 
         // 验证文本是否符合作为该标签的子节点。参数为 lazyTree对象、文本
         DOMLazyTree.queueText(lazyTree, contentToUse); 
