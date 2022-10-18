@@ -643,11 +643,17 @@ ReactDOMComponent.Mixin = {
 
       this._flags |= Flags.hasCachedChildNodes;  // 相加后的结果赋值给this._flags
 
+      // 判断是否没有值，没有值表示为根节点
       if (!this._nativeParent) {
         DOMPropertyOperations.setAttributeForRoot(el);  // 给该节点添加一个属性，为data-reactroot，表示根标签
       }
 
+
+
+      // 参数为 null  属性  事务
       this._updateDOMProperties(null, props, transaction);  // 对属性进行对比验证
+
+
 
       // 参数为标签
       var lazyTree = DOMLazyTree(el); // 会返回一个对象，对象中有node、children、html、text这些属性
@@ -1036,6 +1042,7 @@ ReactDOMComponent.Mixin = {
           styleUpdates = nextProp;
         }
       } else if (registrationNameModules.hasOwnProperty(propKey)) { // 判断该属性是否是事件
+        
         // 判断该属性有没有值
         if (nextProp) {
           /* 
@@ -1082,9 +1089,9 @@ ReactDOMComponent.Mixin = {
 
       // 将属性设置到dom节点上
       CSSPropertyOperations.setValueForStyles(
-        getNode(this),
-        styleUpdates,
-        this
+        getNode(this), // 当前dom节点
+        styleUpdates,  // 样式对象
+        this           // 组件
       );
     }
   },

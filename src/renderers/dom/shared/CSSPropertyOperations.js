@@ -184,44 +184,58 @@ var CSSPropertyOperations = {
   },
 
   /**
-   * Sets the value for multiple styles on a node.  If a value is specified as
-   * '' (empty string), the corresponding style property will be unset.
+   * 设置节点上多个样式的值。如果值指定为“”（空字符串），相应的样式属性将被取消设置。
    *
-   * @param {DOMElement} node
-   * @param {object} styles
-   * @param {ReactDOMComponent} component
+   * @param {DOMElement} node    dom节点
+   * @param {object} styles      样式对象
+   * @param {ReactDOMComponent} component   组件初始化实例
    */
   setValueForStyles: function(node, styles, component) {
-    var style = node.style;
+
+    var style = node.style;  // 获取节点中的样式表
+
+    // 遍历传进来的样式表
     for (var styleName in styles) {
+      // 判断该样式表中是否没有该属性
       if (!styles.hasOwnProperty(styleName)) {
-        continue;
-      }
+        continue;  // 跳过本次循环
+      };
+
       if (__DEV__) {
         warnValidStyle(styleName, styles[styleName], component);
-      }
+      };
+
+      // 会返回符合css规则的对应属性值
       var styleValue = dangerousStyleValue(
-        styleName,
-        styles[styleName],
-        component
+        styleName,  // 样式名
+        styles[styleName],  // 样式值
+        component  // 事务
       );
+
+      // 判断属性名是否为 float 或者 为cssFloat
       if (styleName === 'float' || styleName === 'cssFloat') {
-        styleName = styleFloatAccessor;
-      }
+        styleName = styleFloatAccessor;  // 修改属性名
+      };
+
+      
+      // 判断处理后的属性值是否有值
       if (styleValue) {
-        style[styleName] = styleValue;
+        style[styleName] = styleValue;  // 赋值在节点的样式表中
       } else {
-        var expansion =
-          hasShorthandPropertyBug &&
-          CSSProperty.shorthandPropertyExpansions[styleName];
+        
+        // 判断是否有值并且是shorthandPropertyExpansions对象中的属性
+        var expansion = hasShorthandPropertyBug && CSSProperty.shorthandPropertyExpansions[styleName];
+
+        // 判断对应的属性是否有值
         if (expansion) {
-          // Shorthand property that IE8 won't like unsetting, so unset each
-          // component to placate it
+          // IE8不喜欢取消设置的速记属性，因此取消设置每个
+
+          // 遍历该属性值
           for (var individualStyleName in expansion) {
-            style[individualStyleName] = '';
+            style[individualStyleName] = ''; // 赋值在节点的样式表中
           }
         } else {
-          style[styleName] = '';
+          style[styleName] = ''; // 赋值在节点的样式表中
         }
       }
     }
