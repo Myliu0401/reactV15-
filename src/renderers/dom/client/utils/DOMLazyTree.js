@@ -88,6 +88,7 @@ function queueHTML(tree, html) {
   }
 }
 
+
 function queueText(tree, text) {
   if (enableLazy) {
     tree.text = text;
