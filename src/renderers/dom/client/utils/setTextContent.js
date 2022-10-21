@@ -64,17 +64,13 @@ var escapeTextContentForBrowser = require('escapeTextContentForBrowser');
 var setInnerHTML = require('setInnerHTML');
 
 /**
- * Set the textContent property of a node, ensuring that whitespace is preserved
- * even in IE8. innerText is a poor substitute for textContent and, among many
- * issues, inserts <br> instead of the literal newline chars. innerHTML behaves
- * as it should.
- *
+ * 设置文本
  * @param {DOMElement} node 标签
  * @param {string} text 文本
  * @internal
  */
 var setTextContent = function(node, text) {
-  node.textContent = text;
+  node.textContent = text;  // 将文本设置到节点的textContent属性上
 };
 
 if (ExecutionEnvironment.canUseDOM) {

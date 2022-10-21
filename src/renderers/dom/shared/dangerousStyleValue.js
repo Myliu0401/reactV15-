@@ -18,37 +18,32 @@ var isUnitlessNumber = CSSProperty.isUnitlessNumber;
 var styleWarnings = {};
 
 /**
- * Convert a value into the proper css writable value. The style name `name`
- * should be logical (no hyphens), as specified
- * in `CSSProperty.isUnitlessNumber`.
+ * 将值转换为正确的css可写值。样式名`name`应符合规定的逻辑（无连字符）在`CSSProperty.isUnitlessNumber`中。
  *
- * @param {string} name CSS property name such as `topMargin`.
- * @param {*} value CSS property value such as `10px`.
- * @param {ReactDOMComponent} component
- * @return {string} Normalized style value with dimensions applied.
+ * @param {string} name 属性名
+ * @param {*} value 属性值
+ * @param {ReactDOMComponent} component   事务
+ * @return {string} 应用标注的规格化样式值。
  */
 function dangerousStyleValue(name, value, component) {
-  // Note that we've removed escapeTextForBrowser() calls here since the
-  // whole string will be escaped when the attribute is injected into
-  // the markup. If you provide unsafe user data here they can inject
-  // arbitrary CSS which may be problematic (I couldn't repro this):
-  // https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet
-  // http://www.thespanner.co.uk/2007/11/26/ultimate-xss-css-injection/
-  // This is not an XSS hole but instead a potential CSS injection issue
-  // which has lead to a greater discussion about how we're going to
-  // trust URLs moving forward. See #2115901
 
+  // 判断是否有值 或者 值为布尔类型 或者 值为空字符串
   var isEmpty = value == null || typeof value === 'boolean' || value === '';
+
+  // 如果是则返回空字符串
   if (isEmpty) {
     return '';
-  }
+  };
 
-  var isNonNumeric = isNaN(value);
-  if (isNonNumeric || value === 0 ||
-      isUnitlessNumber.hasOwnProperty(name) && isUnitlessNumber[name]) {
-    return '' + value; // cast to string
-  }
+  var isNonNumeric = isNaN(value); // 判断该值是否为NaN
 
+  // 相当于判断该值是否是数字
+  // 判断值是否为NaN 或者 为0 或者 为isUnitlessNumber对象中的值 并且 css属性值必须为数字的属性
+  if (isNonNumeric || value === 0 || isUnitlessNumber.hasOwnProperty(name) && isUnitlessNumber[name]) {
+    return '' + value;  // 将该值变为字符串返回
+  };
+
+  // 判断该值是否为字符串
   if (typeof value === 'string') {
     if (__DEV__) {
       if (component) {
@@ -79,9 +74,9 @@ function dangerousStyleValue(name, value, component) {
         }
       }
     }
-    value = value.trim();
+    value = value.trim(); // 清除字符串中的头尾空白
   }
-  return value + 'px';
+  return value + 'px'; // 加上px返回
 }
 
 module.exports = dangerousStyleValue;
