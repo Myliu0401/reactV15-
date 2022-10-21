@@ -144,10 +144,10 @@ function mountComponentIntoNode(
   wrapperInstance._renderedComponent._topLevelWrapper = wrapperInstance;
   ReactMount._mountImageIntoNode(
     markup,
-    container,
-    wrapperInstance,
-    shouldReuseMarkup,
-    transaction
+    container,       // 容器
+    wrapperInstance, // 组件初始化实例
+    shouldReuseMarkup, // 
+    transaction  // 事务
   );
 }
 
@@ -760,6 +760,17 @@ var ReactMount = {
     return true;
   },
 
+
+
+  /**
+   * 
+   * @param {*} markup 
+   * @param {*} container 
+   * @param {*} instance 
+   * @param {*} shouldReuseMarkup 
+   * @param {*} transaction 
+   * @returns 
+   */
   _mountImageIntoNode: function(
     markup,
     container,
