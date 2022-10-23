@@ -20,6 +20,9 @@ var invariant = require('invariant');
  */
 var EventPluginOrder = null;
 
+
+
+
 /**
  * 从名称到事件插件模块的可注入映射。
  * 该对象最终变成
@@ -32,6 +35,8 @@ var EventPluginOrder = null;
   }
  */
 var namesToPlugins = {};
+
+
 
 /**
  * 使用注入的插件和插件顺序重新计算插件列表。
@@ -47,7 +52,7 @@ function recomputePluginOrdering() {
   // 遍历该对象
   for (var pluginName in namesToPlugins) {
     var PluginModule = namesToPlugins[pluginName]; // 获取该对象中的属性值
-    var pluginIndex = EventPluginOrder.indexOf(pluginName); // 获取该对象在EventPluginOrder数组中的索引
+    var pluginIndex = EventPluginOrder.indexOf(pluginName); // 获取该属性名在EventPluginOrder数组中的索引
     invariant(
       pluginIndex > -1,
       'EventPluginRegistry: Cannot inject event plugins that do not exist in ' +
@@ -70,12 +75,19 @@ function recomputePluginOrdering() {
 
     /* 
       该属性为对应模块中的事件类型 如： 
-      {click: {phasedRegistrationNames: {
-         bubbled: keyOf({onClick: true}),
-         captured: keyOf({onClickCapture: true}),
-      },}}
+      {  
+        click: {
+          phasedRegistrationNames: {
+           bubbled: keyOf({onClick: true}),
+           captured: keyOf({onClickCapture: true}),
+           },
+           dependencies: ['topClick']   
+        }
+        ...等等其他事件
+      }
     */
     var publishedEvents = PluginModule.eventTypes; 
+
 
     // 遍历该对模块中的事件
     for (var eventName in publishedEvents) {
@@ -94,10 +106,13 @@ function recomputePluginOrdering() {
   }
 }
 
+
+
+
 /**
  * 发布事件，以便可以由提供的插件发送。
  *
- * @param {object} dispatchConfig 事件模块中的调度配置。
+ * @param {object} dispatchConfig 模块中事件名的属性值。
  * @param {object} PluginModule 发布事件的插件。事件模块   如：简单事件
  * @param {String} eventName 原生事件名
  * @return {boolean} 如果事件已成功发布，则为True。
@@ -121,10 +136,13 @@ function publishEventForPlugin(dispatchConfig, PluginModule, eventName) {
 
     // 遍历该对象
     for (var phaseName in phasedRegistrationNames) {
+      // phaseName为bubbled 和 captured 字符串
       
       // 判断该对象中有没有该属性并且不是在原型上
       if (phasedRegistrationNames.hasOwnProperty(phaseName)) {
-        var phasedRegistrationName = phasedRegistrationNames[phaseName]; // 获取该对象中属性，也就是事件名 如 onClick
+        // 获取该对象中属性，也就是事件名 如 onClick
+        var phasedRegistrationName = phasedRegistrationNames[phaseName]; 
+        
         publishRegistrationName(
           phasedRegistrationName, // 原生换成react中的事件名
           PluginModule, // 发布事件的插件，事件模块。
@@ -188,6 +206,8 @@ var EventPluginRegistry = {
    */
   plugins: [],
 
+
+  
   /**
    * 从事件名称映射到调度配置
    * eventNameDispatchConfigs: {click: {phasedRegistrationNames: {
@@ -225,7 +245,8 @@ var EventPluginRegistry = {
   possibleRegistrationNames: __DEV__ ? {} : null,
 
   /**
-   * 注入插件的顺序（按插件名称）。这允许订购从实际插件的注入中分离出来，以便订购无论包装、即时注射等如何，始终具有确定性。
+   * 注入插件的顺序（按插件名称）。这允许订购从实际插件的注入中分离出来，
+   * 以便订购无论包装、即时注射等如何，始终具有确定性。
    *
    * @param {array} InjectedEventPluginOrder 数组，每一项为字符串
    * @internal
@@ -241,10 +262,10 @@ var EventPluginRegistry = {
     EventPluginOrder = Array.prototype.slice.call(InjectedEventPluginOrder);
     /* 
        EventPluginOrder该属性的值变成
-    ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin']
+       ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin']
     */
 
-    recomputePluginOrdering();
+    recomputePluginOrdering(); // 使用注入的插件和插件顺序重新计算插件列表。
   },
 
 
@@ -254,6 +275,15 @@ var EventPluginRegistry = {
    *
    * 插件可以作为页面初始化的一部分注入，也可以动态注入。
    *  
+   * 参数为
+   * {
+         SimpleEventPlugin: SimpleEventPlugin,    // 简单事件插件
+         EnterLeaveEventPlugin: EnterLeaveEventPlugin, // 进入离开事件插件
+         ChangeEventPlugin: ChangeEventPlugin,  // 更改事件插件
+         SelectEventPlugin: SelectEventPlugin,  // 选择事件插件 
+         BeforeInputEventPlugin: BeforeInputEventPlugin, // 输入事件插件之前
+     }
+   * 
    * @param {object} injectedNamesToPlugins 从名称映射到插件模块。
    * @internal
    * @see {EventPluginHub.injection.injectEventPluginsByName}
@@ -264,7 +294,7 @@ var EventPluginRegistry = {
     // 遍历该参数对象
     for (var pluginName in injectedNamesToPlugins) {
 
-      // 判断参数对象中属性是否在原型上，如果是则跳过本次循环
+      // 判断对象中有没有该属性，并且不是在原型上的
       if (!injectedNamesToPlugins.hasOwnProperty(pluginName)) {
         continue;
       }
@@ -272,7 +302,7 @@ var EventPluginRegistry = {
       // 获取参数对象中的属性值
       var PluginModule = injectedNamesToPlugins[pluginName];
 
-      // 判断namesToPlugins对象中是否没有该属性 或者 namesToPlugins对象中该属性值不等于PluginModule
+      // 判断namesToPlugins对象中是否没有该属性并且不是在原型上的 或者 namesToPlugins对象中该属性值不等于PluginModule
       // 该namesToPlugins对象最开始为空，所以该判断都会进
       if (!namesToPlugins.hasOwnProperty(pluginName) || namesToPlugins[pluginName] !== PluginModule) {
         invariant(
@@ -291,6 +321,9 @@ var EventPluginRegistry = {
       recomputePluginOrdering();
     }
   },
+
+
+
 
   /**
    * Looks up the plugin for the supplied event.

@@ -251,9 +251,9 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
 
   // 向CallbackQueue模块中存储回调和信息对象
   transaction.getReactMountReady().enqueue(putListener, {
-    inst: inst,
-    registrationName: registrationName,
-    listener: listener,
+    inst: inst, // 组件初始化实例
+    registrationName: registrationName, // 事件名 如： onClick
+    listener: listener, // 事件处理函数
   });
 }
 
@@ -490,16 +490,13 @@ ReactDOMComponent.displayName = 'ReactDOMComponent';  // 设置dom类型组件�
 ReactDOMComponent.Mixin = {
 
   /**
-   * Generates root tag markup then recurses. This method has side effects and
-   * is not idempotent.
-   *
-   * @internal
-   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction 事务
-   * @param {?ReactDOMComponent} the containing DOM component instance  如果是则根组件为null
-   * @param {?object} info about the native container
-   * @param {object} context
-   * @return {string} The computed markup.
-   */ 
+   * 渲染标签组件
+   * @param {*} transaction             事务
+   * @param {*} nativeParent            首次时为null
+   * @param {*} nativeContainerInfo     首次为集装信息，为一个对象，集装信息，主要存储容器和包装后的根组件的一些信息
+   * @param {*} context                 上下文
+   * @returns 
+   */
   mountComponent: function(
     transaction,
     nativeParent,
@@ -531,7 +528,7 @@ ReactDOMComponent.Mixin = {
       case 'button':
         //getNativeProps为DisabledInputUtils模块的的getNativeProps函数，判断处理后返回props属性
         /* 
-              如果是禁用的属性disabled，则返回原来的props
+              如果有禁用的属性disabled，则返回原来的props
               否则返回除鼠标事件以外的属性对象
         */
         props = ReactDOMButton.getNativeProps(this, props, nativeParent); // 对props变量进行重新赋值
@@ -612,7 +609,7 @@ ReactDOMComponent.Mixin = {
     var mountImage;  
 
     /* 
-        该useCreateElement属性为开始 ReactDOM.render时里面处理的shouldReuseMarkup参数
+      ReactMount模块  useCreateElement为执行getPooled时传递的参数
     */
     if (transaction.useCreateElement) {
       var ownerDocument = nativeContainerInfo._ownerDocument; // 获取文档节点

@@ -28,7 +28,10 @@ var ReactInjection = {
   DOMProperty: DOMProperty.injection,
   EmptyComponent: ReactEmptyComponent.injection,
 
-  // 该对象中拥有 injectEventPluginOrder、injectEventPluginsByName 属性，这些属性都是EventPluginRegistry模块的
+  /* 
+     该对象中拥有 injectEventPluginOrder、injectEventPluginsByName 属性，
+     这些属性都是EventPluginRegistry模块的
+  */
   EventPluginHub: EventPluginHub.injection,
   
   EventPluginUtils: EventPluginUtils.injection,

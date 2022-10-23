@@ -12,10 +12,9 @@
 'use strict';
 
 /**
- * Gets the target node from a native browser event by accounting for
- * inconsistencies in browser DOM APIs.
+ * 通过记帐从本机浏览器事件获取目标节点浏览器DOM API中的不一致性。
  *
- * @param {object} nativeEvent Native browser event.
+ * @param {object} nativeEvent 事件对象
  * @return {DOMEventTarget} Target node.
  */
 function getEventTarget(nativeEvent) {
@@ -28,7 +27,7 @@ function getEventTarget(nativeEvent) {
 
   // Safari may fire events on text nodes (Node.TEXT_NODE is 3).
   // @see http://www.quirksmode.org/js/events_properties.html
-  return target.nodeType === 3 ? target.parentNode : target;
+  return target.nodeType === 3 ? target.parentNode : target;  // 是否是文本节点，如果是就返回父节点，如果不是就返回目标节点
 }
 
 module.exports = getEventTarget;

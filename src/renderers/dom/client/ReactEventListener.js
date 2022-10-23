@@ -43,6 +43,7 @@ function TopLevelCallbackBookKeeping(topLevelType, nativeEvent) {
   this.nativeEvent = nativeEvent;
   this.ancestors = [];
 }
+
 Object.assign(TopLevelCallbackBookKeeping.prototype, {
   destructor: function() {
     this.topLevelType = null;
@@ -50,21 +51,37 @@ Object.assign(TopLevelCallbackBookKeeping.prototype, {
     this.ancestors.length = 0;
   },
 });
+
+
+
+/* 
+  对TopLevelCallbackBookKeeping函数的静态属性进行扩展
+  扩展后该函数的静态成员将增加以下属性
+  instancePool为数组
+  getPooled为PooledClass模块的twoArgumentPooler函数
+  poolSize为10
+  release为PooledClass模块的standardReleaser函数
+
+*/
 PooledClass.addPoolingTo(
   TopLevelCallbackBookKeeping,
   PooledClass.twoArgumentPooler
 );
 
+
+/**
+ * 
+ * @param {*} bookKeeping TopLevelCallbackBookKeeping实例
+ */
 function handleTopLevelImpl(bookKeeping) {
-  var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);
+
+  var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);  // 获取事件对象的目标节点
+
   var targetInst = ReactDOMComponentTree.getClosestInstanceFromNode(
     nativeEventTarget
-  );
+  );  // 从该参数节点开始并往上找，有没有internalInstanceKey这个属性的节点，有就返回给节点，没有就返回null
 
-  // Loop through the hierarchy, in case there's any nested components.
-  // It's important that we build the array of ancestors before calling any
-  // event handlers, because event handlers can modify the DOM, leading to
-  // inconsistencies with ReactMount's node cache. See #1105.
+  // 
   var ancestor = targetInst;
   do {
     bookKeeping.ancestors.push(ancestor);
@@ -89,7 +106,7 @@ function scrollValueMonitor(cb) {
 
 var ReactEventListener = {
   _enabled: true,
-  _handleTopLevel: null,
+  _handleTopLevel: null,  // 为ReactEventEmitterMixin模块中的handleTopLevel函数
 
   WINDOW_HANDLE: ExecutionEnvironment.canUseDOM ? window : null,
 
@@ -129,7 +146,9 @@ var ReactEventListener = {
     return EventListener.listen( 
       element,        // 文档节点
       handlerBaseName, // 对应原生事件名
-      ReactEventListener.dispatchEvent.bind(null, topLevelType) // 生成一个函数，该函数this为null, 参数为topLevelType
+
+      // 生成一个函数，该函数this为null, 参数为topLevelType
+      ReactEventListener.dispatchEvent.bind(null, topLevelType)
     );
     /* 
         // 三个参数为 Document（挂载节点）、原生 DOM Event、事件绑定函数
@@ -184,18 +203,39 @@ var ReactEventListener = {
     EventListener.listen(window, 'scroll', callback);
   },
 
+  /**
+   * 
+   * @param {*} topLevelType   映射的事件名  如  topClick
+   * @param {*} nativeEvent    事件对象
+   * @returns 
+   */
   dispatchEvent: function(topLevelType, nativeEvent) {
+
+    // 判断是否已启用
     if (!ReactEventListener._enabled) {
       return;
-    }
-
+    };
+  
+    /* 
+        如果TopLevelCallbackBookKeeping函数的静态属性instancePool数组没有项则会 new TopLevelCallbackBookKeeping函数
+        new TopLevelCallbackBookKeeping函数后返回的实例
+        {
+          topLevelType: 参数1
+          nativeEvent: 参数2
+          ancestors: []
+          ...原型
+        }
+    
+    */
     var bookKeeping = TopLevelCallbackBookKeeping.getPooled(
-      topLevelType,
-      nativeEvent
+      topLevelType,  // 映射的事件名  如： topClick
+      nativeEvent    // undefined
     );
+
     try {
-      // Event queue being processed in the same cycle allows
-      // `preventDefault`.
+      /* 
+         在同一周期中处理的事件队列允许`preventDefault`。
+      */
       ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
     } finally {
       TopLevelCallbackBookKeeping.release(bookKeeping);

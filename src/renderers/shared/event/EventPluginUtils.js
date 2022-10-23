@@ -28,6 +28,11 @@ var warning = require('warning');
 var ComponentTree;
 var TreeTraversal;
 var injection = {
+
+  /**
+   * 
+   * @param {*} Injected   参数为ReactDOMComponentTree模块
+   */
   injectComponentTree: function(Injected) {
     ComponentTree = Injected;
     if (__DEV__) {
@@ -40,6 +45,8 @@ var injection = {
       );
     }
   },
+
+  
   injectTreeTraversal: function(Injected) {
     TreeTraversal = Injected;
     if (__DEV__) {

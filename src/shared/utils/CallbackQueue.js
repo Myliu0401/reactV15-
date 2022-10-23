@@ -37,7 +37,9 @@ Object.assign(CallbackQueue.prototype, {
    * 对调用`notifyAll`时要调用的回调进行排队。
    *
    * @param {function} callback 回调函数
-   * @param {?object} context Context to call `callback` with.
+   * @param {?object} context 事件信息的对象 里面包含  inst: inst, // 组件初始化实例
+                                                     registrationName: registrationName, // 事件名 如： onClick
+                                                     listener: listener, // 事件处理函数
    * @internal
    */
   enqueue: function(callback, context) {

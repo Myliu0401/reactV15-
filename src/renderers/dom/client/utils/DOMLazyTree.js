@@ -31,34 +31,43 @@ var enableLazy = (typeof document !== 'undefined' && typeof document.documentMod
 );
 
 function insertTreeChildren(tree) {
+  // 判断是否不符合浏览器环境
   if (!enableLazy) {
     return;
-  }
-  var node = tree.node;
-  var children = tree.children;
+  };
+  var node = tree.node;  // 跟节点dom
+  var children = tree.children;   //跟节点
+  
+  // 判断是否有子节点
   if (children.length) {
     for (var i = 0; i < children.length; i++) {
       insertTreeBefore(node, children[i], null);
     }
   } else if (tree.html != null) {
     node.innerHTML = tree.html;
-  } else if (tree.text != null) {
+  } else if (tree.text != null) { 
     setTextContent(node, tree.text);
   }
 }
 
 var insertTreeBefore = createMicrosoftUnsafeLocalFunction(
+  /**
+   * 
+   * @param {*} parentNode      容器
+   * @param {*} tree            一整棵节点树渲染后的对象
+   * @param {*} referenceNode 
+   */
   function(parentNode, tree, referenceNode) {
     // DocumentFragments aren't actually part of the DOM after insertion so
     // appending children won't update the DOM. We need to ensure the fragment
     // is properly populated first, breaking out of our lazy approach for just
     // this level.
-    if (tree.node.nodeType === 11) {
+    if (tree.node.nodeType === 11) {  // 判断根节点是那种类型
       insertTreeChildren(tree);
       parentNode.insertBefore(tree.node, referenceNode);
     } else {
-      parentNode.insertBefore(tree.node, referenceNode);
-      insertTreeChildren(tree);
+      parentNode.insertBefore(tree.node, referenceNode);  // 在某个节点之前插入，将根节点插到容器中
+      insertTreeChildren(tree);  
     }
   }
 );

@@ -74,7 +74,8 @@ var setTextContent = function(node, text) {
 };
 
 if (ExecutionEnvironment.canUseDOM) {
-  if (!('textContent' in document.documentElement)) {
+  // 判断该节点的所有下级中是否没有文本节点
+  if (!('textContent' in document.documentElement)) {  
     setTextContent = function(node, text) {
       setInnerHTML(node, escapeTextContentForBrowser(text));
     };

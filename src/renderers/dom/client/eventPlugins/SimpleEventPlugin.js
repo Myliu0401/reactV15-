@@ -479,7 +479,8 @@ var topLevelEventsToDispatchConfig = {
 
 
 for (var type in topLevelEventsToDispatchConfig) {
-  // 对eventTypes中的属性进行增强，增强后将拥有dependencies属性，属性值为数组，数组中为topLevelEventsToDispatchConfig中的属性名
+  /* 对eventTypes中的属性进行增强，增强后将拥有dependencies属性，
+  属性值为数组，数组中为topLevelEventsToDispatchConfig中对应的属性名 */
   topLevelEventsToDispatchConfig[type].dependencies = [type]; 
 }
 

@@ -85,11 +85,13 @@ var EventPluginHub = {
     /**
      * @param {array} InjectedEventPluginOrder
      * @public
+     * 为EventPluginRegistry模块的injectEventPluginOrder属性
      */
-    injectEventPluginOrder: EventPluginRegistry.injectEventPluginOrder,
+    injectEventPluginOrder: EventPluginRegistry.injectEventPluginOrder,  
 
     /**
      * @param {object} injectedNamesToPlugins Map from names to plugin modules.
+     * 为EventPluginRegistry模块的injectEventPluginsByName属性
      */
     injectEventPluginsByName: EventPluginRegistry.injectEventPluginsByName,
 
@@ -186,7 +188,10 @@ var EventPluginHub = {
       nativeEvent,
       nativeEventTarget) {
     var events;
+
     var plugins = EventPluginRegistry.plugins;
+    // [SimpleEventPlugin,EnterLeaveEventPlugin,ChangeEventPlugin,SelectEventPlugin,BeforeInputEventPlugin]
+
     for (var i = 0; i < plugins.length; i++) {
       // Not every plugin in the ordering may be loaded at runtime.
       var possiblePlugin = plugins[i];

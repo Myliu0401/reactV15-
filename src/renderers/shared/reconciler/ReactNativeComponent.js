@@ -14,10 +14,10 @@
 var invariant = require('invariant');
 
 var autoGenerateWrapperClass = null;
-var genericComponentClass = null;
+var genericComponentClass = null;  //为ReactDOMComponent模块
 // This registry keeps track of wrapper classes around native tags.
 var tagToComponentClass = {};
-var textComponentClass = null;
+var textComponentClass = null; // 为ReactDOMTextComponent模块
 
 var ReactNativeComponentInjection = {
   // This accepts a class that receives the tag string. This is a catch all
@@ -28,7 +28,7 @@ var ReactNativeComponentInjection = {
   // This accepts a text component class that takes the text string to be
   // rendered as props.
   injectTextComponentClass: function(componentClass) {
-    textComponentClass = componentClass;
+    textComponentClass = componentClass; //为ReactDOMTextComponent模块
   },
   // This accepts a keyed object with classes as values. Each key represents a
   // tag. That particular tag will use this class instead of the generic one.

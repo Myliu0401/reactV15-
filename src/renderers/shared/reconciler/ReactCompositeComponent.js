@@ -60,8 +60,15 @@ function warnIfInvalidElement(Component, element) {
       Component.displayName || Component.name || 'Component'
     );
   }
-}
+};
 
+
+
+/* 
+    判断是否是类型组件 或 根组件的包装层组件
+    react会为类组件加上isReactComponent属性
+
+*/
 function shouldConstruct(Component) {
   return Component.prototype && Component.prototype.isReactComponent;
 }
@@ -147,7 +154,7 @@ var ReactCompositeComponentMixin = {
    * 该函数控制组件的渲染阶段
    * @param {*} transaction              事务
    * @param {*} nativeParent             首次执行时为null
-   * @param {*} nativeContainerInfo      首次为集装信息，为一个对象，存储参数的一些信息
+   * @param {*} nativeContainerInfo      首次为集装信息，为一个对象，集装信息，主要存储容器和包装后的根组件的一些信息
    * @param {*} context                  上下文
    * @returns 
    */
@@ -168,12 +175,13 @@ var ReactCompositeComponentMixin = {
 
     /* 
         获取属性，如果不是开发环境则直接将参数返回
+        首次执行时因为根据组件会被包一层，所以首次执行时 props为根组件,经babel转义后的
     */
     var publicProps = this._processProps(this._currentElement.props);
 
     var publicContext = this._processContext(context); // 首次执行时返回emptyObject
 
-    var Component = this._currentElement.type; // 首次执行时为 TopLevelWrapper函数
+    var Component = this._currentElement.type; // 首次执行时为 TopLevelWrapper函数。后面就是对应的函数了
 
 
     /* 
@@ -185,7 +193,7 @@ var ReactCompositeComponentMixin = {
             原型上的render属性为一个函数，返回根组件
 
           
-          如果不是首次则返回自定义组件的函数的返回值，在这个15版本中，创建自定义组件是由 react.createClass 函数进行创建，会返回一个函数出来，由该方法创建自定义组件时，配置由参数进行传递  
+          不是首次执行那么判断是否是类组件如果是那么将返回一个类实例
     
     */
     var inst = this._constructComponent(publicProps, publicContext);
@@ -318,7 +326,7 @@ var ReactCompositeComponentMixin = {
          首次执行后
          inst对象多一个属性state为null
     */
-    var initialState = inst.state; // 首次执行时为null
+    var initialState = inst.state; // 首次执行时为undefined
     if (initialState === undefined) {
       inst.state = initialState = null;
     }
@@ -352,13 +360,14 @@ var ReactCompositeComponentMixin = {
           首次执行时
            renderedElement为undefined
            nativeParent为null
-           nativeContainerInfo为集装信息，为一个对象，存储参数的一些信息
+           nativeContainerInfo为集装信息，为一个对象，集装信息，主要存储容器和包装后的根组件的一些信息
            transaction为事务
            context为上下文
       */
       markup = this.performInitialMount(renderedElement, nativeParent, nativeContainerInfo, transaction, context);
     }
 
+    // 判断是否有该生命周期
     if (inst.componentDidMount) {
       transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
     }
@@ -402,20 +411,23 @@ var ReactCompositeComponentMixin = {
     var Component = this._currentElement.type;
 
 
-    // 判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数
+    // 判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数 或 是否是类组件
     if (shouldConstruct(Component)) {
 
-      return new Component(publicProps, publicContext, ReactUpdateQueue);  // 执行TopLevelWrapper函数
+      return new Component(publicProps, publicContext, ReactUpdateQueue);  // 执行TopLevelWrapper函数，或类组件
       /* 
-         new 该TopLevelWrapper函数返回一个实例，该实例包含以下属性
+        首次执行时 new 该TopLevelWrapper函数返回一个实例，该实例包含以下属性
          rootID为1
          原型上的isReactComponent属性为一个对象
          原型上的render属性为函数，该函数返回根组件
+
+
+        不是首次执行时会返回一个类实例
       
       */
 
     } else {
-      return Component(publicProps, publicContext, ReactUpdateQueue); // 执行自定义组件的函数
+      return Component(publicProps, publicContext, ReactUpdateQueue); // 执行自定义函数组件
     }
   },
 
@@ -454,14 +466,14 @@ var ReactCompositeComponentMixin = {
    * 执行初始装载
    * @param {*} renderedElement       首次执行时为undefined
    * @param {*} nativeParent          首次执行时为null
-   * @param {*} nativeContainerInfo   集装信息，为一个对象，存储参数的一些信息
+   * @param {*} nativeContainerInfo   集装信息，为一个对象，集装信息，主要存储容器和包装后的根组件的一些信息
    * @param {*} transaction           事务
    * @param {*} context               上下文
    * @returns 
    */
   performInitialMount: function (renderedElement, nativeParent, nativeContainerInfo, transaction, context) {
     /* 
-         首次执行时为 new TopLevelWrapper 返回的独对象
+         首次执行时为 new TopLevelWrapper 返回的对象
          该对象经过mountComponent函数的操作后变成
          {
              rootID:1,
@@ -512,12 +524,17 @@ var ReactCompositeComponentMixin = {
     /* 
          获取子节点的类型，但首次执行时是根节点，因为根节点被ReactElement包装多一层
          并且将子节点类型添加到组件初始化实例的_renderedNodeType属性中
+         返回值
+           空节点为    0
+           组件节点为  1
+           标签节点为  2
+         
     */
     this._renderedNodeType = ReactNodeTypes.getType(renderedElement);
 
 
     /* 
-        初始化子节点
+        初始化子节点，并将初始化子节点的实例，赋值到_renderedComponent属性上
     */
     this._renderedComponent = this._instantiateReactComponent(
       renderedElement
@@ -1121,7 +1138,7 @@ var ReactCompositeComponentMixin = {
       this.getName() || 'ReactCompositeComponent'
     );
 
-    return renderedComponent;  // 首次执行时返回根组件
+    return renderedComponent;  // 首次执行时返回根组件，如果不是首次执行那么返回render函数的返回值
   },
 
   /**

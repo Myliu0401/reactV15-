@@ -43,20 +43,74 @@ function inject() {
   }
   alreadyInjected = true;
 
-  // 注入ReactEventListener
+
+  /* 
+        EventEmitter为ReactBrowserEventEmitter模块的injection对象
+        向ReactEventListener模块中的_handleTopLevel属性赋值为ReactEventEmitterMixin模块中的handleTopLevel函数
+        并且向ReactBrowserEventEmitter模块中的ReactEventListener属性赋值为ReactEventListener模块
+  */
   ReactInjection.EventEmitter.injectReactEventListener(
     ReactEventListener
   );
 
+
   /**
    * 注入模块以解析DOM层次结构和插件顺序。
+   * 
+   * injectEventPluginOrder函数执行后EventPluginRegistry模块中的EventPluginOrder属性变成了数组
+   * ['ResponderEventPlugin', 'SimpleEventPlugin', 'TapEventPlugin', 'EnterLeaveEventPlugin', 'ChangeEventPlugin', 'SelectEventPlugin', 'BeforeInputEventPlugin']
+   * 
+   * injectComponentTree函数执行后EventPluginUtils模块中的ComponentTree属性变成了ReactDOMComponentTree模块
+   * 
+   * injectTreeTraversal函数执行后EventPluginUtils模块中的TreeTraversal属性变成了ReactDOMTreeTraversal模块
    */
   ReactInjection.EventPluginHub.injectEventPluginOrder(DefaultEventPluginOrder);
   ReactInjection.EventPluginUtils.injectComponentTree(ReactDOMComponentTree);
   ReactInjection.EventPluginUtils.injectTreeTraversal(ReactDOMTreeTraversal);
 
+
+
   /**
+   * injectEventPluginsByName函数EventPluginRegistry模块的injectEventPluginsByName函数
    * 默认包含一些重要的事件插件（无需要求它们）。
+   * 该函数执行后
+   * 
+   * EventPluginRegistry模块中的namesToPlugins属性变成了以下对象
+   * {
+      SimpleEventPlugin: SimpleEventPlugin,
+      EnterLeaveEventPlugin: EnterLeaveEventPlugin,
+      ChangeEventPlugin: ChangeEventPlugin,
+      SelectEventPlugin: SelectEventPlugin,
+      BeforeInputEventPlugin: BeforeInputEventPlugin,
+     }
+   *
+   * EventPluginRegistry模块中的plugins属性变成了以下数组
+   * [SimpleEventPlugin,EnterLeaveEventPlugin,ChangeEventPlugin,SelectEventPlugin,BeforeInputEventPlugin]
+   * 
+   * EventPluginRegistry模块中的eventNameDispatchConfigs属性变成了以下对象
+   * {
+   *    click: {
+          phasedRegistrationNames: {
+           bubbled: keyOf({onClick: true}),
+           captured: keyOf({onClickCapture: true}),
+           },
+           dependencies: ['topClick']   
+        },
+
+        ...等等其他事件
+   * }
+
+   *  EventPluginRegistry模块中的registrationNameModules属性变成以下对象
+      {
+        onClick: 事件模块
+        ...
+      }
+
+      EventPluginRegistry模块中的registrationNameDependencies属性变成以下对象
+      {
+        onClick: ['topClick']
+        onClickCapture: ['topClick']
+      }
    */
   ReactInjection.EventPluginHub.injectEventPluginsByName({
     SimpleEventPlugin: SimpleEventPlugin,    // 简单事件插件
@@ -65,6 +119,7 @@ function inject() {
     SelectEventPlugin: SelectEventPlugin,  // 选择事件插件 
     BeforeInputEventPlugin: BeforeInputEventPlugin, // 输入事件插件之前
   });
+
 
   ReactInjection.NativeComponent.injectGenericComponentClass(
     ReactDOMComponent

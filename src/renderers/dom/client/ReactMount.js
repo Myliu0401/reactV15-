@@ -143,11 +143,11 @@ function mountComponentIntoNode(
 
   wrapperInstance._renderedComponent._topLevelWrapper = wrapperInstance;
   ReactMount._mountImageIntoNode(
-    markup,
-    container,       // 容器
-    wrapperInstance, // 组件初始化实例
-    shouldReuseMarkup, // 
-    transaction  // 事务
+    markup,             // 一整科节点树渲染后的对象
+    container,          // 容器
+    wrapperInstance,    // 组件初始化实例
+    shouldReuseMarkup,  // 首次为false
+    transaction         // 事务
   );
 }
 
@@ -184,7 +184,6 @@ function batchedMountComponentIntoNode(
   
   */
   var transaction = ReactUpdates.ReactReconcileTransaction.getPooled(
-    /* useCreateElement */
     !shouldReuseMarkup && ReactDOMFeatureFlags.useCreateElement // ReactDOMFeatureFlags.useCreateElement为true
   );
   
@@ -195,7 +194,7 @@ function batchedMountComponentIntoNode(
     componentInstance, // 组件初始化的实例
     container,  // 容器
     transaction,  // 事务
-    shouldReuseMarkup,  // 布尔
+    shouldReuseMarkup,  // 布尔值
     context // 上下文
   );
 
@@ -588,12 +587,13 @@ var ReactMount = {
     /* 
         如果该容器没有子节点并且不是document文档节点，则返回null
     */
+
     var reactRootElement = getReactRootElementInContainer(container);  
 
 
     /* 
         如果reactRootElement没值，则containerHasReactMarkup为null
-        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性 如果containerHasReactMarkup则为该属性，如果containerHasReactMarkup则为null
+        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性 如果有containerHasReactMarkup则为该属性，如果没有containerHasReactMarkup则为null
     
     */
     var containerHasReactMarkup = reactRootElement && !!internalGetID(reactRootElement);
@@ -647,7 +647,7 @@ var ReactMount = {
 
       container, // 容器
 
-      shouldReuseMarkup, // 如果containerHasReactMarkup没值，则该属性为false
+      shouldReuseMarkup, // 如果containerHasReactMarkup没值，则该属性为undefined
 
       parentComponent != null ? parentComponent._reactInternalInstance._processChildContext(
           parentComponent._reactInternalInstance._context
@@ -764,11 +764,11 @@ var ReactMount = {
 
   /**
    * 
-   * @param {*} markup 
-   * @param {*} container 
-   * @param {*} instance 
-   * @param {*} shouldReuseMarkup 
-   * @param {*} transaction 
+   * @param {*} markup               // 一整科节点树渲染后的对象 
+   * @param {*} container            // 容器
+   * @param {*} instance             // 组件初始化实例
+   * @param {*} shouldReuseMarkup    // 首次为false
+   * @param {*} transaction          // 事务
    * @returns 
    */
   _mountImageIntoNode: function(
@@ -866,10 +866,12 @@ var ReactMount = {
         'without using server rendering due to cross-browser quirks. ' +
         'See ReactDOMServer.renderToString() for server rendering.'
     );
-
+    
+    // 首次时为true
     if (transaction.useCreateElement) {
-      while (container.lastChild) {
-        container.removeChild(container.lastChild);
+      // 判断有没有最后一个子节点
+      while (container.lastChild) { // 循环删除节点
+        container.removeChild(container.lastChild); // 删除最后一个子节点
       }
       DOMLazyTree.insertTreeBefore(container, markup, null);
     } else {

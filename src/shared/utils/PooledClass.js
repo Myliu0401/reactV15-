@@ -39,10 +39,11 @@ var oneArgumentPooler = function(copyFieldsFrom) {
   }
 };
 
+
 var twoArgumentPooler = function(a1, a2) {
   var Klass = this;
   if (Klass.instancePool.length) {
-    var instance = Klass.instancePool.pop();
+    var instance = Klass.instancePool.pop();  // 截取数组的最后一项，截取后，原数组会改变
     Klass.call(instance, a1, a2);
     return instance;
   } else {
