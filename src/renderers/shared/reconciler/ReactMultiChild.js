@@ -230,9 +230,9 @@ var ReactMultiChild = {
         if (children.hasOwnProperty(name)) {
           var child = children[name];
           var mountImage = ReactReconciler.mountComponent(
-            child,
-            transaction,
-            this,
+            child,  // 子节点
+            transaction,  // 事务
+            this,  // 父节点组件初始化实例
             this._nativeContainerInfo,
             context
           );

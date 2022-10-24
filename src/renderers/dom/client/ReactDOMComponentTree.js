@@ -37,8 +37,8 @@ function getRenderedNativeOrTextFromComponent(component) {
 }
 
 /**
- * Populate `_nativeNode` on the rendered native/text component with the given
- * DOM node. The passed `inst` can be a composite.
+ * 使用给定的DOM节点。传递的“inst”可以是复合的。
+ * 该函数会在ReactDOMComponent模块中的mountComponent函数中被调用
  */
 function precacheNode(inst, node) {
   var nativeInst = getRenderedNativeOrTextFromComponent(inst); // 返回处理后的inst参数
@@ -172,31 +172,33 @@ function getInstanceFromNode(node) {
 /**
  * 获取dom
  * 给定ReactDOMComponent或ReactDOMTextComponent，返回相应的DOM节点。
- * @param {Object} inst 组件初始化的实例对象
+ * @param {Object} inst 最高层级的组件初始化的实例对象
  * @returns node
  */
 function getNodeFromInstance(inst) {
-  // Without this first invariant, passing a non-DOM-component triggers the next
-  // invariant for a missing parent, which is super confusing.
+  
   invariant(
     inst._nativeNode !== undefined,
     'getNodeFromInstance: Invalid argument.'
   );
 
+  // 判断组件初始化实例中该属性有没有值
   if (inst._nativeNode) {
-    return inst._nativeNode;
+    return inst._nativeNode;  // 有值就直接返回
   }
 
-  // Walk up the tree until we find an ancestor whose DOM node we have cached.
+  // 沿着树向上走，直到找到我们缓存了其DOM节点的祖先。
   var parents = [];
+
+
   while (!inst._nativeNode) {
-    parents.push(inst);
+    parents.push(inst); 
     invariant(
       inst._nativeParent,
       'React DOM tree root should always have a node reference.'
     );
     inst = inst._nativeParent;
-  }
+  };
 
   // Now parents contains each ancestor that does *not* have a cached native
   // node, and `inst` is the deepest ancestor that does.

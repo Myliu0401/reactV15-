@@ -492,7 +492,7 @@ ReactDOMComponent.Mixin = {
   /**
    * 渲染标签组件
    * @param {*} transaction             事务
-   * @param {*} nativeParent            首次时为null
+   * @param {*} nativeParent            首次时为null，如果不是首次则为父节点组件初始化实例
    * @param {*} nativeContainerInfo     首次为集装信息，为一个对象，集装信息，主要存储容器和包装后的根组件的一些信息
    * @param {*} context                 上下文
    * @returns 

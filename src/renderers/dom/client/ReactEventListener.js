@@ -21,20 +21,23 @@ var getEventTarget = require('getEventTarget');
 var getUnboundedScrollPosition = require('getUnboundedScrollPosition');
 
 /**
- * Find the deepest React component completely containing the root of the
- * passed-in instance (for use when entire React trees are nested within each
- * other). If React trees are not nested, returns null.
+ * 
+ * @param {*} inst  组件初始化实例
+ * @returns 
  */
 function findParent(inst) {
-  // TODO: It may be a good idea to cache this to prevent unnecessary DOM
-  // traversal, but caching is difficult to do correctly without using a
-  // mutation observer to listen for all DOM changes.
+ 
+  // 循环判断该属性有没有值，直到没有值就退出循环，想循环拿到最高层级的标签组件初始化实例
   while (inst._nativeParent) {
     inst = inst._nativeParent;
-  }
-  var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst);
-  var container = rootNode.parentNode;
-  return ReactDOMComponentTree.getClosestInstanceFromNode(container);
+  };
+
+
+  var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst); // 返回该实例中的dom节点
+
+  var container = rootNode.parentNode; // 获取该节点的父节点
+
+  return ReactDOMComponentTree.getClosestInstanceFromNode(container);  // 返回从该节点开始到document文档节定
 }
 
 // Used to store ancestor hierarchy in top level callback
@@ -70,26 +73,36 @@ PooledClass.addPoolingTo(
 
 
 /**
- * 
+ * 会遍历找出所有的父节点，并调用 runExtractedEventsInBatch 中的 extractEvents 生成合成事件，
+ * 最后调用 runEventsInBatch 执行。
+ * // document进行事件分发,这样具体的React组件才能得到响应。因为DOM事件是绑定到document上的
  * @param {*} bookKeeping TopLevelCallbackBookKeeping实例
  */
 function handleTopLevelImpl(bookKeeping) {
-
+  // 找到事件触发的DOM和React Component
   var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);  // 获取事件对象的目标节点
 
+  // 该dom节点对应的组件初始化实例
   var targetInst = ReactDOMComponentTree.getClosestInstanceFromNode(
     nativeEventTarget
   );  // 从该参数节点开始并往上找，有没有internalInstanceKey这个属性的节点，有就返回给节点，没有就返回null
 
-  // 
+
+  // 执行事件回调前,先由当前组件向上遍历它的所有父组件。得到ancestors这个数组。
+  // 因为事件回调中可能会改变Virtual DOM结构,所以要先遍历好组件层级
   var ancestor = targetInst;
+
   do {
-    bookKeeping.ancestors.push(ancestor);
-    ancestor = ancestor && findParent(ancestor);
+    bookKeeping.ancestors.push(ancestor); // 将组件初始化实例存到数组中
+    ancestor = ancestor && findParent(ancestor); // 返回从触发的节点开始到document文档节定
   } while (ancestor);
 
+
+  // 从当前组件向父组件遍历,依次执行注册的回调方法. 我们遍历构造ancestors数组时,是从当前组件向父组件回溯的,故此处事件回调也是这个顺序
+  // 这个顺序就是冒泡的顺序,并且我们发现不能通过stopPropagation来阻止'冒泡'。
+  // React自身实现了一套冒泡机制。从触发事件的对象开始，向父元素回溯，依次调用它们注册的事件callback。
   for (var i = 0; i < bookKeeping.ancestors.length; i++) {
-    targetInst = bookKeeping.ancestors[i];
+    targetInst = bookKeeping.ancestors[i]; // 组件初始化实例
     ReactEventListener._handleTopLevel(
       bookKeeping.topLevelType,
       targetInst,
@@ -129,8 +142,7 @@ var ReactEventListener = {
    * @param {string} topLevelType 源码中的事件名 如： topClick 
    * @param {string} handlerBaseName 对应的原生事件名  如: click
    * @param {object} handle 文档节点
-   * @return {?object} An object with a remove function which will forcefully
-   *                  remove the listener.
+   * @return {?object} 具有移除功能的对象移除侦听器。
    * @internal
    */
   trapBubbledEvent: function(topLevelType, handlerBaseName, handle) {
@@ -203,8 +215,23 @@ var ReactEventListener = {
     EventListener.listen(window, 'scroll', callback);
   },
 
+
+
+  /* 
+      React 为什么需要合成事件
+      减少内存消耗，提升性能，不需要注册那么多的事件了，一种事件类型只在 document 上注册一次。
+      统一规范，解决 ie 事件兼容问题，简化事件逻辑。
+      跨端复用。
+  
+  
+  */
+
+
   /**
-   * 
+   * react绑定事件的处理函数  
+   * 事件对象采用的是合成事件；事件全部挂载到 document 节点上，通过冒泡进行触发。
+   * 原生事件（阻止冒泡）会阻止合成事件的执行，合成事件（阻止冒泡）不会阻止原生事件的执行。
+   * 在 react 里所有事件的触发都是通过 dispatchEvent方法统一进行派发的
    * @param {*} topLevelType   映射的事件名  如  topClick
    * @param {*} nativeEvent    事件对象
    * @returns 
@@ -235,6 +262,8 @@ var ReactEventListener = {
     try {
       /* 
          在同一周期中处理的事件队列允许`preventDefault`。
+         handleTopLevel函数会遍历找出所有的父节点，
+         并调用 runExtractedEventsInBatch 中的 extractEvents 生成合成事件，最后调用 runEventsInBatch 执行。
       */
       ReactUpdates.batchedUpdates(handleTopLevelImpl, bookKeeping);
     } finally {

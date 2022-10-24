@@ -39,19 +39,27 @@ var eventQueue = null;
  */
 var executeDispatchesAndRelease = function(event, simulated) {
   if (event) {
+    // 进行事件分发,
     EventPluginUtils.executeDispatchesInOrder(event, simulated);
 
     if (!event.isPersistent()) {
+      // 处理完,则release掉event对象,采用对象池方式,减少GC
+      // React帮我们处理了合成事件的回收机制，不需要我们关心。但要注意，如果使用了DOM原生事件，则要自己回收
       event.constructor.release(event);
     }
   }
 };
+
 var executeDispatchesAndReleaseSimulated = function(e) {
   return executeDispatchesAndRelease(e, true);
 };
+
+
 var executeDispatchesAndReleaseTopLevel = function(e) {
   return executeDispatchesAndRelease(e, false);
 };
+
+
 
 /**
  * This is a unified interface for event plugins to be installed and configured.
@@ -211,11 +219,7 @@ var EventPluginHub = {
   },
 
   /**
-   * Enqueues a synthetic event that should be dispatched when
-   * `processEventQueue` is invoked.
-   *
-   * @param {*} events An accumulation of synthetic events.
-   * @internal
+   * syntheticEvent放入队列中,等到processEventQueue再获得执行
    */
   enqueueEvents: function(events) {
     if (events) {
@@ -224,14 +228,15 @@ var EventPluginHub = {
   },
 
   /**
-   * Dispatches all synthetic events on the event queue.
+   * 分发执行队列中的React合成事件。React事件是采用消息队列方式批处理的
    *
-   * @internal
+   * simulated：为true表示React测试代码，我们一般都是false 
    */
   processEventQueue: function(simulated) {
-    // Set `eventQueue` to null before processing it so that we can tell if more
-    // events get enqueued while processing.
+
+    // 先将eventQueue重置为空
     var processingEventQueue = eventQueue;
+
     eventQueue = null;
     if (simulated) {
       forEachAccumulated(
@@ -239,6 +244,9 @@ var EventPluginHub = {
         executeDispatchesAndReleaseSimulated
       );
     } else {
+      // 遍历处理队列中的事件,
+      // 如果只有一个元素,则直接executeDispatchesAndReleaseTopLevel(processingEventQueue)
+      // 否则遍历队列中事件,调用executeDispatchesAndReleaseTopLevel处理每个元素
       forEachAccumulated(
         processingEventQueue,
         executeDispatchesAndReleaseTopLevel
@@ -252,6 +260,17 @@ var EventPluginHub = {
     // This would be a good time to rethrow if any of the event handlers threw.
     ReactErrorUtils.rethrowCaughtError();
   },
+
+  
+  /* 
+     合成事件处理也分为两步，先将我们要处理的events队列放入eventQueue中，因为之前可能就存在还没处理完的合成事件。
+     然后再执行eventQueue中的事件。可见，如果之前有事件未处理完，这里就又有得到执行的机会了。
+  
+  
+  
+  */
+
+
 
   /**
    * These are needed for tests only. Do not use!

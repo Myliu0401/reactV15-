@@ -13,14 +13,10 @@
 
 var caughtError = null;
 
-/**
- * Call a function while guarding against errors that happens within it.
- *
- * @param {?String} name of the guard to use for logging or debugging
- * @param {Function} func The function to invoke
- * @param {*} a First argument
- * @param {*} b Second argument
- */
+
+// 采用func(a)的方式进行调用，
+// 故ReactErrorUtils.invokeGuardedCallback(type, listener, event)最终调用的是listener(event)
+// event对象为浏览器传递的DOM原生事件对象，这也就解释了为什么React合成事件回调中能拿到原生event的原因
 function invokeGuardedCallback(name, func, a, b) {
   try {
     return func(a, b);

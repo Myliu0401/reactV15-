@@ -111,19 +111,27 @@ function executeDispatch(event, simulated, listener, inst) {
   var type = event.type || 'unknown-event';
   event.currentTarget = EventPluginUtils.getNodeFromInstance(inst);
   if (simulated) {
+    // test代码使用,支持try-catch,其他就没啥区别了
     ReactErrorUtils.invokeGuardedCallbackWithCatch(
       type,
       listener,
       event
     );
   } else {
+    // 事件分发,listener为callback,event为参数,类似listener(event)这个方法调用
+    // 这样就回调到了我们在JSX中注册的callback。比如onClick={(event) => {console.log(1)}}
+    // 这样应该就明白了callback怎么被调用的,以及event参数怎么传入callback里面的了
     ReactErrorUtils.invokeGuardedCallback(type, listener, event);
   }
   event.currentTarget = null;
 }
 
+
 /**
- * Standard/simple iteration through an event's collected dispatches.
+ * // 事件处理的核心
+ * executeDispatchesInOrder会先得到event对应的listeners队列，然后从当前元素向父元素遍历执行注册的callback。
+ * @param {*} event 
+ * @param {*} simulated 
  */
 function executeDispatchesInOrder(event, simulated) {
   var dispatchListeners = event._dispatchListeners;
@@ -132,11 +140,16 @@ function executeDispatchesInOrder(event, simulated) {
     validateEventDispatches(event);
   }
   if (Array.isArray(dispatchListeners)) {
+    // 如果有多个listener,则遍历执行数组中event
     for (var i = 0; i < dispatchListeners.length; i++) {
       if (event.isPropagationStopped()) {
         break;
       }
-      // Listeners and Instances are two parallel arrays that are always in sync.
+
+      // 执行event的分发,从当前触发事件元素向父元素遍历
+      // event为浏览器上传的原生事件
+      // dispatchListeners[i]为JSX中声明的事件callback
+      // dispatchInstances[i]为对应的React Component 
       executeDispatch(
         event,
         simulated,
@@ -145,8 +158,10 @@ function executeDispatchesInOrder(event, simulated) {
       );
     }
   } else if (dispatchListeners) {
+    // 如果只有一个listener,则直接执行事件分发
     executeDispatch(event, simulated, dispatchListeners, dispatchInstances);
   }
+  // 处理完event,重置变量。因为使用的对象池,故必须重置,这样才能被别人复用
   event._dispatchListeners = null;
   event._dispatchInstances = null;
 }
