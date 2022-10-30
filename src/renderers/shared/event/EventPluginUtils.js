@@ -26,7 +26,7 @@ var warning = require('warning');
  *   and actual node references.
  */
 var ComponentTree;
-var TreeTraversal;
+var TreeTraversal;  // 为ReactDOMTreeTraversal模块
 var injection = {
 
   /**
@@ -128,14 +128,13 @@ function executeDispatch(event, simulated, listener, inst) {
 
 
 /**
- * // 事件处理的核心
  * executeDispatchesInOrder会先得到event对应的listeners队列，然后从当前元素向父元素遍历执行注册的callback。
- * @param {*} event 
+ * @param {*} event   合成事件对象
  * @param {*} simulated 
  */
 function executeDispatchesInOrder(event, simulated) {
-  var dispatchListeners = event._dispatchListeners;
-  var dispatchInstances = event._dispatchInstances;
+  var dispatchListeners = event._dispatchListeners;   // 当前组件处理函数
+  var dispatchInstances = event._dispatchInstances;   // 当前组件实例
   if (__DEV__) {
     validateEventDispatches(event);
   }
@@ -270,9 +269,18 @@ var EventPluginUtils = {
   getParentInstance: function(inst) {
     return TreeTraversal.getParentInstance(inst);
   },
+
+  /**
+   * 
+   * @param {*} target 触发事件的组件初始化实例
+   * @param {*} fn     回调
+   * @param {*} arg    合成事件对象
+   * @returns 
+   */
   traverseTwoPhase: function(target, fn, arg) {
     return TreeTraversal.traverseTwoPhase(target, fn, arg);
   },
+
   traverseEnterLeave: function(from, to, fn, argFrom, argTo) {
     return TreeTraversal.traverseEnterLeave(from, to, fn, argFrom, argTo);
   },

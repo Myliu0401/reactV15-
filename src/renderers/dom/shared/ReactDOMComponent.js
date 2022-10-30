@@ -249,7 +249,34 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
   // 参数为 事件名、文档节点, 进行事件注册
   listenTo(registrationName, doc);
 
-  // 向CallbackQueue模块中存储回调和信息对象
+
+
+  /* 
+      该事务拥有以下属性
+        transactionWrappers为ReactReconcileTransaction模块的TRANSACTION_WRAPPERS事务数组
+        wrapperInitData为空数组
+        _isInTransaction为false
+        renderToStaticMarkup为false
+        reactMountReady为 new CallbackQueue 得到的实例对象
+        useCreateElement为执行getPooled时传递的参数
+        以及原型上的Transaction模块的属性
+  
+        getReactMountReady函数会返回CallbackQueue实例
+        实例中的属性
+         _callbacks为null
+         _contexts为null
+         原型:{
+          enqueue(){
+
+          },
+          ...
+         }
+
+         会将putListener回调函数和对象信息存到CallbackQueue模块的CallbackQueue实例中
+  
+  */
+
+  // 向CallbackQueue模块中存储回调函数和信息对象
   transaction.getReactMountReady().enqueue(putListener, {
     inst: inst, // 组件初始化实例
     registrationName: registrationName, // 事件名 如： onClick
@@ -472,7 +499,7 @@ function ReactDOMComponent(element) {
   this._renderedChildren = null;
   this._previousStyle = null;
   this._previousStyleCopy = null;
-  this._nativeNode = null;
+  this._nativeNode = null;  // 该属性为存储节点dom
   this._nativeParent = null;
   this._rootNodeID = null;
   this._domID = null;

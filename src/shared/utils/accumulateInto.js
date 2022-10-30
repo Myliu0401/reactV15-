@@ -27,36 +27,48 @@ var invariant = require('invariant');
  * @return {*|array<*>} An accumulation of items.
  */
 
+
+/**
+ *
+ * @param {*} current    事件队列   首次为null
+ * @param {*} next       合成事件对象
+ * @return {*} 
+ */
 function accumulateInto(current, next) {
   invariant(
     next != null,
     'accumulateInto(...): Accumulated items must not be null or undefined.'
   );
+
+  // 如果是首次则直接返回合成事件对象
   if (current == null) {
     return next;
   }
 
   // Both are not empty. Warning: Never call x.concat(y) when you are not
   // certain that x is an Array (x could be a string with concat method).
-  var currentIsArray = Array.isArray(current);
-  var nextIsArray = Array.isArray(next);
+  var currentIsArray = Array.isArray(current);  // 判断是否是数组
+  var nextIsArray = Array.isArray(next); // 判断是否是数组
 
+  // 判断事件队列和合成事件对象是否都是数组
   if (currentIsArray && nextIsArray) {
     current.push.apply(current, next);
     return current;
   }
 
+  // 判断事件对象是否是数组
   if (currentIsArray) {
     current.push(next);
     return current;
   }
 
+  // 判断合成对象是否是数组
   if (nextIsArray) {
     // A bit too dangerous to mutate `next`.
     return [current].concat(next);
   }
 
-  return [current, next];
+  return [current, next];  // 返回一个数组，第一项为事件队列、第二项为合成事件对象
 }
 
 module.exports = accumulateInto;

@@ -102,8 +102,11 @@ function precacheChildNodes(inst, node) {
   inst._flags |= Flags.hasCachedChildNodes;
 }
 
+
 /**
- * 给定DOM节点，从该节点往上找，返回有internalInstanceKey属性的节点，否则返回null
+ * 
+ * @param {*} node 根节点dom的父节点
+ * @returns 
  */
 function getClosestInstanceFromNode(node) {
   /* 
@@ -111,7 +114,7 @@ function getClosestInstanceFromNode(node) {
     从该参数节点开始往上 有该属性的节点就返回该节点
   */
 
-  // 判断参数节点是否有该属性
+  // 判断参数节点是否有该属性，节点中该属性存储的是对应的组件初始化实例
   if (node[internalInstanceKey]) {
     return node[internalInstanceKey]; // 返回该节点中的属性
   };
@@ -170,10 +173,9 @@ function getInstanceFromNode(node) {
 }
 
 /**
- * 获取dom
- * 给定ReactDOMComponent或ReactDOMTextComponent，返回相应的DOM节点。
- * @param {Object} inst 最高层级的组件初始化的实例对象
- * @returns node
+ *
+ * @param {Object} inst 根节点组件的初始化实例
+ * @returns node  节点dom
  */
 function getNodeFromInstance(inst) {
   
@@ -182,7 +184,7 @@ function getNodeFromInstance(inst) {
     'getNodeFromInstance: Invalid argument.'
   );
 
-  // 判断组件初始化实例中该属性有没有值
+  // 判断该实例中有没有存储对应节点dom
   if (inst._nativeNode) {
     return inst._nativeNode;  // 有值就直接返回
   }

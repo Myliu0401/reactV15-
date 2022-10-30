@@ -97,7 +97,18 @@ Object.assign(
   }
 );
     
-PooledClass.addPoolingTo(ReactUpdatesFlushTransaction); // 向该ReactUpdatesFlushTransaction函数注入静态属性
+// 向该ReactUpdatesFlushTransaction函数注入静态属性
+PooledClass.addPoolingTo(ReactUpdatesFlushTransaction);
+/* 
+     注入后该函数将增加以下静态成员
+      instancePool为空数组
+      getPooled为PooledClass模块中的oneArgumentPooler函数
+      poolSize为10
+      release为PooledClass模块中的standardReleaser函数
+
+
+*/
+
 
 /**
  * 
@@ -112,7 +123,9 @@ function batchedUpdates(callback, a, b, c, d, e) {
   ensureInjected(); // 处理一些不知道干啥的东西
 
   batchingStrategy.batchedUpdates(callback, a, b, c, d, e);  // 进入控制是否批量更新
-}
+};
+
+
 
 /**
  * Array comparator for ReactComponents by mount ordering.
@@ -180,9 +193,14 @@ function runBatchedUpdates(transaction) {
   }
 }
 
+
+/**
+ *  进行更新操作
+ *  该函数的this被改成ReactUpdates对象
+ */
 var flushBatchedUpdates = function() {
   
-  // 队列数组中是否有值
+  // 循环判断队列数组中是否有值 或者 asapEnqueued属性为true
   while (dirtyComponents.length || asapEnqueued) {
     if (dirtyComponents.length) {
       var transaction = ReactUpdatesFlushTransaction.getPooled(); // 更新事务
@@ -200,11 +218,7 @@ var flushBatchedUpdates = function() {
   }
 };
 
-flushBatchedUpdates = ReactPerf.measure(
-  'ReactUpdates',
-  'flushBatchedUpdates',
-  flushBatchedUpdates
-);
+flushBatchedUpdates = ReactPerf.measure('ReactUpdates', 'flushBatchedUpdates', flushBatchedUpdates);
 
 /**
  * Mark a component as needing a rerender, adding an optional callback to a
@@ -222,6 +236,7 @@ function enqueueUpdate(component) {
     return;
   }
 
+  // 如果处于批量更新中，则先将组件实例加到队列中
   dirtyComponents.push(component); // 组件实例加到数组中
 }
 

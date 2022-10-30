@@ -13,8 +13,15 @@
 
 var EventPluginHub = require('EventPluginHub');
 
+
+
+/**
+ * 
+ * @param {*} events 合成的事件对象
+ */
 function runEventQueueInBatch(events) {
-  // 先将events事件放入队列中
+
+  // 先将合成的事件对象放入队列中
   EventPluginHub.enqueueEvents(events);
 
   // 再处理队列中的事件,包括之前未处理完的。先入先处理原则
@@ -27,19 +34,19 @@ var ReactEventEmitterMixin = {
    * React事件调用的入口。DOM事件绑定在了document原生对象上,每次事件触发,都会调用到handleTopLevel
    * handleTopLevel方法是事件callback调用的核心。
    * 它主要做两件事情，一方面利用浏览器回传的原生事件构造出React合成事件，另一方面采用队列的方式处理events。
-   * @param {*} topLevelType 
-   * @param {*} targetInst 
-   * @param {*} nativeEvent 
-   * @param {*} nativeEventTarget 
+   * @param {*} topLevelType          映射的事件名  如： topClick
+   * @param {*} targetInst            组件初始化实例
+   * @param {*} nativeEvent           事件对象
+   * @param {*} nativeEventTarget     触发事件目标节点的dom
    */
   handleTopLevel: function(topLevelType, targetInst, nativeEvent, nativeEventTarget) {
 
-     // 采用对象池的方式构造出合成事件对象。不同的eventType的合成事件可能不同
+     // 采用对象池的方式构造出合成事件对象。不同的topLevelType的合成事件可能不同
     var events = EventPluginHub.extractEvents(
-      topLevelType,
-      targetInst,
-      nativeEvent,
-      nativeEventTarget
+      topLevelType,        // 映射的事件名  如： topClick
+      targetInst,          // 组件初始化实例
+      nativeEvent,         // 事件对象
+      nativeEventTarget    // 触发事件目标节点的dom
     );
 
     // 批处理队列中的events

@@ -491,17 +491,30 @@ var SimpleEventPlugin = {
 
   eventTypes: eventTypes,
 
+  /**
+   * 生成合成事件对象 
+   * @param {*} topLevelType       映射的事件名  如： topClick
+   * @param {*} targetInst         组件初始化实例
+   * @param {*} nativeEvent        事件对象
+   * @param {*} nativeEventTarget  触发事件目标节点的dom
+   * @returns  
+   */
   extractEvents: function(
     topLevelType,
     targetInst,
     nativeEvent,
     nativeEventTarget
   ) {
-    var dispatchConfig = topLevelEventsToDispatchConfig[topLevelType];
+    var dispatchConfig = topLevelEventsToDispatchConfig[topLevelType]; // 获取对应的事件类型块
+
+    // 没有值则直接结束
     if (!dispatchConfig) {
       return null;
-    }
+    };
+
     var EventConstructor;
+
+    // 判断事件类型
     switch (topLevelType) {
       case topLevelTypes.topAbort:
       case topLevelTypes.topCanPlay:
@@ -603,18 +616,24 @@ var SimpleEventPlugin = {
         EventConstructor = SyntheticClipboardEvent;
         break;
     }
+
     invariant(
       EventConstructor,
       'SimpleEventPlugin: Unhandled event type, `%s`.',
       topLevelType
     );
+
+    // 生成对应类型事件的合成事件对象
     var event = EventConstructor.getPooled(
       dispatchConfig,
       targetInst,
       nativeEvent,
       nativeEventTarget
     );
-    EventPropagators.accumulateTwoPhaseDispatches(event);
+
+    // 会将处理函数存到合成事件对象中，并将实例存到合成事件对象中
+    EventPropagators.accumulateTwoPhaseDispatches(event); 
+
     return event;
   },
 

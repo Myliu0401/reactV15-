@@ -18,7 +18,8 @@
  * @return {DOMEventTarget} Target node.
  */
 function getEventTarget(nativeEvent) {
-  var target = nativeEvent.target || nativeEvent.srcElement || window;
+  // 进行判断处理浏览器兼容问题
+  var target = nativeEvent.target || nativeEvent.srcElement || window;  
 
   // Normalize SVG <use> element events #4963
   if (target.correspondingUseElement) {
@@ -27,7 +28,8 @@ function getEventTarget(nativeEvent) {
 
   // Safari may fire events on text nodes (Node.TEXT_NODE is 3).
   // @see http://www.quirksmode.org/js/events_properties.html
-  return target.nodeType === 3 ? target.parentNode : target;  // 是否是文本节点，如果是就返回父节点，如果不是就返回目标节点
+  // 是否是文本节点，如果是就返回父节点，如果不是就返回目标节点
+  return target.nodeType === 3 ? target.parentNode : target;  
 }
 
 module.exports = getEventTarget;

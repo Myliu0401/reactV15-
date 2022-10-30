@@ -27,17 +27,28 @@ var getUnboundedScrollPosition = require('getUnboundedScrollPosition');
  */
 function findParent(inst) {
  
-  // 循环判断该属性有没有值，直到没有值就退出循环，想循环拿到最高层级的标签组件初始化实例
+   /* 
+       循环判断有没有父节点初始化的实例，最高一层为null（包装层）, 
+       只为标签组件初始化实例中有该属性，所以是遍历标签组件。
+   
+       遍历到inst变成最高一层的根节点组件的初始化实例
+   */
   while (inst._nativeParent) {
     inst = inst._nativeParent;
   };
 
 
-  var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst); // 返回该实例中的dom节点
 
-  var container = rootNode.parentNode; // 获取该节点的父节点
+  /* 
+      参数为根节点组件的初始化实例
+      返回初始化实例对应的节点dom，也就是根节点dom
+  */
+  var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst); 
 
-  return ReactDOMComponentTree.getClosestInstanceFromNode(container);  // 返回从该节点开始到document文档节定
+  var container = rootNode.parentNode; // 获取该根节点的父节点
+
+  // 获取容器初始化实例，如果没有就返回document文档节点
+  return ReactDOMComponentTree.getClosestInstanceFromNode(container);  
 }
 
 // Used to store ancestor hierarchy in top level callback
@@ -92,22 +103,34 @@ function handleTopLevelImpl(bookKeeping) {
   // 因为事件回调中可能会改变Virtual DOM结构,所以要先遍历好组件层级
   var ancestor = targetInst;
 
+  // 循环
   do {
     bookKeeping.ancestors.push(ancestor); // 将组件初始化实例存到数组中
-    ancestor = ancestor && findParent(ancestor); // 返回从触发的节点开始到document文档节定
+
+    // 判断该属性是否有值 有值就执行findParent函数并将组件初始化实例传进去
+    ancestor = ancestor && findParent(ancestor); // 该函数会从当前触发的组件开始遍历到document
+
+    // 所以ancestors数组中的存储从触发事件的组件开始到根节点组件的组件初始化实例
   } while (ancestor);
 
 
-  // 从当前组件向父组件遍历,依次执行注册的回调方法. 我们遍历构造ancestors数组时,是从当前组件向父组件回溯的,故此处事件回调也是这个顺序
-  // 这个顺序就是冒泡的顺序,并且我们发现不能通过stopPropagation来阻止'冒泡'。
-  // React自身实现了一套冒泡机制。从触发事件的对象开始，向父元素回溯，依次调用它们注册的事件callback。
+  
+  /* 
+     从当前组件向父组件遍历,依次执行注册的回调方法. 我们遍历构造ancestors数组时,
+       是从当前组件向父组件回溯的,故此处事件回调也是这个顺序。
+     这个顺序就是冒泡的顺序,并且我们发现不能通过stopPropagation来阻止'冒泡'。
+     React自身实现了一套冒泡机制。从触发事件的对象开始，向父元素回溯，依次调用它们注册的事件callback。
+    
+    遍历该数组
+  */
   for (var i = 0; i < bookKeeping.ancestors.length; i++) {
     targetInst = bookKeeping.ancestors[i]; // 组件初始化实例
+
     ReactEventListener._handleTopLevel(
-      bookKeeping.topLevelType,
-      targetInst,
-      bookKeeping.nativeEvent,
-      getEventTarget(bookKeeping.nativeEvent)
+      bookKeeping.topLevelType, // 映射的事件名  如： topClick
+      targetInst,  // 组件初始化实例
+      bookKeeping.nativeEvent, // 事件对象
+      getEventTarget(bookKeeping.nativeEvent) // 触发事件目标节点的dom
     );
   }
 }
@@ -143,7 +166,7 @@ var ReactEventListener = {
    * @param {string} handlerBaseName 对应的原生事件名  如: click
    * @param {object} handle 文档节点
    * @return {?object} 具有移除功能的对象移除侦听器。
-   * @internal
+   * @internal  
    */
   trapBubbledEvent: function(topLevelType, handlerBaseName, handle) {
 
@@ -154,7 +177,7 @@ var ReactEventListener = {
       return null;  // 没有文档节点直接结束
     }
 
-
+    // 进行事件的注册
     return EventListener.listen( 
       element,        // 文档节点
       handlerBaseName, // 对应原生事件名
@@ -256,7 +279,7 @@ var ReactEventListener = {
     */
     var bookKeeping = TopLevelCallbackBookKeeping.getPooled(
       topLevelType,  // 映射的事件名  如： topClick
-      nativeEvent    // undefined
+      nativeEvent    // 事件对象
     );
 
     try {

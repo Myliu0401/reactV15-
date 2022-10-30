@@ -80,18 +80,27 @@ function getParentInstance(inst) {
 }
 
 /**
- * Simulates the traversal of a two-phase, capture/bubble event dispatch.
+ * 
+ * @param {*} inst  触发事件目标节点组件初始化实例
+ * @param {*} fn    回调
+ * @param {*} arg   // 合成事件对象
  */
 function traverseTwoPhase(inst, fn, arg) {
   var path = [];
+
+  // 循环，将从触发事件的组件开始到根节点的组合键初始化实例存到数组中
   while (inst) {
     path.push(inst);
     inst = inst._nativeParent;
   }
+
   var i;
+  
+  // 倒序循环该数组
   for (i = path.length; i-- > 0;) {
-    fn(path[i], false, arg);
+    fn(path[i], false, arg); // 调用回调
   }
+  // 顺序循环该数组
   for (i = 0; i < path.length; i++) {
     fn(path[i], true, arg);
   }

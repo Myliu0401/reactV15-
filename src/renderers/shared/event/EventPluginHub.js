@@ -31,14 +31,14 @@ var listenerBank = {};
 var eventQueue = null;
 
 /**
- * Dispatches an event and releases it back into the pool, unless persistent.
- *
- * @param {?object} event Synthetic event to be dispatched.
- * @param {boolean} simulated If the event is simulated (changes exn behavior)
- * @private
+ * 
+ * @param {*} event 合成事件对象
+ * @param {*} simulated 
  */
 var executeDispatchesAndRelease = function(event, simulated) {
+  // 判断事件对象是否有值
   if (event) {
+
     // 进行事件分发,
     EventPluginUtils.executeDispatchesInOrder(event, simulated);
 
@@ -54,7 +54,11 @@ var executeDispatchesAndReleaseSimulated = function(e) {
   return executeDispatchesAndRelease(e, true);
 };
 
-
+/**
+ * 
+ * @param {*} e 合成事件对象
+ * @returns 
+ */
 var executeDispatchesAndReleaseTopLevel = function(e) {
   return executeDispatchesAndRelease(e, false);
 };
@@ -183,12 +187,14 @@ var EventPluginHub = {
     }
   },
 
+  
   /**
-   * Allows registered plugins an opportunity to extract events from top-level
-   * native browser events.
-   *
-   * @return {*} An accumulation of synthetic events.
-   * @internal
+   * 根据事件类型生成合成事件对象
+   * @param {*} topLevelType        映射的事件名  如： topClick
+   * @param {*} targetInst          组件初始化实例
+   * @param {*} nativeEvent         事件对象
+   * @param {*} nativeEventTarget   触发事件目标节点的dom
+   * @returns 
    */
   extractEvents: function(
       topLevelType,
@@ -200,16 +206,22 @@ var EventPluginHub = {
     var plugins = EventPluginRegistry.plugins;
     // [SimpleEventPlugin,EnterLeaveEventPlugin,ChangeEventPlugin,SelectEventPlugin,BeforeInputEventPlugin]
 
+    // 循环事件模块
     for (var i = 0; i < plugins.length; i++) {
-      // Not every plugin in the ordering may be loaded at runtime.
-      var possiblePlugin = plugins[i];
+      
+      var possiblePlugin = plugins[i]; // 获取事件模块
+      
+      // 判断该模块是否有值
       if (possiblePlugin) {
+
+        // 执行事件模块中的extractEvents函数
         var extractedEvents = possiblePlugin.extractEvents(
-          topLevelType,
-          targetInst,
-          nativeEvent,
-          nativeEventTarget
+          topLevelType,      // 映射的事件名  如： topClick
+          targetInst,        // 组件初始化实例
+          nativeEvent,       // 事件对象
+          nativeEventTarget  // 触发事件目标节点的dom
         );
+        
         if (extractedEvents) {
           events = accumulateInto(events, extractedEvents);
         }
@@ -220,24 +232,33 @@ var EventPluginHub = {
 
   /**
    * syntheticEvent放入队列中,等到processEventQueue再获得执行
+   * @param {*} events 合成事件对象
    */
   enqueueEvents: function(events) {
+
+    // 判断该参数是否有值
     if (events) {
-      eventQueue = accumulateInto(eventQueue, events);
+      /* 
+          参数为事件队列和合成事件对象
+          如果是首次执行则直接返回合成事件对象
+          如果不是首次执行则会进行判断处理再返回
+      */
+      eventQueue = accumulateInto(eventQueue, events); 
     }
   },
 
   /**
    * 分发执行队列中的React合成事件。React事件是采用消息队列方式批处理的
-   *
    * simulated：为true表示React测试代码，我们一般都是false 
+   * @param {*} simulated 布尔值
    */
   processEventQueue: function(simulated) {
 
-    // 先将eventQueue重置为空
-    var processingEventQueue = eventQueue;
+   
+    var processingEventQueue = eventQueue; // 将事件队列存到变量中
 
-    eventQueue = null;
+    eventQueue = null; // 在将事件队列赋值为null
+
     if (simulated) {
       forEachAccumulated(
         processingEventQueue,
@@ -248,7 +269,7 @@ var EventPluginHub = {
       // 如果只有一个元素,则直接executeDispatchesAndReleaseTopLevel(processingEventQueue)
       // 否则遍历队列中事件,调用executeDispatchesAndReleaseTopLevel处理每个元素
       forEachAccumulated(
-        processingEventQueue,
+        processingEventQueue, // 事件队列
         executeDispatchesAndReleaseTopLevel
       );
     }

@@ -22,21 +22,26 @@ var warning = require('warning');
 var PropagationPhases = EventConstants.PropagationPhases;
 var getListener = EventPluginHub.getListener;
 
-/**
- * Some event types have a notion of different registration names for different
- * "phases" of propagation. This finds listeners by a given phase.
- */
-function listenerAtPhase(inst, event, propagationPhase) {
-  var registrationName =
-    event.dispatchConfig.phasedRegistrationNames[propagationPhase];
-  return getListener(inst, registrationName);
-}
+
 
 /**
- * Tags a `SyntheticEvent` with dispatched listeners. Creating this function
- * here, allows us to not have to bind or create functions for each event.
- * Mutating the event's members allows us to not have to create a wrapping
- * "dispatch" object that pairs the event with the listener.
+ * 
+ * @param {*} inst     组件初始化实例
+ * @param {*} event    合成事件对象
+ * @param {*} propagationPhase 冒泡还是捕获
+ * @returns 
+ */
+function listenerAtPhase(inst, event, propagationPhase) {
+  var registrationName = event.dispatchConfig.phasedRegistrationNames[propagationPhase];
+  return getListener(inst, registrationName); // 获取对应注册的事件处理函数
+}
+
+
+/**
+ * 
+ * @param {*} inst      标签组件初始化实例
+ * @param {*} upwards   布尔值
+ * @param {*} event     合成事件对象
  */
 function accumulateDirectionalDispatches(inst, upwards, event) {
   if (__DEV__) {
@@ -45,28 +50,29 @@ function accumulateDirectionalDispatches(inst, upwards, event) {
       'Dispatching inst must not be null'
     );
   }
-  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured;
-  var listener = listenerAtPhase(inst, event, phase);
+  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured; // 根据布尔值来获取冒泡还是捕获
+
+
+  var listener = listenerAtPhase(inst, event, phase); // 返回注册的对应的事件处理函数
+
+  // 判断是否该函数
   if (listener) {
-    event._dispatchListeners =
-      accumulateInto(event._dispatchListeners, listener);
-    event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);
+    event._dispatchListeners = accumulateInto(event._dispatchListeners, listener); // 将处理函数存到该属性中
+    event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);  // 将实例的到该属性中
   }
 }
 
+
 /**
- * Collect dispatches (must be entirely collected before dispatching - see unit
- * tests). Lazily allocate the array to conserve memory.  We must loop through
- * each event and perform the traversal for each one. We cannot perform a
- * single traversal for the entire collection of events because each event may
- * have a different target.
+ * 
+ * @param {*} event 合成事件对象
  */
 function accumulateTwoPhaseDispatchesSingle(event) {
   if (event && event.dispatchConfig.phasedRegistrationNames) {
     EventPluginUtils.traverseTwoPhase(
-      event._targetInst,
-      accumulateDirectionalDispatches,
-      event
+      event._targetInst,   // 目标节点组件初始化实例 
+      accumulateDirectionalDispatches, // 回调函数
+      event  // 合成事件对象
     );
   }
 }
@@ -116,7 +122,13 @@ function accumulateDirectDispatchesSingle(event) {
   }
 }
 
+
+/**
+ * 
+ * @param {*} events 合成事件对象
+ */
 function accumulateTwoPhaseDispatches(events) {
+  // 会将处理函数存到合成事件对象中，并将实例存到合成事件对象中
   forEachAccumulated(events, accumulateTwoPhaseDispatchesSingle);
 }
 

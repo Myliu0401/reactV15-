@@ -12,17 +12,18 @@
 'use strict';
 
 /**
- * @param {array} arr an "accumulation" of items which is either an Array or
- * a single item. Useful when paired with the `accumulate` module. This is a
- * simple utility that allows us to reason about a collection of items, but
- * handling the case when there is exactly one item (and we do not need to
- * allocate an array).
+ * 
+ * @param {*} arr 事件队列
+ * @param {*} cb  回调函数
+ * @param {*} scope 
  */
 var forEachAccumulated = function(arr, cb, scope) {
+  
+  // 判断事件队列是否是数组
   if (Array.isArray(arr)) {
-    arr.forEach(cb, scope);
+    arr.forEach(cb, scope); // 执行注册的事件处理函数
   } else if (arr) {
-    cb.call(scope, arr);
+    cb.call(scope, arr); // 执行回调并且将回调值this修改成第三个参数
   }
 };
 
