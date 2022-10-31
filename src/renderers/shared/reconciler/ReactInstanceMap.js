@@ -30,6 +30,11 @@ var ReactInstanceMap = {
     key._reactInternalInstance = undefined;
   },
 
+  /**
+   * 获取类组件初始化的实例
+   * @param {*} key 实例
+   * @returns 
+   */
   get: function(key) {
     return key._reactInternalInstance;
   },

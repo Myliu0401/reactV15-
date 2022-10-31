@@ -221,9 +221,8 @@ var flushBatchedUpdates = function() {
 flushBatchedUpdates = ReactPerf.measure('ReactUpdates', 'flushBatchedUpdates', flushBatchedUpdates);
 
 /**
- * Mark a component as needing a rerender, adding an optional callback to a
- * list of functions which will be executed once the rerender occurs.
- * @param {*} component 组件实例
+ * 将组件标记为需要重新呈现，将可选回调添加到重发发生后将执行的函数列表。
+ * @param {*} component 类组件初始化实例
  * @returns 
  */
 function enqueueUpdate(component) {
@@ -232,7 +231,8 @@ function enqueueUpdate(component) {
 
   // 判断是否不处于批量更新模式
   if (!batchingStrategy.isBatchingUpdates) {
-    batchingStrategy.batchedUpdates(enqueueUpdate, component);
+    // 事务会执行该回调函数，并且将component参数传进来
+    batchingStrategy.batchedUpdates(enqueueUpdate, component); 
     return;
   }
 

@@ -20,14 +20,17 @@ var invariant = require('invariant');
 var warning = require('warning');
 
 /**
- * Base class helpers for the updating state of a component.
+ * 组件更新状态的基类助手。
+ * 类组件会继承该函数的原型，并且首次创建类组件时会执行该函数
+ * @param {*} props 
+ * @param {*} context 
+ * @param {*} updater 
  */
 function ReactComponent(props, context, updater) {
   this.props = props;
   this.context = context;
   this.refs = emptyObject;
-  // We initialize the default updater but the real one gets injected by the
-  // renderer.
+  // 我们初始化了默认的更新程序，但真正的更新程序由渲染器
   this.updater = updater || ReactNoopUpdateQueue;
 }
 
@@ -52,9 +55,9 @@ ReactComponent.prototype.isReactComponent = {};
  * shouldComponentUpdate, and this new state, props, and context will not yet be
  * assigned to this.
  *
- * @param {object|function} partialState Next partial state or function to
+ * @param {object|function} partialState 新状态
  *        produce next partial state to be merged with current state.
- * @param {?function} callback Called after state is updated.
+ * @param {?function} callback 回调
  * @final
  * @protected
  */
@@ -74,7 +77,13 @@ ReactComponent.prototype.setState = function(partialState, callback) {
       'instead, use forceUpdate().'
     ); // 错误校验
   }
-  this.updater.enqueueSetState(this, partialState);
+
+  /* 
+      this为类实例
+
+      updater为ReactUpdateQueue模块
+  */
+  this.updater.enqueueSetState(this, partialState); // 进行更新操作
   if (callback) {
     this.updater.enqueueCallback(this, callback, 'setState');
   }
@@ -98,7 +107,7 @@ ReactComponent.prototype.forceUpdate = function(callback) {
   this.updater.enqueueForceUpdate(this);
   if (callback) {
     this.updater.enqueueCallback(this, callback, 'forceUpdate');
-  }
+   }
 };
 
 /**

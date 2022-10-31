@@ -19,8 +19,8 @@ var invariant = require('invariant');
 var warning = require('warning');
 
 /**
- * 
- * @param {*} internalInstance 组件实例
+ * 更新队列
+ * @param {*} internalInstance 类组件初始化实例
  */
 function enqueueUpdate(internalInstance) {
   ReactUpdates.enqueueUpdate(internalInstance);
@@ -66,13 +66,13 @@ function formatUnexpectedArgument(arg) {
 
 
 /**
- * 
+ * 获取类组件初始化的实例
  * @param {*} publicInstance 实例
  * @param {*} callerName 名称
  * @returns 实例中组件的实例 
  */
 function getInternalInstanceReadyForUpdate(publicInstance, callerName) {
-  var internalInstance = ReactInstanceMap.get(publicInstance);
+  var internalInstance = ReactInstanceMap.get(publicInstance);  // 获取类组件初始化的实例
   if (!internalInstance) {
     if (__DEV__) {
       // Only warn when we have a callerName. Otherwise we should be silent.
@@ -244,25 +244,25 @@ var ReactUpdateQueue = {
     enqueueUpdate(internalInstance);
   },
 
+
   /**
-   *
-   * @param {ReactClass} publicInstance 实例 
+   * 更新状态
+   * @param {ReactClass} publicInstance 类实例 
    * @param {object} partialState 新状态
    * @internal
    */
   enqueueSetState: function(publicInstance, partialState) {
-    var internalInstance = getInternalInstanceReadyForUpdate(
-      publicInstance,
-      'setState'
-    );
+
+    // 获取组件初始化的实例
+    var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'setState');
 
     if (!internalInstance) {
       return;
     }
 
-    // 判断状态队列中是否有值，如果没值，将进行赋值
+    // 判断组件初始化实例中该状态队列有没有值如果没有值，则赋值为空数组
     var queue = internalInstance._pendingStateQueue || (internalInstance._pendingStateQueue = []);
-    queue.push(partialState); // 将状态对象加进状态队列中
+    queue.push(partialState); // 将新状态对象加进状态队列中
 
     enqueueUpdate(internalInstance);
   },
