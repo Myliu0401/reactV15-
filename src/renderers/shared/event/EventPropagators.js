@@ -28,11 +28,17 @@ var getListener = EventPluginHub.getListener;
  * 
  * @param {*} inst     组件初始化实例
  * @param {*} event    合成事件对象
- * @param {*} propagationPhase 冒泡还是捕获
+ * @param {*} propagationPhase 冒泡还是捕获   bubbled、captured
  * @returns 
  */
 function listenerAtPhase(inst, event, propagationPhase) {
+
+  /* 
+      dispatchConfig为对应事件模块的对应事件的phasedRegistrationNames
+      获取处理后的事件名  如click的冒泡是 onClick   捕获是 onClickCapture
+  */
   var registrationName = event.dispatchConfig.phasedRegistrationNames[propagationPhase];
+
   return getListener(inst, registrationName); // 获取对应注册的事件处理函数
 }
 
@@ -40,7 +46,7 @@ function listenerAtPhase(inst, event, propagationPhase) {
 /**
  * 
  * @param {*} inst      标签组件初始化实例
- * @param {*} upwards   布尔值
+ * @param {*} upwards   布尔值控制事件捕获或事件冒泡
  * @param {*} event     合成事件对象
  */
 function accumulateDirectionalDispatches(inst, upwards, event) {
@@ -50,12 +56,14 @@ function accumulateDirectionalDispatches(inst, upwards, event) {
       'Dispatching inst must not be null'
     );
   }
-  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured; // 根据布尔值来获取冒泡还是捕获
+
+  // 根据布尔值来获取冒泡还是捕获
+  var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured; 
 
 
   var listener = listenerAtPhase(inst, event, phase); // 返回注册的对应的事件处理函数
 
-  // 判断是否该函数
+  // 判断是否该事件处理函数
   if (listener) {
     event._dispatchListeners = accumulateInto(event._dispatchListeners, listener); // 将处理函数存到该属性中
     event._dispatchInstances = accumulateInto(event._dispatchInstances, inst);  // 将实例的到该属性中
@@ -68,6 +76,7 @@ function accumulateDirectionalDispatches(inst, upwards, event) {
  * @param {*} event 合成事件对象
  */
 function accumulateTwoPhaseDispatchesSingle(event) {
+  // 判断是否有该模块
   if (event && event.dispatchConfig.phasedRegistrationNames) {
     EventPluginUtils.traverseTwoPhase(
       event._targetInst,   // 目标节点组件初始化实例 

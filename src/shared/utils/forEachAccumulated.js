@@ -13,7 +13,7 @@
 
 /**
  * 
- * @param {*} arr 事件队列
+ * @param {*} arr 事件队列/事件对象 ...
  * @param {*} cb  回调函数
  * @param {*} scope 
  */

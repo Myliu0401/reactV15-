@@ -30,7 +30,7 @@ var invariant = require('invariant');
 
 /**
  *
- * @param {*} current    事件队列   首次为null
+ * @param {*} current    事件队列/null ...
  * @param {*} next       合成事件对象
  * @return {*} 
  */

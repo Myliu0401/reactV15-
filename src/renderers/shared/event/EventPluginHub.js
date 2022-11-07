@@ -20,20 +20,19 @@ var forEachAccumulated = require('forEachAccumulated');
 var invariant = require('invariant');
 
 /**
- * Internal store for event listeners
+ * 事件侦听器的内部存储
  */
 var listenerBank = {};
 
 /**
- * Internal queue of events that have accumulated their dispatches and are
- * waiting to have their dispatches executed.
+ * 已累计调度的事件的内部队列 等待执行他们的调度。
  */
 var eventQueue = null;
 
 /**
  * 
  * @param {*} event 合成事件对象
- * @param {*} simulated 
+ * @param {*} simulated 布尔值
  */
 var executeDispatchesAndRelease = function(event, simulated) {
   // 判断事件对象是否有值
@@ -110,11 +109,11 @@ var EventPluginHub = {
   },
 
   /**
-   * Stores `listener` at `listenerBank[registrationName][id]`. Is idempotent.
+   * 存储事件处理函数
    *
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
-   * @param {function} listener The callback to store.
+   * @param {object} inst  组件初始化实例
+   * @param {string} registrationName 事件名  如 onClick
+   * @param {function} listener 事件处理函数
    */
   putListener: function(inst, registrationName, listener) {
     invariant(
@@ -123,20 +122,28 @@ var EventPluginHub = {
       registrationName, typeof listener
     );
 
-    var bankForRegistrationName =
-      listenerBank[registrationName] || (listenerBank[registrationName] = {});
+    /* 
+         判断是否有该事件属性有就直接取该属性对象，没有就赋值后取该对象
+    
+    
+    */
+    var bankForRegistrationName = listenerBank[registrationName] || (listenerBank[registrationName] = {});
+
+    // 该组件初始化实例中有一个唯一id号，以该id号做为属性赋值为处理函数
     bankForRegistrationName[inst._rootNodeID] = listener;
 
-    var PluginModule =
-      EventPluginRegistry.registrationNameModules[registrationName];
+    // 获取对应事件模块
+    var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
+
+    // 判断有没有该事件模块 并且 该事件模块中有didPutListener函数
     if (PluginModule && PluginModule.didPutListener) {
       PluginModule.didPutListener(inst, registrationName, listener);
     }
   },
 
   /**
-   * @param {object} inst The instance, which is the source of events.
-   * @param {string} registrationName Name of listener (e.g. `onClick`).
+   * @param {object} inst 组件初始化实例
+   * @param {string} registrationName 冒泡或捕获的事件名 如： click的冒泡是 onClick   捕获是 onClickCapture
    * @return {?function} The stored callback.
    */
   getListener: function(inst, registrationName) {
@@ -255,10 +262,11 @@ var EventPluginHub = {
   processEventQueue: function(simulated) {
 
    
-    var processingEventQueue = eventQueue; // 将事件队列存到变量中
+    var processingEventQueue = eventQueue; // 将事件对象存到变量中
 
-    eventQueue = null; // 在将事件队列赋值为null
+    eventQueue = null; // 在将该变量赋值为null
 
+    // true表示测试代码，一般都为false
     if (simulated) {
       forEachAccumulated(
         processingEventQueue,
@@ -269,7 +277,7 @@ var EventPluginHub = {
       // 如果只有一个元素,则直接executeDispatchesAndReleaseTopLevel(processingEventQueue)
       // 否则遍历队列中事件,调用executeDispatchesAndReleaseTopLevel处理每个元素
       forEachAccumulated(
-        processingEventQueue, // 事件队列
+        processingEventQueue, // 合成事件对象
         executeDispatchesAndReleaseTopLevel
       );
     }

@@ -14,12 +14,21 @@
 var caughtError = null;
 
 
-// 采用func(a)的方式进行调用，
-// 故ReactErrorUtils.invokeGuardedCallback(type, listener, event)最终调用的是listener(event)
-// event对象为浏览器传递的DOM原生事件对象，这也就解释了为什么React合成事件回调中能拿到原生event的原因
+
+
+/**
+ * 采用func(a)的方式进行调用，
+ * 故ReactErrorUtils.invokeGuardedCallback(type, listener, event)最终调用的是listener(event)
+ * event对象为浏览器传递的DOM原生事件对象，这也就解释了为什么React合成事件回调中能拿到原生event的原因
+ * @param {*} name  事件类型
+ * @param {*} func  事件处理函数
+ * @param {*} a     合成事件对象
+ * @param {*} b 
+ * @returns 
+ */
 function invokeGuardedCallback(name, func, a, b) {
   try {
-    return func(a, b);
+    return func(a, b); // 执行事件，并且传进去一个合成事件对象
   } catch (x) {
     if (caughtError === null) {
       caughtError = x;

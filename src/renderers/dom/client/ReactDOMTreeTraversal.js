@@ -86,21 +86,30 @@ function getParentInstance(inst) {
  * @param {*} arg   // 合成事件对象
  */
 function traverseTwoPhase(inst, fn, arg) {
-  var path = [];
+  var path = []; // 声明一个数组变量
 
   // 循环，将从触发事件的组件开始到根节点的组合键初始化实例存到数组中
   while (inst) {
-    path.push(inst);
-    inst = inst._nativeParent;
+    path.push(inst); // 将实例初始化实例存到数组中
+    inst = inst._nativeParent; // 该属性就是父节点的组件初始化实例，最高一层为null
   }
 
   var i;
   
-  // 倒序循环该数组
+  /* 
+       倒序循环数组
+       因为上面是从目标组件开始往上存，这次倒序循环就从父节点开始往下走
+       捕获的形式触发  从外往里捕获
+  */
   for (i = path.length; i-- > 0;) {
     fn(path[i], false, arg); // 调用回调
   }
-  // 顺序循环该数组
+
+
+  /* 
+     顺序循环该数组
+     冒泡形式触发   从里往外冒
+  */
   for (i = 0; i < path.length; i++) {
     fn(path[i], true, arg);
   }

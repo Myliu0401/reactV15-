@@ -101,17 +101,20 @@ if (__DEV__) {
 }
 
 /**
- * Dispatch the event to the listener.
- * @param {SyntheticEvent} event SyntheticEvent to handle
- * @param {boolean} simulated If the event is simulated (changes exn behavior)
- * @param {function} listener Application-level callback
- * @param {*} inst Internal component instance
+ * 将事件发送给侦听器.
+ * @param {SyntheticEvent} event 合成事件对象
+ * @param {boolean} simulated 布尔值
+ * @param {function} listener 事件处理函数
+ * @param {*} inst 组件初始化实例
  */
 function executeDispatch(event, simulated, listener, inst) {
-  var type = event.type || 'unknown-event';
-  event.currentTarget = EventPluginUtils.getNodeFromInstance(inst);
+
+  var type = event.type || 'unknown-event';  // 获取事件类型
+
+  event.currentTarget = EventPluginUtils.getNodeFromInstance(inst); // 获取节点dom
+
   if (simulated) {
-    // test代码使用,支持try-catch,其他就没啥区别了
+    // 测试代码使用,支持try-catch,其他就没啥区别了
     ReactErrorUtils.invokeGuardedCallbackWithCatch(
       type,
       listener,
@@ -130,7 +133,7 @@ function executeDispatch(event, simulated, listener, inst) {
 /**
  * executeDispatchesInOrder会先得到event对应的listeners队列，然后从当前元素向父元素遍历执行注册的callback。
  * @param {*} event   合成事件对象
- * @param {*} simulated 
+ * @param {*} simulated 布尔值
  */
 function executeDispatchesInOrder(event, simulated) {
   var dispatchListeners = event._dispatchListeners;   // 当前组件处理函数
@@ -141,25 +144,29 @@ function executeDispatchesInOrder(event, simulated) {
   if (Array.isArray(dispatchListeners)) {
     // 如果有多个listener,则遍历执行数组中event
     for (var i = 0; i < dispatchListeners.length; i++) {
+
+      // 判断是否有事件执行了 阻止捕获 或 阻止冒泡
       if (event.isPropagationStopped()) {
         break;
       }
 
       // 执行event的分发,从当前触发事件元素向父元素遍历
-      // event为浏览器上传的原生事件
+      // event为合成事件对象
       // dispatchListeners[i]为JSX中声明的事件callback
       // dispatchInstances[i]为对应的React Component 
       executeDispatch(
-        event,
-        simulated,
-        dispatchListeners[i],
-        dispatchInstances[i]
+        event,  // 合成事件对象
+        simulated, // 布尔值
+        dispatchListeners[i],  // 组件初始化实例的事件处理函数
+        dispatchInstances[i]   // 组件初始化实例
       );
     }
   } else if (dispatchListeners) {
     // 如果只有一个listener,则直接执行事件分发
     executeDispatch(event, simulated, dispatchListeners, dispatchInstances);
-  }
+  };
+
+
   // 处理完event,重置变量。因为使用的对象池,故必须重置,这样才能被别人复用
   event._dispatchListeners = null;
   event._dispatchInstances = null;

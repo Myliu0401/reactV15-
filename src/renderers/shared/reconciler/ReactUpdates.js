@@ -20,7 +20,8 @@ var Transaction = require('Transaction');
 
 var invariant = require('invariant');
 
-var dirtyComponents = [];
+var dirtyComponents = []; // 存储要更新的类组件初始化的实例
+
 var asapCallbackQueue = CallbackQueue.getPooled();
 var asapEnqueued = false;
 
@@ -63,10 +64,27 @@ var TRANSACTION_WRAPPERS = [NESTED_UPDATES, UPDATE_QUEUEING];
 // 更新事务
 function ReactUpdatesFlushTransaction() {
   this.reinitializeTransaction(); // 该函数会重置队列数组
+  /* 
+      该函数中会调用getTransactionWrappers函数并且将返回值赋给 this.transactionWrappers
+  
+  */
+
+
+
   this.dirtyComponentsLength = null;
+
   this.callbackQueue = CallbackQueue.getPooled();
+  /* 
+      callbackQueue为一个对象该对象中拥有以下属性
+        _callbacks: null
+        _contexts: null
+  */
+
   this.reconcileTransaction = ReactUpdates.ReactReconcileTransaction.getPooled(true);
-}
+};
+
+
+
 
 Object.assign(
   ReactUpdatesFlushTransaction.prototype,
@@ -138,6 +156,11 @@ function mountOrderComparator(c1, c2) {
   return c1._mountOrder - c2._mountOrder;
 }
 
+
+/**
+ * 
+ * @param {*} transaction 事务
+ */
 function runBatchedUpdates(transaction) {
   var len = transaction.dirtyComponentsLength;
   invariant(
@@ -153,7 +176,7 @@ function runBatchedUpdates(transaction) {
 
   for (var i = 0; i < len; i++) {
     
-    var component = dirtyComponents[i];
+    var component = dirtyComponents[i]; // 获取类组件初始化实例
 
    
     var callbacks = component._pendingCallbacks;
@@ -202,6 +225,8 @@ var flushBatchedUpdates = function() {
   
   // 循环判断队列数组中是否有值 或者 asapEnqueued属性为true
   while (dirtyComponents.length || asapEnqueued) {
+    
+    // 判断 数组中还有没有值
     if (dirtyComponents.length) {
       var transaction = ReactUpdatesFlushTransaction.getPooled(); // 更新事务
       transaction.perform(runBatchedUpdates, null, transaction); // 调用事务

@@ -23,7 +23,7 @@ var warning = require('warning');
  * @param {*} internalInstance 类组件初始化实例
  */
 function enqueueUpdate(internalInstance) {
-  ReactUpdates.enqueueUpdate(internalInstance);
+  ReactUpdates.enqueueUpdate(internalInstance); // 进行更新操作
 }
 
 
@@ -264,6 +264,7 @@ var ReactUpdateQueue = {
     var queue = internalInstance._pendingStateQueue || (internalInstance._pendingStateQueue = []);
     queue.push(partialState); // 将新状态对象加进状态队列中
 
+    // 更新队列   参数为类组件初始化实例 
     enqueueUpdate(internalInstance);
   },
 

@@ -514,7 +514,7 @@ var SimpleEventPlugin = {
 
     var EventConstructor;
 
-    // 判断事件类型
+    // 判断事件类型，该topLevelTypes对象为EventConstants模块中的topLevelTypes对象
     switch (topLevelType) {
       case topLevelTypes.topAbort:
       case topLevelTypes.topCanPlay:
@@ -565,12 +565,12 @@ var SimpleEventPlugin = {
         EventConstructor = SyntheticFocusEvent;
         break;
       case topLevelTypes.topClick:
-        // Firefox creates a click event on right mouse clicks. This removes the
-        // unwanted click events.
+        // Firefox在鼠标右键单击时创建单击事件。这将删除
+        // 不需要的点击事件。
         if (nativeEvent.button === 2) {
           return null;
         }
-        /* falls through */
+        /* 通过 */
       case topLevelTypes.topContextMenu:
       case topLevelTypes.topDoubleClick:
       case topLevelTypes.topMouseDown:
@@ -625,10 +625,10 @@ var SimpleEventPlugin = {
 
     // 生成对应类型事件的合成事件对象
     var event = EventConstructor.getPooled(
-      dispatchConfig,
-      targetInst,
-      nativeEvent,
-      nativeEventTarget
+      dispatchConfig, // 对应的事件类型块
+      targetInst, // 组件初始化实例
+      nativeEvent, // 原生事件对象
+      nativeEventTarget // 触发事件目标节点的dom
     );
 
     // 会将处理函数存到合成事件对象中，并将实例存到合成事件对象中
@@ -637,11 +637,20 @@ var SimpleEventPlugin = {
     return event;
   },
 
+
+  /**
+   * 
+   * @param {*} inst 组件初始化实例
+   * @param {*} registrationName 事件名如 onClick
+   * @param {*} listener 事件处理函数
+   */
   didPutListener: function(inst, registrationName, listener) {
     // Mobile Safari does not fire properly bubble click events on
     // non-interactive elements, which means delegated click listeners do not
     // fire. The workaround for this bug involves attaching an empty click
     // listener on the target node.
+
+    // 判断是否是点击事件
     if (registrationName === ON_CLICK_KEY) {
       var id = inst._rootNodeID;
       var node = ReactDOMComponentTree.getNodeFromInstance(inst);

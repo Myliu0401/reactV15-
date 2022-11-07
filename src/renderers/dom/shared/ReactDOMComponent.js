@@ -287,9 +287,9 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
 function putListener() {
   var listenerToPut = this;
   EventPluginHub.putListener(
-    listenerToPut.inst,
-    listenerToPut.registrationName,
-    listenerToPut.listener
+    listenerToPut.inst, // 组件初始化实例
+    listenerToPut.registrationName, // 事件名 如： onClick
+    listenerToPut.listener // 事件处理函数
   );
 }
 
