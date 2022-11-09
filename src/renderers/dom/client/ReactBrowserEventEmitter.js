@@ -154,6 +154,12 @@ var topEventMapping = {
  */
 var topListenersIDKey = '_reactListenersID' + String(Math.random()).slice(2);
 
+
+/**
+ * 
+ * @param {*} mountAt 文档节点
+ * @returns 
+ */
 function getListeningForDocument(mountAt) {
   // 在IE8中，“mountAt”是主机对象，没有“hasOwnProperty”
   
