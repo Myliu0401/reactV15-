@@ -28,8 +28,8 @@ var getUnboundedScrollPosition = require('getUnboundedScrollPosition');
 function findParent(inst) {
  
    /* 
-       循环判断有没有父节点初始化的实例，最高一层为null（包装层）, 
-       只为标签组件初始化实例中有该属性，所以是遍历标签组件。
+       循环判断有没有父节点初始化的实例，React组件中根dom组件的这个属性为null, 
+       只有标签组件初始化实例中有该属性，所以是遍历标签组件。
    
        遍历到inst变成最高一层的根节点组件的初始化实例
    */
@@ -45,7 +45,7 @@ function findParent(inst) {
   */
   var rootNode = ReactDOMComponentTree.getNodeFromInstance(inst); 
 
-  var container = rootNode.parentNode; // 获取该根节点的父节点
+  var container = rootNode.parentNode; // 获取根dom节点的父节点，也就是容器dom节点
 
   // 获取容器初始化实例，如果没有就返回document文档节点
   return ReactDOMComponentTree.getClosestInstanceFromNode(container);  
@@ -108,13 +108,15 @@ function handleTopLevelImpl(bookKeeping) {
     bookKeeping.ancestors.push(ancestor); // 将组件初始化实例存到数组中
 
     // 判断该属性是否有值 有值就执行findParent函数并将组件初始化实例传进去
-    ancestor = ancestor && findParent(ancestor); // 该函数会从当前触发的组件开始遍历到document
+    ancestor = ancestor && findParent(ancestor); // 该函数会从当前触发的组件开始遍历到document,然后返回null,因为参数是容器dom节点
 
     // 所以ancestors数组中的存储从触发事件的组件开始到根节点组件的组件初始化实例
   } while (ancestor);
 
 
-  
+  // 上面循环后 ancestor数组只存储了一个实例，该实例为事件触发的组件的初始化实例
+
+
   /* 
      从当前组件向父组件遍历,依次执行注册的回调方法. 我们遍历构造ancestors数组时,
        是从当前组件向父组件回溯的,故此处事件回调也是这个顺序。

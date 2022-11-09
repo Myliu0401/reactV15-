@@ -104,8 +104,8 @@ function precacheChildNodes(inst, node) {
 
 
 /**
- * 
- * @param {*} node 根节点dom的父节点
+ * 获取最近节点实例
+ * @param {*} node dom节点
  * @returns 
  */
 function getClosestInstanceFromNode(node) {
@@ -120,8 +120,15 @@ function getClosestInstanceFromNode(node) {
   };
 
 
-  // 沿着树向上走，直到找到我们缓存了其实例的祖先。
-  var parents = []; // 该数组将存储节点，从节点本身开始往上存，存到最顶层（document文档节点）
+
+  /* 
+       沿着树向上走，直到找到我们缓存了其实例的祖先。
+       该数组将存储节点，从节点本身开始往上存，存到最顶层（document文档节点）
+  
+       该数组存储了从容器节点开始往上一层一层到document文档节点
+  */
+  var parents = []; 
+
   while (!node[internalInstanceKey]) { // 进入循环,如果从节点本身往上找，如果有节点有该属性，就不进入循环
 
     parents.push(node); // 将节点存进去
@@ -137,7 +144,7 @@ function getClosestInstanceFromNode(node) {
       return null; // 没有父节点则直接返回null
 
     }
-  }
+  };
 
   // 下面的操作是，参数节点往上的父级节点有该internalInstanceKey属性情况下的操作
 
@@ -174,7 +181,7 @@ function getInstanceFromNode(node) {
 
 /**
  *
- * @param {Object} inst 根节点组件的初始化实例
+ * @param {Object} inst 根dom节点组件的初始化实例
  * @returns node  节点dom
  */
 function getNodeFromInstance(inst) {
