@@ -262,6 +262,7 @@ var ReactUpdateQueue = {
 
     // 判断组件初始化实例中该状态队列有没有值如果没有值，则赋值为空数组
     var queue = internalInstance._pendingStateQueue || (internalInstance._pendingStateQueue = []);
+    
     queue.push(partialState); // 将新状态对象加进状态队列中
 
     // 更新队列   参数为类组件初始化实例 

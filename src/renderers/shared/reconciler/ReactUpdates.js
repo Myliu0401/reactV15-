@@ -37,7 +37,7 @@ function ensureInjected() {
 
 var NESTED_UPDATES = {
   initialize: function() {
-    this.dirtyComponentsLength = dirtyComponents.length;
+    this.dirtyComponentsLength = dirtyComponents.length;  // 将数组长度赋值到事务对象的属性中
   },
   close: function() {
     if (this.dirtyComponentsLength !== dirtyComponents.length) {
@@ -52,7 +52,7 @@ var NESTED_UPDATES = {
 
 var UPDATE_QUEUEING = {
   initialize: function() {
-    this.callbackQueue.reset();
+    this.callbackQueue.reset();  // 重置
   },
   close: function() {
     this.callbackQueue.notifyAll();
@@ -147,7 +147,7 @@ function batchedUpdates(callback, a, b, c, d, e) {
 
 /**
  * Array comparator for ReactComponents by mount ordering.
- *
+ * 进行排序
  * @param {ReactComponent} c1 first component you're comparing
  * @param {ReactComponent} c2 second component you're comparing
  * @return {number} Return value usable by Array.prototype.sort().
@@ -162,7 +162,7 @@ function mountOrderComparator(c1, c2) {
  * @param {*} transaction 事务
  */
 function runBatchedUpdates(transaction) {
-  var len = transaction.dirtyComponentsLength;
+  var len = transaction.dirtyComponentsLength; // 获取数组的长度
   invariant(
     len === dirtyComponents.length,
     'Expected flush transaction\'s stored dirty-components length (%s) to ' +
@@ -172,7 +172,7 @@ function runBatchedUpdates(transaction) {
   );
 
 
-  dirtyComponents.sort(mountOrderComparator);
+  dirtyComponents.sort(mountOrderComparator); // 将数组进行排序操作
 
   for (var i = 0; i < len; i++) {
     
@@ -180,9 +180,11 @@ function runBatchedUpdates(transaction) {
 
    
     var callbacks = component._pendingCallbacks;
-    component._pendingCallbacks = null;
+
+    component._pendingCallbacks = null; // 将初始化实例中该属性该位null
 
     var markerName;
+    
     if (ReactFeatureFlags.logTopLevelRenders) {
       var namedComponent = component;
       
@@ -222,14 +224,28 @@ function runBatchedUpdates(transaction) {
  *  该函数的this被改成ReactUpdates对象
  */
 var flushBatchedUpdates = function() {
-  
+
+  // dirtyComponents数组存储类组件初始化实例
   // 循环判断队列数组中是否有值 或者 asapEnqueued属性为true
   while (dirtyComponents.length || asapEnqueued) {
     
     // 判断 数组中还有没有值
     if (dirtyComponents.length) {
-      var transaction = ReactUpdatesFlushTransaction.getPooled(); // 更新事务
+      var transaction = ReactUpdatesFlushTransaction.getPooled(); // 创建一个新事务
+       /* 
+           该属性中的属性
+             transactionWrappers为TRANSACTION_WRAPPERS数组（事务数组）
+             wrapperInitData为空数组
+             _isInTransaction为false
+             dirtyComponentsLength:长度
+             callbackQueue:对象
+             reconcileTransaction: 
+             原型...
+       
+       */
+
       transaction.perform(runBatchedUpdates, null, transaction); // 调用事务
+
       ReactUpdatesFlushTransaction.release(transaction);
     }
 
@@ -262,8 +278,8 @@ function enqueueUpdate(component) {
   }
 
   // 如果处于批量更新中，则先将组件实例加到队列中
-  dirtyComponents.push(component); // 组件实例加到数组中
-}
+  dirtyComponents.push(component); // 类组件初始化实例加到数组中
+};
 
 /**
  * Enqueue a callback to be run at the end of the current batching cycle. Throws

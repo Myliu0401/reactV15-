@@ -84,6 +84,8 @@ ReactComponent.prototype.setState = function(partialState, callback) {
       updater为ReactUpdateQueue模块
   */
   this.updater.enqueueSetState(this, partialState); // 进行更新操作
+
+  // 判断是否有回调函数
   if (callback) {
     this.updater.enqueueCallback(this, callback, 'setState');
   }

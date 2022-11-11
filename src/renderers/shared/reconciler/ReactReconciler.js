@@ -124,7 +124,7 @@ var ReactReconciler = {
   /**
    * Flush any dirty changes in a component.
    *
-   * @param {ReactComponent} internalInstance
+   * @param {ReactComponent} internalInstance    组件初始化实例
    * @param {ReactReconcileTransaction} transaction
    * @internal
    */
@@ -132,7 +132,7 @@ var ReactReconciler = {
     internalInstance,
     transaction
   ) {
-    internalInstance.performUpdateIfNecessary(transaction);
+    internalInstance.performUpdateIfNecessary(transaction);  // 更新组件
     if (__DEV__) {
       ReactInstrumentation.debugTool.onUpdateComponent(internalInstance);
     }
