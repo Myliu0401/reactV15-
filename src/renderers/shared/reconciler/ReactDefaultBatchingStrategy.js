@@ -100,6 +100,7 @@ Object.assign(
    transactionWrappers为事务数组
    wrapperInitData目前为空数组
    _isInTransaction目前为false
+   原型...
 
 */
 var transaction = new ReactDefaultBatchingStrategyTransaction(); // 创建事务

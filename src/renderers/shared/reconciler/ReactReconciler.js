@@ -81,8 +81,8 @@ var ReactReconciler = {
   },
 
   /**
-   * @param {ReactComponent} internalInstance    组件入口实例
-   * @param {ReactElement} nextElement    新节点
+   * @param {ReactComponent} internalInstance    组件初始化实例
+   * @param {ReactElement} nextElement    新节点（babel转义后）
    * @param {ReactReconcileTransaction} transaction  事务
    * @param {object} context  处理后的上下文
    * @internal
@@ -90,20 +90,23 @@ var ReactReconciler = {
   receiveComponent: function(
     internalInstance, nextElement, transaction, context
   ) {
-    var prevElement = internalInstance._currentElement; // 获取旧节点
+    var prevElement = internalInstance._currentElement; // 获取旧节点（babel转义后）
 
-    //新旧上下文和新旧节点是否一致
-    if (nextElement === prevElement &&
-        context === internalInstance._context
-      ) {
+    /* 
+       新旧上下文和新旧组件是否一致
+       该判断不会从进来因为nextElement是重新render的返回值，为新创建的react元素
+    */
+    if (nextElement === prevElement && context === internalInstance._context) {
       return;
-    }
+    };
 
+    // 返回一个布尔值
     var refsChanged = ReactRef.shouldUpdateRefs(
       prevElement,
       nextElement
     );
 
+    // 判断是否更新refs
     if (refsChanged) {
       ReactRef.detachRefs(internalInstance, prevElement);
     }
@@ -125,14 +128,16 @@ var ReactReconciler = {
    * Flush any dirty changes in a component.
    *
    * @param {ReactComponent} internalInstance    组件初始化实例
-   * @param {ReactReconcileTransaction} transaction
+   * @param {ReactReconcileTransaction} transaction  事务
    * @internal
    */
   performUpdateIfNecessary: function(
     internalInstance,
     transaction
   ) {
+
     internalInstance.performUpdateIfNecessary(transaction);  // 更新组件
+
     if (__DEV__) {
       ReactInstrumentation.debugTool.onUpdateComponent(internalInstance);
     }

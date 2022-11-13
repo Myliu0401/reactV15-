@@ -146,14 +146,14 @@ function batchedUpdates(callback, a, b, c, d, e) {
 
 
 /**
- * Array comparator for ReactComponents by mount ordering.
- * 进行排序
- * @param {ReactComponent} c1 first component you're comparing
- * @param {ReactComponent} c2 second component you're comparing
+ * 进行升序排序
+ * @param {ReactComponent} c1 组件初始化实例
+ * @param {ReactComponent} c2 组件初始化实例
  * @return {number} Return value usable by Array.prototype.sort().
  */
 function mountOrderComparator(c1, c2) {
-  return c1._mountOrder - c2._mountOrder;
+  // _mountOrder属性为当前数量值，越低表示越高和实例跟先被创建
+  return c1._mountOrder - c2._mountOrder;  
 }
 
 
@@ -172,8 +172,10 @@ function runBatchedUpdates(transaction) {
   );
 
 
-  dirtyComponents.sort(mountOrderComparator); // 将数组进行排序操作
+  dirtyComponents.sort(mountOrderComparator); // 对数组进行排序操作
+  // 排往序后，层级越高的实例将越靠前
 
+  // 循环数组长度
   for (var i = 0; i < len; i++) {
     
     var component = dirtyComponents[i]; // 获取类组件初始化实例
@@ -198,9 +200,10 @@ function runBatchedUpdates(transaction) {
       console.time(markerName);
     }
 
+
     ReactReconciler.performUpdateIfNecessary(
-      component,
-      transaction.reconcileTransaction
+      component,   // 组件初始化实例 
+      transaction.reconcileTransaction  // 对象
     );
 
     if (markerName) {
@@ -222,24 +225,32 @@ function runBatchedUpdates(transaction) {
 /**
  *  进行更新操作
  *  该函数的this被改成ReactUpdates对象
+ *  该函数在处理事件的事务中的close中调用
  */
 var flushBatchedUpdates = function() {
 
-  // dirtyComponents数组存储类组件初始化实例
-  // 循环判断队列数组中是否有值 或者 asapEnqueued属性为true
+  
+  /* 
+       dirtyComponents数组存储类组件初始化实例
+       循环判断队列数组中是否有值 或者 asapEnqueued属性为true
+
+       dirtyComponents在setState函数中会存储该组件的初始化实例
+  
+       dirtyComponents数组会在执行setState函数中进行添加组件初始化实例
+  */
   while (dirtyComponents.length || asapEnqueued) {
     
     // 判断 数组中还有没有值
     if (dirtyComponents.length) {
       var transaction = ReactUpdatesFlushTransaction.getPooled(); // 创建一个新事务
        /* 
-           该属性中的属性
+           该事务中的属性
              transactionWrappers为TRANSACTION_WRAPPERS数组（事务数组）
              wrapperInitData为空数组
              _isInTransaction为false
              dirtyComponentsLength:长度
              callbackQueue:对象
-             reconcileTransaction: 
+             reconcileTransaction: 对象实例
              原型...
        
        */
@@ -259,7 +270,10 @@ var flushBatchedUpdates = function() {
   }
 };
 
+
 flushBatchedUpdates = ReactPerf.measure('ReactUpdates', 'flushBatchedUpdates', flushBatchedUpdates);
+
+
 
 /**
  * 将组件标记为需要重新呈现，将可选回调添加到重发发生后将执行的函数列表。
@@ -278,7 +292,7 @@ function enqueueUpdate(component) {
   }
 
   // 如果处于批量更新中，则先将组件实例加到队列中
-  dirtyComponents.push(component); // 类组件初始化实例加到数组中
+  dirtyComponents.push(component); // 类组件初始化实例加到数组中，至此 setState函数执行完毕
 };
 
 /**
