@@ -94,7 +94,7 @@ var ReactReconciler = {
 
     /* 
        新旧上下文和新旧组件是否一致
-       该判断不会从进来因为nextElement是重新render的返回值，为新创建的react元素
+       nextElement === prevElement是为了防止重复执行后面多次
     */
     if (nextElement === prevElement && context === internalInstance._context) {
       return;
