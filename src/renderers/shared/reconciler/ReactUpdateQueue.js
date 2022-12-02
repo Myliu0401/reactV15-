@@ -256,6 +256,7 @@ var ReactUpdateQueue = {
     // 获取组件初始化的实例
     var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'setState');
 
+    // 如果没有类组件初始化实例则结束
     if (!internalInstance) {
       return;
     }
