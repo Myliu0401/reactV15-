@@ -21,6 +21,13 @@ var invariant = require('invariant');
 
 /**
  * 事件侦听器的内部存储
+ * 该对象会存储对应的事件
+ * 如
+ * {
+ *    onClick: {
+ *       [dom组件初始化实例._rootNodeID]: 事件处理函数  
+ *    } 
+ * }
  */
 var listenerBank = {};
 
@@ -132,7 +139,7 @@ var EventPluginHub = {
     // 该组件初始化实例中有一个唯一id号，以该id号做为属性赋值为处理函数
     bankForRegistrationName[inst._rootNodeID] = listener;
 
-    // 获取对应事件模块
+    // 获取对应事件模块, 如 onclick 对应的事件模块为 简单事件模块 SimpleEventPlugin模块
     var PluginModule = EventPluginRegistry.registrationNameModules[registrationName];
 
     // 判断有没有该事件模块 并且 该事件模块中有didPutListener函数
@@ -147,7 +154,7 @@ var EventPluginHub = {
    * @return {?function} The stored callback.
    */
   getListener: function(inst, registrationName) {
-    var bankForRegistrationName = listenerBank[registrationName];
+    var bankForRegistrationName = listenerBank[registrationName]; // 获取存储的事件对象 如： {onClick:{xxx}}
     return bankForRegistrationName && bankForRegistrationName[inst._rootNodeID];
   },
 
@@ -210,6 +217,7 @@ var EventPluginHub = {
       nativeEventTarget) {
     var events;
 
+    // 获取事件模块
     var plugins = EventPluginRegistry.plugins;
     // [SimpleEventPlugin,EnterLeaveEventPlugin,ChangeEventPlugin,SelectEventPlugin,BeforeInputEventPlugin]
 
@@ -247,8 +255,6 @@ var EventPluginHub = {
     if (events) {
       /* 
           参数为事件队列和合成事件对象
-          如果是首次执行则直接返回合成事件对象
-          如果不是首次执行则会进行判断处理再返回
       */
       eventQueue = accumulateInto(eventQueue, events); 
     }
@@ -264,7 +270,7 @@ var EventPluginHub = {
    
     var processingEventQueue = eventQueue; // 将事件对象存到变量中
 
-    eventQueue = null; // 在将该变量赋值为null
+    eventQueue = null; // 再将该变量重新赋值为null
 
     // true表示测试代码，一般都为false
     if (simulated) {

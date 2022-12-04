@@ -50,26 +50,30 @@ Object.assign(CallbackQueue.prototype, {
   },
 
   /**
-   * Invokes all enqueued callbacks and clears the queue. This is invoked after
-   * the DOM representation of a component has been created or updated.
+   * 调用所有排队的回调并清除队列。这是在组件的DOM表示已经创建或更新。
    *
    * @internal
    */
-  notifyAll: function() {
-    var callbacks = this._callbacks;
-    var contexts = this._contexts;
+  notifyAll: function() { 
+    var callbacks = this._callbacks;  // 取出注册事件时存储putListener函数的数组
+    var contexts = this._contexts;    // 取出注册事件时存储信息对象的数组
+
+    // 判断是否有存储putListener函数的数组
     if (callbacks) {
       invariant(
         callbacks.length === contexts.length,
         'Mismatched list of contexts in callback queue'
       );
-      this._callbacks = null;
-      this._contexts = null;
+      this._callbacks = null;  // 重置为null
+      this._contexts = null;   // 重置为null
+
+      // 循环该数组
       for (var i = 0; i < callbacks.length; i++) {
-        callbacks[i].call(contexts[i]);
+        callbacks[i].call(contexts[i]);  // 执行存储的putListener函数，并且该函数的this置为对应的信息对象
       }
-      callbacks.length = 0;
-      contexts.length = 0;
+
+      callbacks.length = 0;  // 数组长度重置为0
+      contexts.length = 0;   // 数组长度重置为0
     }
   },
 

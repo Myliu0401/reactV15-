@@ -90,9 +90,11 @@ function traverseTwoPhase(inst, fn, arg) {
 
   // 循环，将从触发事件的组件开始到根节点的组合键初始化实例存到数组中
   while (inst) {
-    path.push(inst); // 将实例初始化实例存到数组中
+    path.push(inst); // 将组件初始化实例存到数组中
     inst = inst._nativeParent; // 该属性就是父节点的组件初始化实例，最高一层为null
   }
+
+  // 上面循环后 path数组 将填充 从事件目标dom开始到react的跟dom组件 的dom组件初始化实例
 
   var i;
   

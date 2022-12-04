@@ -375,7 +375,9 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
 
         }
 
-        isListening[dependency] = true; // 对该对象进行赋值，属性名为事件名如 topClick  值为true。下次有其他dom注册该事件，就进不了这个判断
+        // 对该对象进行赋值，属性名为事件名如 topClick  值为true。下次有其他dom注册该事件，就进不了这个判断
+        isListening[dependency] = true; 
+      
       }
     }
   },

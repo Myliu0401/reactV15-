@@ -28,7 +28,7 @@ var caughtError = null;
  */
 function invokeGuardedCallback(name, func, a, b) {
   try {
-    return func(a, b); // 执行事件，并且传进去一个合成事件对象
+    return func(a, b); // 执行事件处理函数，并且传进去一个合成事件对象
   } catch (x) {
     if (caughtError === null) {
       caughtError = x;

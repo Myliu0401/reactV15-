@@ -79,8 +79,8 @@ var eventTypes = {
   },
   click: {
     phasedRegistrationNames: {
-      bubbled: keyOf({onClick: true}),
-      captured: keyOf({onClickCapture: true}),
+      bubbled: keyOf({onClick: true}), // 冒泡的
+      captured: keyOf({onClickCapture: true}),  // 捕获的
     },
   },
   contextMenu: {

@@ -41,7 +41,7 @@ var ReactEventEmitterMixin = {
    */
   handleTopLevel: function(topLevelType, targetInst, nativeEvent, nativeEventTarget) {
 
-     // 采用对象池的方式构造出合成事件对象。不同的topLevelType的合成事件可能不同
+     // 采用对象池的方式构造出合成事件对象。不同的topLevelType的合成事件对象可能不同
     var events = EventPluginHub.extractEvents(
       topLevelType,        // 映射的事件名  如： topClick
       targetInst,          // 组件初始化实例

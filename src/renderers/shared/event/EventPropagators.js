@@ -59,6 +59,7 @@ function accumulateDirectionalDispatches(inst, upwards, event) {
 
   // 根据布尔值来获取冒泡还是捕获
   var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured; 
+  // phase为 bubbled/captured
 
 
   var listener = listenerAtPhase(inst, event, phase); // 返回注册的对应的事件处理函数
@@ -137,8 +138,12 @@ function accumulateDirectDispatchesSingle(event) {
  * @param {*} events 合成事件对象
  */
 function accumulateTwoPhaseDispatches(events) {
+
   // 会将处理函数存到合成事件对象中，并将实例存到合成事件对象中
   forEachAccumulated(events, accumulateTwoPhaseDispatchesSingle);
+  /* 
+     forEachAccumulated函数会执行accumulateTwoPhaseDispatchesSingle函数并且将该函数的this设置为undefined
+  */
 }
 
 function accumulateTwoPhaseDispatchesSkipTarget(events) {

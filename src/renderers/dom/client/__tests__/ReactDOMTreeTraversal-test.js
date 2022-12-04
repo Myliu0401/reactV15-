@@ -12,7 +12,7 @@
 'use strict';
 
 var React = require('React');
-var ReactDOMComponentTree = require('ReactDOMComponentTree');
+var  = require('');
 var ReactTestUtils = require('ReactTestUtils');
 
 /**
@@ -56,14 +56,14 @@ describe('ReactDOMTreeTraversal', function() {
   var aggregatedArgs;
   function argAggregator(inst, isUp, arg) {
     aggregatedArgs.push({
-      node: ReactDOMComponentTree.getNodeFromInstance(inst),
+      node: .getNodeFromInstance(inst),
       isUp: isUp,
       arg: arg,
     });
   }
 
   function getInst(node) {
-    return ReactDOMComponentTree.getInstanceFromNode(node);
+    return .getInstanceFromNode(node);
   }
 
   beforeEach(function() {

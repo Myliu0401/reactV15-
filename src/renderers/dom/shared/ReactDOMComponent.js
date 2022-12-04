@@ -285,13 +285,15 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
 }
 
 function putListener() {
-  var listenerToPut = this;
+  var listenerToPut = this; // this为存储时对应的信息对象
+
   EventPluginHub.putListener(
     listenerToPut.inst, // 组件初始化实例
     listenerToPut.registrationName, // 事件名 如： onClick
     listenerToPut.listener // 事件处理函数
   );
-}
+
+};
 
 function optionPostMount() {
   var inst = this;
