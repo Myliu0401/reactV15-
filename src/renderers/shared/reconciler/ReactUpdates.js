@@ -187,13 +187,11 @@ function runBatchedUpdates(transaction) {
 
     var markerName;
     
+    // 该属性为false
     if (ReactFeatureFlags.logTopLevelRenders) {
       var namedComponent = component;
       
-      if (
-        component._currentElement.props ===
-        component._renderedComponent._currentElement
-      ) {
+      if ( component._currentElement.props === component._renderedComponent._currentElement) {
         namedComponent = component._renderedComponent;
       }
       markerName = 'React update: ' + namedComponent.getName();

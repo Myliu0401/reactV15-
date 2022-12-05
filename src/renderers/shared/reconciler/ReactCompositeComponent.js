@@ -796,6 +796,7 @@ var ReactCompositeComponentMixin = {
     this.updateComponent(transaction, prevElement, nextElement, prevContext, nextContext);
   },
 
+
   /**
    * 更新组件
    * @param {ReactReconcileTransaction} transaction  事务
@@ -851,10 +852,14 @@ var ReactCompositeComponentMixin = {
 
     // 判断是否同一个上下文
     if (this._context === nextUnmaskedContext) {
+
       nextContext = inst.context; // 为同一个上下文
+
     } else {
+
       nextContext = this._processContext(nextUnmaskedContext); // 返回一份浅复制的上下文类型对象
       willReceive = true; // 表示有新的上下文
+
     }
 
     // 判断元素是否一致
@@ -1015,6 +1020,9 @@ var ReactCompositeComponentMixin = {
     }
   },
 
+
+
+  
   /**
    * @param {ReactReconcileTransaction} transaction  事务
    * @param {Object} context  新上下文

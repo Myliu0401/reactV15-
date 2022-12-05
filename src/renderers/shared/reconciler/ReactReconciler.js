@@ -125,7 +125,7 @@ var ReactReconciler = {
   },
 
   /**
-   * Flush any dirty changes in a component.
+   * 冲洗组件中的任何脏更改。
    *
    * @param {ReactComponent} internalInstance    组件初始化实例
    * @param {ReactReconcileTransaction} transaction  事务
