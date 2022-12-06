@@ -25,6 +25,8 @@ var setTextContent = require('setTextContent');
  *
  * See https://github.com/spicyj/innerhtml-vs-createelement-vs-clonenode.
  */
+
+// enableLazy是一个变量，当前浏览器是 IE或 Edge时为 true。
 var enableLazy = (typeof document !== 'undefined' && typeof document.documentMode === 'number' 
   || 
   typeof navigator !== 'undefined' && typeof navigator.userAgent === 'string' && /\bEdge\/\d/.test(navigator.userAgent)

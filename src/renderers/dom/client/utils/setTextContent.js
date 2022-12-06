@@ -30,6 +30,7 @@ function myExecutionEnvironment(_dereq_, module, exports) {
 
        'use strict';
 
+       // 是否不是在服务器上
        var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
  
        /**
@@ -73,7 +74,9 @@ var setTextContent = function(node, text) {
   node.textContent = text;  // 将文本设置到节点的textContent属性上
 };
 
+// 判断是否不是在服务器上执行的
 if (ExecutionEnvironment.canUseDOM) {
+  
   // 判断该节点的所有下级中是否没有文本节点
   if (!('textContent' in document.documentElement)) {  
     setTextContent = function(node, text) {

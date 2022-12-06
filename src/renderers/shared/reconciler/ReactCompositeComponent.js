@@ -798,7 +798,7 @@ var ReactCompositeComponentMixin = {
 
 
   /**
-   * 更新组件
+   * 更新组件, 通过执行setState，从而最终执行该函数的
    * @param {ReactReconcileTransaction} transaction  事务
    * @internal
    */
@@ -872,20 +872,24 @@ var ReactCompositeComponentMixin = {
 
     // 判断是否是新组件，并且该组件有该生命周期 componentWillReceiveProps，属性变化或上下文变化时才会执行
     if (willReceive && inst.componentWillReceiveProps) {
+      // 该生命周期只有props改变或上下文不同时才会执行
+
       //                              新属性      新上下文
       inst.componentWillReceiveProps(nextProps, nextContext); // 执行生命周期函数
     }
     
 
     /* 
-       该函数将会和就的数据和每一次setState执行时传递的数据进行混入后返回
-    
+       该函数会将旧的数据和每一次setState执行时传递的数据进行混入后返回
+       如果状态队列中只有一个新状态，则返回该新状态
+       如果状态队列中有多个新状态，则进行混合后返回
+
     */
     var nextState = this._processPendingState(nextProps, nextContext); 
 
-    //  判断是否有该 shouldComponentUpdate 生命周期，如果有那么将执行并存储返回值                                    新属性    新状态     新上下文                                
+    //  判断是否有该 shouldComponentUpdate 生命周期，如果有那么将执行并将返回值存到变量中                           新属性     新状态      新上下文                                
     var shouldUpdate = this._pendingForceUpdate || !inst.shouldComponentUpdate || inst.shouldComponentUpdate(nextProps, nextState, nextContext);
-
+    //  如果没有该生命周期，则将返回true, 并存到变量中
 
 
     if (__DEV__) {
@@ -933,19 +937,21 @@ var ReactCompositeComponentMixin = {
   _processPendingState: function (props, context) {
     var inst = this._instance; // 该属性为 new 类组件返回的this实例
     var queue = this._pendingStateQueue; // 获取存储的新状态数据
-    var replace = this._pendingReplaceState;
-    this._pendingReplaceState = false;
-    this._pendingStateQueue = null; // 将其则为空
+    var replace = this._pendingReplaceState; // 执行setState更新时该属性会被赋值为true
+    this._pendingReplaceState = false; // 重新修改为false
+    this._pendingStateQueue = null; // 将状态队列赋为空
 
+    // 判断有没有值
     if (!queue) {
       return inst.state;
     };
 
+    // 判断是否该实例只执行一个setState
     if (replace && queue.length === 1) {
-      return queue[0];
+      return queue[0]; // 直接返回第一项
     };
 
-    // 混合出一个对象，该对象目前存储着该组件的旧数据
+    // 混合出一个对象，该对象目前存储执行setState的参数
     var nextState = Object.assign({}, replace ? queue[0] : inst.state);
 
     // 循环存储新状态的数组的长度
@@ -955,16 +961,18 @@ var ReactCompositeComponentMixin = {
       // 进行混入
       Object.assign(
         nextState,
-        typeof partial === 'function' ?
-          partial.call(inst, nextState, props, context) :
-          partial
+        typeof partial === 'function' ? partial.call(inst, nextState, props, context) : partial
       );
     }
 
     return nextState; // 将混入后的对象返回
   },
 
+
+
+
   /**
+   * 更新组件
    * @param {ReactElement} nextElement 新元素 babel转义后的组件函数
    * @param {object} nextProps 新属性
    * @param {?object} nextState 新状态
@@ -984,6 +992,8 @@ var ReactCompositeComponentMixin = {
     var inst = this._instance; // 获取 new 组件是的this实例
 
     var hasComponentDidUpdate = Boolean(inst.componentDidUpdate); // 判断是否有该生命周期
+
+    // 声明这些变量来存储旧的东西
     var prevProps;
     var prevState;
     var prevContext;

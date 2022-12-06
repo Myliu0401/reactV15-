@@ -666,8 +666,10 @@ ReactDOMComponent.Mixin = {
       // 第一个参数为组件初始化实例，第二个为标签
       ReactDOMComponentTree.precacheNode(this, el); // 处理组件初始化实例和标签，将标签存到组件初始化实例中，并将组件初始化实例存到标签的随机属性中
 
+
       this._flags |= Flags.hasCachedChildNodes;  // 相加后的结果赋值给this._flags
 
+      
       // 判断是否没有值，没有值表示为根节点
       if (!this._nativeParent) {
         DOMPropertyOperations.setAttributeForRoot(el);  // 给该节点添加一个属性，为data-reactroot，表示根标签
