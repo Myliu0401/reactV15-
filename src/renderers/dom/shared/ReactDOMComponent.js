@@ -891,6 +891,8 @@ ReactDOMComponent.Mixin = {
           transaction,   // 事务
           context        // 上下文
         );
+
+        
         for (var i = 0; i < mountImages.length; i++) {
           DOMLazyTree.queueChild(lazyTree, mountImages[i]);
         }

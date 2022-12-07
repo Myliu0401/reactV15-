@@ -174,6 +174,7 @@ var ReactMultiChild = {
           }
         }
       }
+
       return ReactChildReconciler.instantiateChildren(
         nestedChildren, transaction, context
       );
@@ -218,10 +219,25 @@ var ReactMultiChild = {
      */
     mountChildren: function(nestedChildren, transaction, context) {
 
-      // 该函数会返回一个对象，该对象中包含初始化后的子节点，值为初始化实例
+      /* 
+          该函数会返回一个对象，该对象中包含子节点的信息
+          子节点为react组件：
+             {
+               根据react组件的key属性生成的值: react组件初始化实例
+             }
+          
+          子节点为数组
+             {
+                .0+: 文本组件的初始化实例，文本的话属性名会递增
+                根据react组件的key属性生成的值: react组件初始化实例
+                ...根据数组的长度来，以上面来填充
+             }
+      
+      */
       var children = this._reconcilerInstantiateChildren(
         nestedChildren, transaction, context
       );
+      
 
       this._renderedChildren = children;
       var mountImages = [];

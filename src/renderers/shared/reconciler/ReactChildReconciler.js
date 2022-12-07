@@ -72,6 +72,14 @@ var ReactChildReconciler = {
          nestedChildNodes参数为子节点
          instantiateChild参数为回调，该回调会向childInstances对象注入子节点初始化的实例
          childInstances存储子节点初始化的实例对象
+
+         如果子节点为null，则返回0，该子节点不会填充到childInstances对象中
+         如果子节点为undefined或布尔，则返回1，该子节点不会填充到childInstances对象中
+         如果子节点为文本节点，则返回1，会向childInstances对象中填充一个 '.0'属性，属性值为 组件初始化实例
+         如果子节点为react元素，则返回1，会向childInstances对象中填充一个根据该子节点的key属性生成的一个属性，属性值为 组件初始化实例
+         如果子节点为数组，则返回数组的长度，会向childInstances对象中填充满数组每一项的信息
+
+
     */
     traverseAllChildren(nestedChildNodes, instantiateChild, childInstances);  // 处理子节点
 

@@ -325,6 +325,7 @@ ReactElement.cloneElement = function(element, config, children) {
 };
 
 /**
+ * 判断是否为react元素 （dom组件）
  * @param {?object} object
  * @return {boolean} True if `object` is a valid component.
  * @final

@@ -32,25 +32,27 @@ var didWarnAboutMaps = false;
 /**
  * Generate a key string that identifies a component within a set.
  *
- * @param {*} component A component that could contain a manual key.
+ * @param {*} component 组件
  * @param {number} index Index that is used if a manual key is not provided.
  * @return {string}
  */
 function getComponentKey(component, index) {
-  // Do some typechecking here since we call this blindly. We want to ensure
-  // that we don't block potential future ES APIs.
+  
+  // 判断该组件是不是react组件，并且有key值
   if (component && typeof component === 'object' && component.key != null) {
-    // Explicit key
-    return KeyEscapeUtils.escape(component.key);
-  }
-  // Implicit key determined by the index in the set
-  return index.toString(36);
+
+    return KeyEscapeUtils.escape(component.key);  // 根据原有的key来生成一个值
+  };
+
+
+  // 由集合中的索引确定的隐式键
+  return index.toString(36);  // 返回一个参数字符串
 }
 
 /**
  * 处理子节点
  * @param {?*} children 子节点
- * @param {!string} nameSoFar 秘钥名称
+ * @param {!string} nameSoFar 秘钥名称，首次时为空字符串
  * @param {!function} callback 回调函数
  * @param {?*} traverseContext 存储子节点初始化的实例
  * process.
@@ -71,7 +73,7 @@ function traverseAllChildrenImpl(
   }
 
   /* 
-      子节点是否为null 或者 为字符串文本 或者 为数字文本 或者是react元素 （只能定义和dom标签）
+      子节点是否为null 或者 为字符串文本 或者 为数字文本 或者是react元素 （dom标签和自定义组件）
       循环子节点时，最终都会进来这里调用回调，去向traverseContext注入子节点初始化实例
   */
   if (children === null || type === 'string' || type === 'number' || ReactElement.isValidElement(children)) {
@@ -85,8 +87,11 @@ function traverseAllChildrenImpl(
       // 如果它是唯一的子级，则将名称视为包装在数组中所以如果孩子的数量增加，这是一致的。
       nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar 
     );
+
     return 1;
   }
+
+
 
   var child;
   var nextName;
@@ -99,7 +104,7 @@ function traverseAllChildrenImpl(
     // 循环数组
     for (var i = 0; i < children.length; i++) {
       child = children[i];
-      nextName = nextNamePrefix + getComponentKey(child, i); // 拼接字符串，表示下一个节点的字符串
+      nextName = nextNamePrefix + getComponentKey(child, i); // 拼接字符串，表示秘钥
       subtreeCount += traverseAllChildrenImpl(
         child,
         nextName,
@@ -107,6 +112,7 @@ function traverseAllChildrenImpl(
         traverseContext
       );
     }
+
   } else {
     var iteratorFn = getIteratorFn(children);
     if (iteratorFn) {
@@ -201,6 +207,9 @@ function traverseAllChildrenImpl(
  * @return {!number} The number of children in this subtree.
  */
 function traverseAllChildren(children, callback, traverseContext) {
+  // 执行这个函数的，那么子节点就是 unedfined、boolean、react组件、数组
+  // 如果子节点是null,那么在_createInitialChildren函数中就被结束掉了
+
 
   // 判断子节点是否为空，如果是则返回 0
   if (children == null) {
