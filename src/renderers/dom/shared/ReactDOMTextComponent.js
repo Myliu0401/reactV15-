@@ -52,13 +52,15 @@ var ReactDOMTextComponent = function(text) {
 
 Object.assign(ReactDOMTextComponent.prototype, {
 
+  
+
   /**
-   * Creates the markup for this text node. This node is not intended to have
-   * any features besides containing text content.
-   *
-   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction
-   * @return {string} Markup for this text node.
-   * @internal
+   * 渲染文本组件
+   * @param {*} transaction                 事务
+   * @param {*} nativeParent                父组件初始化实例
+   * @param {*} nativeContainerInfo         集装信息，为一个对象，存储一些基础信息
+   * @param {*} context                     上下文
+   * @returns 
    */
   mountComponent: function(
     transaction,
@@ -80,25 +82,55 @@ Object.assign(ReactDOMTextComponent.prototype, {
       }
     }
 
-    var domID = nativeContainerInfo._idCounter++;
-    var openingValue = ' react-text: ' + domID + ' ';
-    var closingValue = ' /react-text ';
-    this._domID = domID;
-    this._nativeParent = nativeParent;
+    var domID = nativeContainerInfo._idCounter++;    // 递增集装对象的_idCounter属性
+    var openingValue = ' react-text: ' + domID + ' '; // 声明一个开始字符串
+    var closingValue = ' /react-text '; // 声明一个结束字符串
+
+    this._domID = domID;  // 将递增的值存到实例中
+
+    this._nativeParent = nativeParent; // 将父组件初始化实例存到 实例中
+
+    // 判断事务中有没有该属性
     if (transaction.useCreateElement) {
-      var ownerDocument = nativeContainerInfo._ownerDocument;
-      var openingComment = ownerDocument.createComment(openingValue);
-      var closingComment = ownerDocument.createComment(closingValue);
+      var ownerDocument = nativeContainerInfo._ownerDocument; // 获取文档节点
+      var openingComment = ownerDocument.createComment(openingValue);  // 创建一个开始的html的注释
+      var closingComment = ownerDocument.createComment(closingValue);  // 创建一个结束的html的注释
+
+      
+
+      /* 
+        参数为文档的父级，也就是最高一级
+        生成一个lazyTree对象
+        {
+          node: node, 
+          children: [],
+          html: null,
+          text: null,
+        };
+      
+      */
       var lazyTree = DOMLazyTree(ownerDocument.createDocumentFragment());
+
+      // 会将第二个参数对象中的节点，插入到第一个参数对象的节点中
       DOMLazyTree.queueChild(lazyTree, DOMLazyTree(openingComment));
+
+      // 判断是否有文本
       if (this._stringText) {
+
+        // 会将第二个参数对象中的节点，插入到第一个参数对象的节点中
         DOMLazyTree.queueChild(
           lazyTree,
           DOMLazyTree(ownerDocument.createTextNode(this._stringText))
         );
       }
+
+      // 会将第二个参数对象中的节点，插入到第一个参数对象的节点中
       DOMLazyTree.queueChild(lazyTree, DOMLazyTree(closingComment));
+
+      // 参数为 组件初始化实例、开始html注释
       ReactDOMComponentTree.precacheNode(this, openingComment);
+
+      // 将结束的html注释存到组件初始化实例中
       this._closingComment = closingComment;
       return lazyTree;
     } else {

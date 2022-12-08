@@ -252,7 +252,7 @@ var ReactUpdateQueue = {
    * @internal
    */
   enqueueSetState: function(publicInstance, partialState) {
-
+    
     // 获取组件初始化的实例
     var internalInstance = getInternalInstanceReadyForUpdate(publicInstance, 'setState');
 

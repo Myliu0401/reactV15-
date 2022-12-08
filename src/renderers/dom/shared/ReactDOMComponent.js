@@ -892,8 +892,9 @@ ReactDOMComponent.Mixin = {
           context        // 上下文
         );
 
-        
+        // 循环该数组
         for (var i = 0; i < mountImages.length; i++) {
+          // 会将第二个参数对象中的节点，插入到第一个参数对象的节点中
           DOMLazyTree.queueChild(lazyTree, mountImages[i]);
         }
       }

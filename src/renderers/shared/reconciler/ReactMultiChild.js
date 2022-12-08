@@ -231,7 +231,7 @@ var ReactMultiChild = {
                 .0+: 文本组件的初始化实例，文本的话属性名会递增
                 根据react组件的key属性生成的值: react组件初始化实例
                 ...根据数组的长度来，以上面来填充
-             }
+             }    
       
       */
       var children = this._reconcilerInstantiateChildren(
@@ -239,24 +239,37 @@ var ReactMultiChild = {
       );
       
 
-      this._renderedChildren = children;
-      var mountImages = [];
-      var index = 0;
+      this._renderedChildren = children; // 将该对象存到组件初始化实例的_renderedChildren中
+      var mountImages = []; // 声明一个数组
+      var index = 0; // 声明一个索引
+
+      // 遍历该对象
       for (var name in children) {
+        
+        // 判断对象中有没有该属性
         if (children.hasOwnProperty(name)) {
-          var child = children[name];
+
+          var child = children[name]; // 将组件初始化的实例取出来
+
+          /* 
+              处理子节点，并返回一个lazyTree对象
+          
+          */
           var mountImage = ReactReconciler.mountComponent(
-            child,  // 子节点
+            child,  // 子节点组件初始化实例
             transaction,  // 事务
             this,  // 父节点组件初始化实例
-            this._nativeContainerInfo,
-            context
+            this._nativeContainerInfo,  // 集装信息，为一个对象，存储一些基础信息
+            context // 上下文
           );
-          child._mountIndex = index++;
-          mountImages.push(mountImage);
+ 
+
+
+          child._mountIndex = index++; // 先当前初始化实例中存储索引
+          mountImages.push(mountImage); // 将 lazyTree对象存到数组中
         }
       }
-      return mountImages;
+      return mountImages;  // 返回该数组
     },
 
     /**
