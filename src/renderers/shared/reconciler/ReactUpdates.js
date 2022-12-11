@@ -45,7 +45,7 @@ var NESTED_UPDATES = {
       dirtyComponents.splice(0, this.dirtyComponentsLength);
       flushBatchedUpdates();
     } else {
-      dirtyComponents.length = 0;
+      dirtyComponents.length = 0;  // 将数组置为空
     }
   },
 };
@@ -175,13 +175,14 @@ function runBatchedUpdates(transaction) {
   dirtyComponents.sort(mountOrderComparator); // 对数组进行排序操作
   // 排往序后，层级越高的实例将越靠前
 
+
   // 循环数组长度
   for (var i = 0; i < len; i++) {
     
     var component = dirtyComponents[i]; // 获取类组件初始化实例
 
    
-    var callbacks = component._pendingCallbacks;
+    var callbacks = component._pendingCallbacks; // 取出存储回调函数的数组
 
     component._pendingCallbacks = null; // 将初始化实例中该属性该位null
 
@@ -220,6 +221,7 @@ function runBatchedUpdates(transaction) {
 }
 
 
+
 /**
  *  进行更新操作
  *  该函数的this被改成ReactUpdates对象
@@ -235,6 +237,8 @@ var flushBatchedUpdates = function() {
        dirtyComponents在setState函数中会存储该组件的初始化实例
   
        dirtyComponents数组会在执行setState函数中进行添加组件初始化实例
+
+       由于事务执行close函数时，会将dirtyComponents数组置为空，所以这个while循环只进一次
   */
   while (dirtyComponents.length || asapEnqueued) {
     

@@ -28,11 +28,13 @@ var ReactComponentEnvironment = {
    * Optionally injectable hook for swapping out mount images in the middle of
    * the tree.
    */
-  replaceNodeWithMarkup: null,
+  replaceNodeWithMarkup: null,  // 该属性最终是 Danger模块的dangerouslyReplaceNodeWithMarkup函数
 
   /**
    * Optionally injectable hook for processing a queue of child updates. Will
    * later move into MultiChildComponents.
+   * 
+   * 参数为ReactComponentBrowserEnvironment模块
    */
   processChildrenUpdates: null,
 
@@ -44,8 +46,7 @@ var ReactComponentEnvironment = {
       );
       ReactComponentEnvironment.unmountIDFromEnvironment =
         environment.unmountIDFromEnvironment;
-      ReactComponentEnvironment.replaceNodeWithMarkup =
-        environment.replaceNodeWithMarkup;
+      ReactComponentEnvironment.replaceNodeWithMarkup = environment.replaceNodeWithMarkup;
       ReactComponentEnvironment.processChildrenUpdates =
         environment.processChildrenUpdates;
       injected = true;

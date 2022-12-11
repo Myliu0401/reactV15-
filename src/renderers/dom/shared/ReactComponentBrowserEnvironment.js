@@ -25,8 +25,7 @@ var ReactComponentBrowserEnvironment = {
   processChildrenUpdates:
     ReactDOMIDOperations.dangerouslyProcessChildrenUpdates,
 
-  replaceNodeWithMarkup:
-    DOMChildrenOperations.dangerouslyReplaceNodeWithMarkup,
+  replaceNodeWithMarkup: DOMChildrenOperations.dangerouslyReplaceNodeWithMarkup,
 
   /**
    * If a particular environment requires that some resources be cleaned up,

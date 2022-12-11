@@ -796,6 +796,7 @@ var ReactCompositeComponentMixin = {
     this.updateComponent(transaction, prevElement, nextElement, prevContext, nextContext);
   },
 
+  
 
   /**
    * 更新组件, 通过执行setState，从而最终执行该函数的
@@ -817,9 +818,13 @@ var ReactCompositeComponentMixin = {
     /* 
        因为受setState函数的操作该_pendingStateQueue属性将是数组并且存储值新状态
        _pendingForceUpdate 表示是否强制更新
-    
+
+
+       更新后 实例的_pendingStateQueue属性会被重新赋值为空，所以多次setState不会触发多次更新
     */
     if (this._pendingStateQueue !== null || this._pendingForceUpdate) {
+
+      // 更新组件
       this.updateComponent(
         transaction,  // 事务
         this._currentElement, // babel转义后的组件
@@ -829,6 +834,7 @@ var ReactCompositeComponentMixin = {
       );
     }
   },
+
 
   /**
    * 更新组件
@@ -845,12 +851,15 @@ var ReactCompositeComponentMixin = {
     prevUnmaskedContext,// 旧上下文
     nextUnmaskedContext // 新上下文
   ) {
+
     var inst = this._instance; // 获取组件new的实例
     var willReceive = false; // 是否为新的
-    var nextContext;
-    var nextProps;
+    var nextContext;  // 要存储新上下文的变量
+    var nextProps;    // 要存储旧属性的变量
 
-    // 判断是否同一个上下文
+
+
+    // 判断是否同一个上下文，如果是调用setState函数的这个组件，则上下文为同一个
     if (this._context === nextUnmaskedContext) {
 
       nextContext = inst.context; // 为同一个上下文
@@ -860,17 +869,25 @@ var ReactCompositeComponentMixin = {
       nextContext = this._processContext(nextUnmaskedContext); // 返回一份浅复制的上下文类型对象
       willReceive = true; // 表示有新的上下文
 
-    }
+    };
 
-    // 判断元素是否一致
+
+    // 判断元素是否一致，如果是调用setState函数的这个组件，则属性为同一个
     if (prevParentElement === nextParentElement) {
+
       nextProps = nextParentElement.props;  // 获取属性
+
     } else {
+
       nextProps = this._processProps(nextParentElement.props);  // 获取新的属性
       willReceive = true; // 表示有新的属性
+
     }
 
-    // 判断是否是新组件，并且该组件有该生命周期 componentWillReceiveProps，属性变化或上下文变化时才会执行
+    /* 
+       判断是否是新组件，并且该组件有该生命周期 componentWillReceiveProps。
+       也就是只有属性变化或上下文变化时才会执行该生命周期
+    */
     if (willReceive && inst.componentWillReceiveProps) {
       // 该生命周期只有props改变或上下文不同时才会执行
 
@@ -880,13 +897,14 @@ var ReactCompositeComponentMixin = {
     
 
     /* 
-       该函数会将旧的数据和每一次setState执行时传递的数据进行混入后返回
+       该函数会将每一次setState执行时传递的数据进行混入后返回
        如果状态队列中只有一个新状态，则返回该新状态
        如果状态队列中有多个新状态，则进行混合后返回
 
     */
     var nextState = this._processPendingState(nextProps, nextContext); 
 
+    
     //  判断是否有该 shouldComponentUpdate 生命周期，如果有那么将执行并将返回值存到变量中                           新属性     新状态      新上下文                                
     var shouldUpdate = this._pendingForceUpdate || !inst.shouldComponentUpdate || inst.shouldComponentUpdate(nextProps, nextState, nextContext);
     //  如果没有该生命周期，则将返回true, 并存到变量中
@@ -902,7 +920,9 @@ var ReactCompositeComponentMixin = {
     }
 
 
-    // 会根据shouldComponentUpdate生命周期返回的布尔值来判断是否需要重新渲染
+    /* 
+        会根据shouldComponentUpdate生命周期返回的布尔值来判断是否需要重新渲染
+    */
     if (shouldUpdate) {
       this._pendingForceUpdate = false; // 将强制更新赋为false
 
@@ -935,26 +955,33 @@ var ReactCompositeComponentMixin = {
    * @returns 
    */
   _processPendingState: function (props, context) {
+
     var inst = this._instance; // 该属性为 new 类组件返回的this实例
-    var queue = this._pendingStateQueue; // 获取存储的新状态数据
+    var queue = this._pendingStateQueue; // 获取存储的新状态数据的数组
     var replace = this._pendingReplaceState; // 执行setState更新时该属性会被赋值为true
     this._pendingReplaceState = false; // 重新修改为false
     this._pendingStateQueue = null; // 将状态队列赋为空
 
-    // 判断有没有值
+
+    // 如果没有新状态，则直接返回旧状态
     if (!queue) {
       return inst.state;
     };
+
 
     // 判断是否该实例只执行一个setState
     if (replace && queue.length === 1) {
       return queue[0]; // 直接返回第一项
     };
 
-    // 混合出一个对象，该对象目前存储执行setState的参数
+
+    /* 
+        将第一个执行setState函数的参数状态，混进空对象返回
+    */
     var nextState = Object.assign({}, replace ? queue[0] : inst.state);
 
-    // 循环存储新状态的数组的长度
+
+    // 循环存储新状态的数组
     for (var i = replace ? 1 : 0; i < queue.length; i++) {
       var partial = queue[i]; // 获取存储的每一项新状态
 
@@ -993,7 +1020,7 @@ var ReactCompositeComponentMixin = {
 
     var hasComponentDidUpdate = Boolean(inst.componentDidUpdate); // 判断是否有该生命周期
 
-    // 声明这些变量来存储旧的东西
+    // 声明这些变量来存储旧的 属性、状态、上下文
     var prevProps;
     var prevState;
     var prevContext;
@@ -1003,19 +1030,22 @@ var ReactCompositeComponentMixin = {
       prevProps = inst.props;     // 存储旧属性
       prevState = inst.state;     // 存储旧状态
       prevContext = inst.context; // 存储旧上下文
-    }
+    };
 
     // 判断是否有该生命周期
     if (inst.componentWillUpdate) {
       //                        新属性      新状态     新上下文
       inst.componentWillUpdate(nextProps, nextState, nextContext);  // 执行该生命周期,属性更新前执行
-    }
+    };
+
 
     this._currentElement = nextElement;  // 更新存储babel转义后的组件
     this._context = unmaskedContext;     // 更新存储新上下文
     inst.props = nextProps;              // 更新存储新属性
     inst.state = nextState;              // 更新存储新状态
     inst.context = nextContext;          // 更新存储新上下文 --- 复制一份新的上下文类型对象
+    // 上面这些赋值完后，组件的属性、状态已更新
+
 
     // 该函数中会进行更新组件操作      事务         新上下文
     this._updateRenderedComponent(transaction, unmaskedContext);
@@ -1034,6 +1064,7 @@ var ReactCompositeComponentMixin = {
 
   
   /**
+   * 更新渲染组件
    * @param {ReactReconcileTransaction} transaction  事务
    * @param {Object} context  新上下文
    * @internal
@@ -1045,13 +1076,13 @@ var ReactCompositeComponentMixin = {
     var prevRenderedElement = prevComponentInstance._currentElement; // babel转义后子节点组件
 
     //该函数会调用组件的render函数，获取返回值
-    var nextRenderedElement = this._renderValidatedComponent(); 
+    var nextRenderedElement = this._renderValidatedComponent();  // 获取新的render返回值
 
 
     /* 
-         参数为 旧子组件 新子组件
-         该函数就判断
-           新旧子组件是否有某一方为空或false
+         参数为 旧子组件  新子组件
+         该函数会判断
+           新旧子组件是否有某一方为空或false，就判断新旧是否相等并返回
            或 新旧子组件是否是文本并且相同
            或 新旧子组件 类型和key 是否相同           
         
@@ -1067,33 +1098,42 @@ var ReactCompositeComponentMixin = {
         this._processChildContext(context) // 获取处理后的上下文
       );
 
-    } else {
-      // 新旧节点发生变化的情况下
+    } else { // 新旧节点发生变化的情况下
+     
+      //                                                   旧子组件初始化实例
+      var oldNativeNode = ReactReconciler.getNativeNode(prevComponentInstance); // 获取旧dom节点
 
-      var oldNativeNode = ReactReconciler.getNativeNode(prevComponentInstance); // 获取旧节点
       ReactReconciler.unmountComponent(prevComponentInstance, false); // 卸载render返回组件节点
 
       this._renderedNodeType = ReactNodeTypes.getType(nextRenderedElement); // 获取新节点的类型
+
+
+      //重新对组件进行入口的初始化，并替换类组件的该属性值
       this._renderedComponent = this._instantiateReactComponent(
         nextRenderedElement
-      );  //重新对组件进行入口的初始化
+      );  
 
-      // 渲染组件，该函数中会进行递归渲染
+
+      // 渲染组件，该函数中会进行递归渲染  并返回一个LazyTree对象
       var nextMarkup = ReactReconciler.mountComponent(
-        this._renderedComponent,
-        transaction,
-        this._nativeParent,
-        this._nativeContainerInfo,
-        this._processChildContext(context)
+        this._renderedComponent,  // 子组件初始化实例
+        transaction,  // 事务
+        this._nativeParent,  // 父节点
+        this._nativeContainerInfo,  // 集装信息对象
+        this._processChildContext(context)  // 上下文
       );
 
-      //                            旧节点         新节点
+      /* 
+         
+           
+          参数为  旧dom节点 、LazyTree对象
+      */
       this._replaceNodeWithMarkup(oldNativeNode, nextMarkup);
     }
   },
 
   /**
-   * Overridden in shallow rendering.
+   * 在浅层渲染中覆盖。
    *
    * @protected
    */

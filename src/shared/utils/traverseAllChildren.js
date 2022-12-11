@@ -30,10 +30,10 @@ var SUBSEPARATOR = ':';
 var didWarnAboutMaps = false;
 
 /**
- * Generate a key string that identifies a component within a set.
+ * 生成标识集合中某个组件的键字符串。
  *
  * @param {*} component 组件
- * @param {number} index Index that is used if a manual key is not provided.
+ * @param {number} index 索引
  * @return {string}
  */
 function getComponentKey(component, index) {
@@ -41,12 +41,13 @@ function getComponentKey(component, index) {
   // 判断该组件是不是react组件，并且有key值
   if (component && typeof component === 'object' && component.key != null) {
 
-    return KeyEscapeUtils.escape(component.key);  // 根据原有的key来生成一个值
+    return KeyEscapeUtils.escape(component.key);  // 根据组件的key来生成一个值
+
   };
 
 
-  // 由集合中的索引确定的隐式键
-  return index.toString(36);  // 返回一个参数字符串
+  // 以当前的索引变成36进制字符串返回
+  return index.toString(36);  
 }
 
 /**
@@ -80,12 +81,14 @@ function traverseAllChildrenImpl(
 
     // 该回调会向traverseContext对象注入初始化子节点实例
     callback(
+
       traverseContext, // 对象
 
       children,  // 子节点
 
       // 如果它是唯一的子级，则将名称视为包装在数组中所以如果孩子的数量增加，这是一致的。
       nameSoFar === '' ? SEPARATOR + getComponentKey(children, 0) : nameSoFar 
+
     );
 
     return 1;

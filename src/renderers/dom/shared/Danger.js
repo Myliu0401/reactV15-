@@ -148,11 +148,10 @@ var Danger = {
   },
 
   /**
-   * Replaces a node with a string of markup at its current position within its
-   * parent. The markup must render into a single root node.
+   * 在节点的当前位置用标记字符串替换节点父母亲标记必须呈现为单个根节点。
    *
-   * @param {DOMElement} oldChild Child node to replace.
-   * @param {string} markup Markup to render in place of the child node.
+   * @param {DOMElement} oldChild 旧节点
+   * @param {string} markup LazyTree对象
    * @internal
    */
   dangerouslyReplaceNodeWithMarkup: function(oldChild, markup) {
@@ -176,7 +175,13 @@ var Danger = {
       var newChild = createNodesFromMarkup(markup, emptyFunction)[0];
       oldChild.parentNode.replaceChild(newChild, oldChild);
     } else {
+   
+      /* 
+         oldChild的父节点下对marku.node替换掉oldChild
+         该函数会对节点进行替换
+      */
       DOMLazyTree.replaceChildWithTree(oldChild, markup);
+
     }
   },
 

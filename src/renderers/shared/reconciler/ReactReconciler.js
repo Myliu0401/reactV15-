@@ -41,6 +41,7 @@ var ReactReconciler = {
     context // 上下文
   ) {
 
+    // 返回一个LazyTree对象
     var markup = internalInstance.mountComponent(
       transaction, // 事务
       nativeParent, // 首次为null
@@ -67,14 +68,14 @@ var ReactReconciler = {
   },
 
   /**
-   * Releases any resources allocated by `mountComponent`.
+   * 释放“mountComponent”分配的所有资源。
    *
    * @final
    * @internal
    */
   unmountComponent: function(internalInstance, safely) {
     ReactRef.detachRefs(internalInstance, internalInstance._currentElement);
-    internalInstance.unmountComponent(safely);
+    internalInstance.unmountComponent(safely);  // 卸载组件
     if (__DEV__) {
       ReactInstrumentation.debugTool.onUnmountComponent(internalInstance);
     }
@@ -94,7 +95,7 @@ var ReactReconciler = {
 
     /* 
        新旧上下文和新旧组件是否一致
-       nextElement === prevElement是为了防止重复执行后面多次
+       进入该判断的就是 文本，并且是相同的文本
     */
     if (nextElement === prevElement && context === internalInstance._context) {
       return;
@@ -111,6 +112,7 @@ var ReactReconciler = {
       ReactRef.detachRefs(internalInstance, prevElement);
     }
 
+    // 更新组件
     internalInstance.receiveComponent(nextElement, transaction, context);
 
     if (refsChanged &&
