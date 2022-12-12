@@ -215,10 +215,15 @@ var ReactMultiChild = {
         }
       };
 
+      // 生成一个对象，如 {[name]: babel转义后的组件, 0: 文本, ...}
       nextChildren = flattenChildren(nextNestedChildrenElements);
+
+      // 该函数执行后nextChildren对象将会被修改
       ReactChildReconciler.updateChildren(
         prevChildren, nextChildren, removedNodes, transaction, context
       );
+
+      
       return nextChildren;
     },
 
@@ -253,8 +258,11 @@ var ReactMultiChild = {
       
 
       this._renderedChildren = children; // 将该对象存到组件初始化实例的_renderedChildren中
+
       var mountImages = []; // 声明一个数组
+
       var index = 0; // 声明一个索引
+
 
       // 遍历该对象
       for (var name in children) {
@@ -377,6 +385,7 @@ var ReactMultiChild = {
       var nextIndex = 0;
       var lastPlacedNode = null;
 
+
       // 遍历新对象
       for (name in nextChildren) {
 
@@ -386,9 +395,9 @@ var ReactMultiChild = {
         };
 
 
-        var prevChild = prevChildren && prevChildren[name]; // 获取旧对象中的该属性
+        var prevChild = prevChildren && prevChildren[name]; // 获取旧对象中的该属性（组件初始化实例）
 
-        var nextChild = nextChildren[name]; // 获取新对象中的该属性
+        var nextChild = nextChildren[name]; // 获取新对象中的该属性（组件初始化实例）
 
         if (prevChild === nextChild) {
           updates = enqueue(
