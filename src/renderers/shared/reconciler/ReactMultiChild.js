@@ -38,7 +38,9 @@ function makeInsertMarkup(markup, afterNode, toIndex) {
     toIndex: toIndex,
     afterNode: afterNode,
   };
-}
+};
+
+
 
 /**
  * Make an update for moving an existing element to another index.
@@ -57,7 +59,9 @@ function makeMove(child, afterNode, toIndex) {
     toIndex: toIndex,
     afterNode: afterNode,
   };
-}
+};
+
+
 
 /**
  * Make an update for removing an element at an index.
@@ -218,7 +222,9 @@ var ReactMultiChild = {
       // 生成一个对象，如 {[name]: babel转义后的组件, 0: 文本, ...}
       nextChildren = flattenChildren(nextNestedChildrenElements);
 
-      // 该函数执行后nextChildren对象将会被修改
+      /* 
+           该函数执行后nextChildren对象将会被修改成 {[name]: 组件初始化的实例, ...}
+      */
       ReactChildReconciler.updateChildren(
         prevChildren, nextChildren, removedNodes, transaction, context
       );

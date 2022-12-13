@@ -87,12 +87,12 @@ var ReactChildReconciler = {
   },
 
   /**
-   * Updates the rendered children and returns a new set of children.
+   * 更新渲染的子对象并返回一组新的子对象。
    *
-   * @param {?object} prevChildren Previously initialized set of children.
-   * @param {?object} nextChildren Flat child element maps.
-   * @param {ReactReconcileTransaction} transaction
-   * @param {object} context
+   * @param {?object} prevChildren 以前初始化的子集。如 {[name]: 组件初始化的实例}
+   * @param {?object} nextChildren 子元素映射 如 {[name]: babel转义后的组件, [name]: 文本}
+   * @param {ReactReconcileTransaction} transaction  事务
+   * @param {object} context  上下文
    * @return {?object} A new set of child instances.
    * @internal
    */
@@ -102,22 +102,31 @@ var ReactChildReconciler = {
     removedNodes,
     transaction,
     context) {
-    // We currently don't have a way to track moves here but if we use iterators
-    // instead of for..in we can zip the iterators and check if an item has
-    // moved.
-    // TODO: If nothing has changed, return the prevChildren object so that we
-    // can quickly bailout if nothing has changed.
+    
+    // 判断是否都没有，则直接结束
     if (!nextChildren && !prevChildren) {
       return;
-    }
+    };
+
+
     var name;
     var prevChild;
+
+    // 遍历映射的对象
     for (name in nextChildren) {
+
+      // 如果该属性不存在则跳过本次循环
       if (!nextChildren.hasOwnProperty(name)) {
         continue;
-      }
-      prevChild = prevChildren && prevChildren[name];
+      };
+
+
+      // 如果有以前初始化的子集，则取出对应的属性
+      prevChild = prevChildren && prevChildren[name]; 
+
+      // 如果有以前初始化的子集，则取出对应组件初始化实例的babel转义后的标签
       var prevElement = prevChild && prevChild._currentElement;
+
       var nextElement = nextChildren[name];
       if (prevChild != null &&
           shouldUpdateReactComponent(prevElement, nextElement)) {
