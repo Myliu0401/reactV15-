@@ -124,16 +124,24 @@ var ReactChildReconciler = {
       // 如果有以前初始化的子集，则取出对应的属性
       prevChild = prevChildren && prevChildren[name]; 
 
-      // 如果有以前初始化的子集，则取出对应组件初始化实例的babel转义后的标签
+      // 如果有以前初始化的子集，则取出对应组件初始化实例中存储的babel转义后的标签
       var prevElement = prevChild && prevChild._currentElement;
 
-      var nextElement = nextChildren[name];
-      if (prevChild != null &&
-          shouldUpdateReactComponent(prevElement, nextElement)) {
+      // 取出子级映射对象中的属性
+      var nextElement = nextChildren[name]; 
+
+      // 判断以前初始化的子集的对应属性是否不为空，并且新旧节点一致（如：同是文本节点、dom标签类型一致、组件函数一致）
+      if (prevChild != null && shouldUpdateReactComponent(prevElement, nextElement)) {
+        // 进到这里来代表children数组中对比到相同的
+
+
+        // 对以前子集对应组件进行更新
         ReactReconciler.receiveComponent(
           prevChild, nextElement, transaction, context
         );
-        nextChildren[name] = prevChild;
+
+        nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
+
       } else {
         if (prevChild) {
           removedNodes[name] = ReactReconciler.getNativeNode(prevChild);
@@ -142,7 +150,9 @@ var ReactChildReconciler = {
         // The child must be instantiated before it's mounted.
         var nextChildInstance = instantiateReactComponent(nextElement);
         nextChildren[name] = nextChildInstance;
-      }
+      };
+
+      
     }
     // Unmount children that are no longer present.
     for (name in prevChildren) {
