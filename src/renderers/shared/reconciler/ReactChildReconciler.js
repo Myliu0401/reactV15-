@@ -154,13 +154,17 @@ var ReactChildReconciler = {
 
       
     }
-    // Unmount children that are no longer present.
+    // 卸载不再存在的子项。
     for (name in prevChildren) {
-      if (prevChildren.hasOwnProperty(name) &&
-          !(nextChildren && nextChildren.hasOwnProperty(name))) {
-        prevChild = prevChildren[name];
-        removedNodes[name] = ReactReconciler.getNativeNode(prevChild);
-        ReactReconciler.unmountComponent(prevChild, false);
+
+      //  以前初始化的子集有该组件，但是新children中没有该组件
+      if (prevChildren.hasOwnProperty(name) && !(nextChildren && nextChildren.hasOwnProperty(name))) {
+
+        prevChild = prevChildren[name];  // 从以前初始化的子集取出该组件
+
+        removedNodes[name] = ReactReconciler.getNativeNode(prevChild); // 取出组件对应的dom节点
+
+        ReactReconciler.unmountComponent(prevChild, false); // 对组件进行卸载操作
       }
     }
   },

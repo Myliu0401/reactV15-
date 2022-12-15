@@ -362,7 +362,7 @@ var ReactMultiChild = {
       // 获取旧的children，但是是被处理的对象，对象中包含子节点初始化实例
       var prevChildren = this._renderedChildren;  
 
-      var removedNodes = {};  // 声明一个对象
+      var removedNodes = {};  // 声明一个对象，该对象会注入要卸载的组件
 
       /* 
          更新处理children
