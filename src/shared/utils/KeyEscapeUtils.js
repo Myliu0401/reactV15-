@@ -12,9 +12,9 @@
 'use strict';
 
 /**
- * Escape and wrap key so it is safe to use as a reactid
+ * 根据参数生成一个值
  *
- * @param {*} key to be escaped.
+ * @param {*} key key值
  * @return {string} the escaped key.
  */
 function escape(key) {

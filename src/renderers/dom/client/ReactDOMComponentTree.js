@@ -216,7 +216,8 @@ function getNodeFromInstance(inst) {
   }
 
   return inst._nativeNode;
-}
+};
+
 
 var ReactDOMComponentTree = {
   getClosestInstanceFromNode: getClosestInstanceFromNode,

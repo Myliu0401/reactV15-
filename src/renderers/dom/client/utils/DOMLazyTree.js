@@ -32,6 +32,12 @@ var enableLazy = (typeof document !== 'undefined' && typeof document.documentMod
   typeof navigator !== 'undefined' && typeof navigator.userAgent === 'string' && /\bEdge\/\d/.test(navigator.userAgent)
 );
 
+
+/**
+ * 
+ * @param {*} tree LazyTree对象
+ * @returns 
+ */
 function insertTreeChildren(tree) {
   // 判断是否不符合浏览器环境
   if (!enableLazy) {
@@ -74,12 +80,24 @@ var insertTreeBefore = createMicrosoftUnsafeLocalFunction(
   }
 );
 
+/**
+ * 
+ * @param {*} oldNode 节点dom
+ * @param {*} newTree LazyTree对象
+ */
 function replaceChildWithTree(oldNode, newTree) {
+
+  /* 
+      第一个参数节点，替换掉第二个参数节点
+  */
   oldNode.parentNode.replaceChild(newTree.node, oldNode);
+
   insertTreeChildren(newTree);
 }
 
 function queueChild(parentTree, childTree) {
+
+  // 判断是否是IE浏览器环境
   if (enableLazy) {
     parentTree.children.push(childTree);
   } else {

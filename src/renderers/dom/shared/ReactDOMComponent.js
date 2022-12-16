@@ -498,7 +498,7 @@ function ReactDOMComponent(element) {
 
   // 下面进行属性的初始默认值
   this._namespaceURI = null;
-  this._renderedChildren = null;
+  this._renderedChildren = null;   // 该属性会存储一个对象，对象中存储子节点初始化实例
   this._previousStyle = null;
   this._previousStyleCopy = null;
   this._nativeNode = null;  // 该属性为存储节点dom
@@ -886,12 +886,15 @@ ReactDOMComponent.Mixin = {
       } else if (childrenToUse != null) {  // 判断子节点是否有值
         // 子节点不是文本的情况下
         
+
+        // 会处理后还回一个数组
         var mountImages = this.mountChildren(
           childrenToUse, // 子节点
           transaction,   // 事务
           context        // 上下文
         );
 
+        
         // 循环该数组
         for (var i = 0; i < mountImages.length; i++) {
           // 会将第二个参数对象中的节点，插入到第一个参数对象的节点中
@@ -903,12 +906,12 @@ ReactDOMComponent.Mixin = {
   },
 
   /**
-   * Receives a next element and updates the component.
+   * 接收下一个元素并更新组件。
    *
    * @internal
-   * @param {ReactElement} nextElement
-   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction
-   * @param {object} context
+   * @param {ReactElement} nextElement     新节点（babel转义后）
+   * @param {ReactReconcileTransaction|ReactServerRenderingTransaction} transaction  事务
+   * @param {object} context  上次文
    */
   receiveComponent: function(nextElement, transaction, context) {
     var prevElement = this._currentElement;
@@ -916,13 +919,14 @@ ReactDOMComponent.Mixin = {
     this.updateComponent(transaction, prevElement, nextElement, context);
   },
 
+
+
   /**
-   * Updates a native DOM component after it has already been allocated and
-   * attached to the DOM. Reconciles the root DOM node, then recurses.
-   *
-   * @param {ReactReconcileTransaction} transaction
-   * @param {ReactElement} prevElement
-   * @param {ReactElement} nextElement
+   * 在已分配本机DOM组件并附加到DOM。协调根DOM节点，然后递归。
+   * 
+   * @param {ReactReconcileTransaction} transaction   事务
+   * @param {ReactElement} prevElement   旧节点（babel转义后）
+   * @param {ReactElement} nextElement   新节点（babel转义后）
    * @internal
    * @overridable
    */
@@ -953,16 +957,22 @@ ReactDOMComponent.Mixin = {
         lastProps = ReactDOMTextarea.getNativeProps(this, lastProps);
         nextProps = ReactDOMTextarea.getNativeProps(this, nextProps);
         break;
-    }
+    };
 
+    
+    /* 
+        判断制定的属性是否有效
+        参数为 dom组件实例、新属性
+    */
     assertValidProps(this, nextProps);
+ 
+    /* 
+       对 新旧属性 进行对比后进行处理
+    */
     this._updateDOMProperties(lastProps, nextProps, transaction);
-    this._updateDOMChildren(
-      lastProps,
-      nextProps,
-      transaction,
-      context
-    );
+
+    this._updateDOMChildren(lastProps, nextProps, transaction, context);
+
 
     if (this._tag === 'select') {
       // <select> value update needs to occur after <option> children
@@ -1147,30 +1157,36 @@ ReactDOMComponent.Mixin = {
   },
 
   /**
-   * Reconciles the children with the various properties that affect the
-   * children content.
+   *  更新组件
    *
-   * @param {object} lastProps
-   * @param {object} nextProps
-   * @param {ReactReconcileTransaction} transaction
-   * @param {object} context
+   * @param {object} lastProps    旧属性
+   * @param {object} nextProps    新属性
+   * @param {ReactReconcileTransaction} transaction   事务
+   * @param {object} context  上下文
    */
   _updateDOMChildren: function(lastProps, nextProps, transaction, context) {
+
+    // 判断旧属性中的children是否是 字符串或数字（也就是文本）
     var lastContent = CONTENT_TYPES[typeof lastProps.children] ? lastProps.children : null;
+
+    // 判断新属性中的children是否是 字符串或数字（也就是文本）
     var nextContent = CONTENT_TYPES[typeof nextProps.children] ? nextProps.children : null;
 
+    // 获取旧属性中html的值
     var lastHtml = lastProps.dangerouslySetInnerHTML && lastProps.dangerouslySetInnerHTML.__html;
+
+    // 获取新属性中html的值
     var nextHtml = nextProps.dangerouslySetInnerHTML && nextProps.dangerouslySetInnerHTML.__html;
 
-    // Note the use of `!=` which checks for null or undefined.
+    // 存储 新旧属性的children属性的值
     var lastChildren = lastContent != null ? null : lastProps.children;
     var nextChildren = nextContent != null ? null : nextProps.children;
 
-    // If we're switching from children to content/html or vice versa, remove
-    // the old content
+    // 存储 新旧属性的html值
     var lastHasContentOrHtml = lastContent != null || lastHtml != null;
     var nextHasContentOrHtml = nextContent != null || nextHtml != null;
 
+    // 判断 新旧属性的children属性值是否不一致
     if (lastChildren != null && nextChildren == null) {
       this.updateChildren(null, transaction, context);
     } else if (lastHasContentOrHtml && !nextHasContentOrHtml) {

@@ -99,7 +99,7 @@ Object.assign(ReactDOMTextComponent.prototype, {
       
 
       /* 
-        参数为文档的父级，也就是最高一级
+        参数为一虚拟的节点对象
         生成一个lazyTree对象
         {
           node: node, 
@@ -129,6 +129,12 @@ Object.assign(ReactDOMTextComponent.prototype, {
 
       // 参数为 组件初始化实例、开始html注释
       ReactDOMComponentTree.precacheNode(this, openingComment);
+      /* 
+            nativeInst._nativeNode = node; // 给实例添加_nativeNode属性，为标签
+            node[internalInstanceKey] = nativeInst; // 将组件实例存到标签的随机生成的属性中
+      
+      */
+
 
       // 将结束的html注释存到组件初始化实例中
       this._closingComment = closingComment;

@@ -87,12 +87,12 @@ var ReactChildReconciler = {
   },
 
   /**
-   * Updates the rendered children and returns a new set of children.
+   * 更新渲染的子对象并返回一组新的子对象。
    *
-   * @param {?object} prevChildren Previously initialized set of children.
-   * @param {?object} nextChildren Flat child element maps.
-   * @param {ReactReconcileTransaction} transaction
-   * @param {object} context
+   * @param {?object} prevChildren 以前初始化的子集。如 {[name]: 组件初始化的实例}
+   * @param {?object} nextChildren 子元素映射 如 {[name]: babel转义后的组件, [name]: 文本}
+   * @param {ReactReconcileTransaction} transaction  事务
+   * @param {object} context  上下文
    * @return {?object} A new set of child instances.
    * @internal
    */
@@ -102,29 +102,46 @@ var ReactChildReconciler = {
     removedNodes,
     transaction,
     context) {
-    // We currently don't have a way to track moves here but if we use iterators
-    // instead of for..in we can zip the iterators and check if an item has
-    // moved.
-    // TODO: If nothing has changed, return the prevChildren object so that we
-    // can quickly bailout if nothing has changed.
+    
+    // 判断是否都没有，则直接结束
     if (!nextChildren && !prevChildren) {
       return;
-    }
+    };
+
+
     var name;
     var prevChild;
+
+    // 遍历映射的对象
     for (name in nextChildren) {
+
+      // 如果该属性不存在则跳过本次循环
       if (!nextChildren.hasOwnProperty(name)) {
         continue;
-      }
-      prevChild = prevChildren && prevChildren[name];
+      };
+
+
+      // 如果有以前初始化的子集，则取出对应的属性
+      prevChild = prevChildren && prevChildren[name]; 
+
+      // 如果有以前初始化的子集，则取出对应组件初始化实例中存储的babel转义后的标签
       var prevElement = prevChild && prevChild._currentElement;
-      var nextElement = nextChildren[name];
-      if (prevChild != null &&
-          shouldUpdateReactComponent(prevElement, nextElement)) {
+
+      // 取出子级映射对象中的属性
+      var nextElement = nextChildren[name]; 
+
+      // 判断以前初始化的子集的对应属性是否不为空，并且新旧节点一致（如：同是文本节点、dom标签类型一致、组件函数一致）
+      if (prevChild != null && shouldUpdateReactComponent(prevElement, nextElement)) {
+        // 进到这里来代表children数组中对比到相同的
+
+
+        // 对以前子集对应组件进行更新
         ReactReconciler.receiveComponent(
           prevChild, nextElement, transaction, context
         );
-        nextChildren[name] = prevChild;
+
+        nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
+
       } else {
         if (prevChild) {
           removedNodes[name] = ReactReconciler.getNativeNode(prevChild);
@@ -133,15 +150,21 @@ var ReactChildReconciler = {
         // The child must be instantiated before it's mounted.
         var nextChildInstance = instantiateReactComponent(nextElement);
         nextChildren[name] = nextChildInstance;
-      }
+      };
+
+      
     }
-    // Unmount children that are no longer present.
+    // 卸载不再存在的子项。
     for (name in prevChildren) {
-      if (prevChildren.hasOwnProperty(name) &&
-          !(nextChildren && nextChildren.hasOwnProperty(name))) {
-        prevChild = prevChildren[name];
-        removedNodes[name] = ReactReconciler.getNativeNode(prevChild);
-        ReactReconciler.unmountComponent(prevChild, false);
+
+      //  以前初始化的子集有该组件，但是新children中没有该组件
+      if (prevChildren.hasOwnProperty(name) && !(nextChildren && nextChildren.hasOwnProperty(name))) {
+
+        prevChild = prevChildren[name];  // 从以前初始化的子集取出该组件
+
+        removedNodes[name] = ReactReconciler.getNativeNode(prevChild); // 取出组件对应的dom节点
+
+        ReactReconciler.unmountComponent(prevChild, false); // 对组件进行卸载操作
       }
     }
   },

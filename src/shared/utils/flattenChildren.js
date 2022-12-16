@@ -39,16 +39,22 @@ function flattenSingleChildIntoContext(traverseContext, child, name) {
 }
 
 /**
- * Flattens children that are typically specified as `props.children`. Any null
- * children will not be included in the resulting object.
- * @return {!object} flattened children keyed by name.
+ * 处理props的children属性
+ * @return {!object} dom组件的children
  */
 function flattenChildren(children) {
+
+  // 判断children是否是null
   if (children == null) {
     return children;
-  }
-  var result = {};
+  };
+
+  var result = {}; // 声明一个空对象
+
+
+  // 遍历children
   traverseAllChildren(children, flattenSingleChildIntoContext, result);
+
   return result;
 }
 

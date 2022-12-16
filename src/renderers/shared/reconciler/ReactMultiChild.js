@@ -38,7 +38,9 @@ function makeInsertMarkup(markup, afterNode, toIndex) {
     toIndex: toIndex,
     afterNode: afterNode,
   };
-}
+};
+
+
 
 /**
  * Make an update for moving an existing element to another index.
@@ -57,7 +59,9 @@ function makeMove(child, afterNode, toIndex) {
     toIndex: toIndex,
     afterNode: afterNode,
   };
-}
+};
+
+
 
 /**
  * Make an update for removing an element at an index.
@@ -180,6 +184,16 @@ var ReactMultiChild = {
       );
     },
 
+
+    /**
+     * 更新处理children
+     * @param {*} prevChildren   一个对象，对象中存储子节点初始化的实例
+     * @param {*} nextNestedChildrenElements  新children
+     * @param {*} removedNodes    空对象
+     * @param {*} transaction     事务
+     * @param {*} context         上下文
+     * @returns 
+     */
     _reconcilerUpdateChildren: function(
       prevChildren,
       nextNestedChildrenElements,
@@ -187,7 +201,9 @@ var ReactMultiChild = {
       transaction,
       context
     ) {
-      var nextChildren;
+
+      var nextChildren; // 声明一个变量
+
       if (__DEV__) {
         if (this._currentElement) {
           try {
@@ -201,11 +217,19 @@ var ReactMultiChild = {
           );
           return nextChildren;
         }
-      }
+      };
+
+      // 生成一个对象，如 {[name]: babel转义后的组件, 0: 文本, ...}
       nextChildren = flattenChildren(nextNestedChildrenElements);
+
+      /* 
+           该函数执行后nextChildren对象将会被修改成 {[name]: 组件初始化的实例, ...}
+      */
       ReactChildReconciler.updateChildren(
         prevChildren, nextChildren, removedNodes, transaction, context
       );
+
+      
       return nextChildren;
     },
 
@@ -240,8 +264,11 @@ var ReactMultiChild = {
       
 
       this._renderedChildren = children; // 将该对象存到组件初始化实例的_renderedChildren中
+
       var mountImages = []; // 声明一个数组
+
       var index = 0; // 声明一个索引
+
 
       // 遍历该对象
       for (var name in children) {
@@ -253,7 +280,6 @@ var ReactMultiChild = {
 
           /* 
               处理子节点，并返回一个lazyTree对象
-          
           */
           var mountImage = ReactReconciler.mountComponent(
             child,  // 子节点组件初始化实例
@@ -312,49 +338,73 @@ var ReactMultiChild = {
     },
 
     /**
-     * Updates the rendered children with new children.
-     *
-     * @param {?object} nextNestedChildrenElements Nested child element maps.
-     * @param {ReactReconcileTransaction} transaction
+     * 使用新的子对象更新渲染的子对象。
+     * 更新children
+     * @param {?object} nextNestedChildrenElements 新的children
+     * @param {ReactReconcileTransaction} transaction 事务
      * @internal
      */
     updateChildren: function(nextNestedChildrenElements, transaction, context) {
-      // Hook used by React ART
+      
+      // 更新children
       this._updateChildren(nextNestedChildrenElements, transaction, context);
     },
 
     /**
-     * @param {?object} nextNestedChildrenElements Nested child element maps.
-     * @param {ReactReconcileTransaction} transaction
+     * 更新children
+     * @param {?object} nextNestedChildrenElements       新children
+     * @param {ReactReconcileTransaction} transaction    事务
      * @final
      * @protected
      */
     _updateChildren: function(nextNestedChildrenElements, transaction, context) {
-      var prevChildren = this._renderedChildren;
-      var removedNodes = {};
+
+      // 获取旧的children，但是是被处理的对象，对象中包含子节点初始化实例
+      var prevChildren = this._renderedChildren;  
+
+      var removedNodes = {};  // 声明一个对象，该对象会注入要卸载的组件
+
+      /* 
+         更新处理children
+         该函数会返回一个对象，对象中包含子节点初始化的实例，跟prevChildren一样的对象
+      */
       var nextChildren = this._reconcilerUpdateChildren(
-        prevChildren,
-        nextNestedChildrenElements,
-        removedNodes,
-        transaction,
-        context
+        prevChildren,   // 一个对象，对象中包含子节点初始化的实例
+        nextNestedChildrenElements,  // 新children
+        removedNodes,  // 空对象
+        transaction,   // 事务
+        context        // 上下文
       );
+
+
+      // 判断 新旧children 是否都没有值
       if (!nextChildren && !prevChildren) {
         return;
-      }
+      };
+
+
       var updates = null;
       var name;
-      // `nextIndex` will increment for each child in `nextChildren`, but
-      // `lastIndex` will be the last index visited in `prevChildren`.
+      // `nextIndex`将为“nextChildren”中的每个子级递增，但是
+      // `lastIndex”将是“prevChildren”中访问的最后一个索引。
       var lastIndex = 0;
       var nextIndex = 0;
       var lastPlacedNode = null;
+
+
+      // 遍历新对象
       for (name in nextChildren) {
+
+        // 如果对象中没有该属性则越过本次循环
         if (!nextChildren.hasOwnProperty(name)) {
           continue;
-        }
-        var prevChild = prevChildren && prevChildren[name];
-        var nextChild = nextChildren[name];
+        };
+
+
+        var prevChild = prevChildren && prevChildren[name]; // 获取旧对象中的该属性（组件初始化实例）
+
+        var nextChild = nextChildren[name]; // 获取新对象中的该属性（组件初始化实例）
+
         if (prevChild === nextChild) {
           updates = enqueue(
             updates,
@@ -364,25 +414,33 @@ var ReactMultiChild = {
           prevChild._mountIndex = nextIndex;
         } else {
           if (prevChild) {
-            // Update `lastIndex` before `_mountIndex` gets unset by unmounting.
-            lastIndex = Math.max(prevChild._mountIndex, lastIndex);
-            // The `removedNodes` loop below will actually remove the child.
+
+            // 在卸载`_mountIndex`之前更新`lastIndex`。
+            lastIndex = Math.max(prevChild._mountIndex, lastIndex); // 返回最大的那个参数
+            // 下面的“removedNodes”循环实际上会删除子节点。
+
           }
-          // The child must be instantiated before it's mounted.
+
+          //子级必须在装入之前实例化。
           updates = enqueue(
             updates,
             this._mountChildAtIndex(
-              nextChild,
-              lastPlacedNode,
+              nextChild,   // 新子节点初始化实例
+              lastPlacedNode,  // 
               nextIndex,
               transaction,
               context
             )
           );
-        }
+        };
+
+
         nextIndex++;
         lastPlacedNode = ReactReconciler.getNativeNode(nextChild);
       }
+
+
+
       // Remove children that are no longer present.
       for (name in removedNodes) {
         if (removedNodes.hasOwnProperty(name)) {
