@@ -39,13 +39,23 @@ var NESTED_UPDATES = {
   initialize: function() {
     this.dirtyComponentsLength = dirtyComponents.length;  // 将数组长度赋值到事务对象的属性中
   },
+
   close: function() {
+
+    // 判断是否不相等
     if (this.dirtyComponentsLength !== dirtyComponents.length) {
       
       dirtyComponents.splice(0, this.dirtyComponentsLength);
       flushBatchedUpdates();
+
     } else {
+
+
+      dirtyComponents.length = 0;  // 将存储类组件实例的数组置为空
+
+
       dirtyComponents.length = 0;  // 将数组置为空
+
     }
   },
 };
@@ -66,6 +76,10 @@ function ReactUpdatesFlushTransaction() {
   this.reinitializeTransaction(); // 该函数会重置队列数组
   /* 
       该函数中会调用getTransactionWrappers函数并且将返回值赋给 this.transactionWrappers
+      执行reinitializeTransaction函数后， this实例将拥有以下属性
+        transactionWrappers: TRANSACTION_WRAPPERS数组
+        wrapperInitData: []
+        _isInTransaction: false
   
   */
 
@@ -238,7 +252,9 @@ var flushBatchedUpdates = function() {
   
        dirtyComponents数组会在执行setState函数中进行添加组件初始化实例
 
+
        由于事务执行close函数时，会将dirtyComponents数组置为空，所以这个while循环只进一次
+
   */
   while (dirtyComponents.length || asapEnqueued) {
     
