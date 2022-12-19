@@ -128,17 +128,18 @@ var ReactChildReconciler = {
       var prevElement = prevChild && prevChild._currentElement;
 
       // 取出子级映射对象中的属性
-      var nextElement = nextChildren[name]; 
+      var nextElement = nextChildren[name]; // 此时新children里该属性还是babel转义后的，还不是组件初始化实例
 
       // 判断以前初始化的子集的对应属性是否不为空，并且新旧节点一致（如：同是文本节点、dom标签类型一致、组件函数一致）
       if (prevChild != null && shouldUpdateReactComponent(prevElement, nextElement)) {
         // 进到这里来代表children数组中对比到相同的
 
 
-        // 对以前子集对应组件进行更新
-        ReactReconciler.receiveComponent(
-          prevChild, nextElement, transaction, context
-        );
+        /* 
+            对以前子集对应组件进行更新
+            参数为，旧项的组件初始化实例、新项的babel转义、事务、上下文
+        */
+        ReactReconciler.receiveComponent( prevChild, nextElement, transaction, context );
 
         nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
 

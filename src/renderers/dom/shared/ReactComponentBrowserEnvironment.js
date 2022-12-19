@@ -22,8 +22,7 @@ var ReactPerf = require('ReactPerf');
  */
 var ReactComponentBrowserEnvironment = {
 
-  processChildrenUpdates:
-    ReactDOMIDOperations.dangerouslyProcessChildrenUpdates,
+  processChildrenUpdates: ReactDOMIDOperations.dangerouslyProcessChildrenUpdates,
 
   replaceNodeWithMarkup: DOMChildrenOperations.dangerouslyReplaceNodeWithMarkup,
 

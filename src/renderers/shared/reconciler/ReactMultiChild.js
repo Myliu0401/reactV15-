@@ -43,21 +43,21 @@ function makeInsertMarkup(markup, afterNode, toIndex) {
 
 
 /**
- * Make an update for moving an existing element to another index.
+ * 为将现有元素移动到另一个索引进行更新。
  *
- * @param {number} fromIndex Source index of the existing element.
- * @param {number} toIndex Destination index of the element.
+ * @param {number} fromIndex 现有元素的源索引。
+ * @param {number} toIndex 元素的目标索引。
  * @private
  */
 function makeMove(child, afterNode, toIndex) {
-  // NOTE: Null values reduce hidden classes.
-  return {
-    type: ReactMultiChildUpdateTypes.MOVE_EXISTING,
+  // 注意：空值减少隐藏类。
+  return { 
+    type: ReactMultiChildUpdateTypes.MOVE_EXISTING,  // 为 MOVE_EXISTING字符串
     content: null,
-    fromIndex: child._mountIndex,
-    fromNode: ReactReconciler.getNativeNode(child),
-    toIndex: toIndex,
-    afterNode: afterNode,
+    fromIndex: child._mountIndex,  // 当前组件旧的索引
+    fromNode: ReactReconciler.getNativeNode(child),  // 当前组件对应的dom节点
+    toIndex: toIndex,  // 目标位的索引
+    afterNode: afterNode,  // 上一个的dom节点
   };
 };
 
@@ -118,13 +118,12 @@ function makeTextContent(textContent) {
 }
 
 /**
- * Push an update, if any, onto the queue. Creates a new queue if none is
- * passed and always returns the queue. Mutative.
+ * 将更新（如果有）推送到队列中。如果没有，则创建新队列传递并始终返回队列。突变型。
  */
 function enqueue(queue, update) {
   if (update) {
     queue = queue || [];
-    queue.push(update);
+    queue.push(update); // 添加 将要互相替换位置的节点的信息对象
   }
   return queue;
 }
@@ -135,6 +134,11 @@ function enqueue(queue, update) {
  * @private
  */
 function processQueue(inst, updateQueue) {
+
+  /* 
+      processChildrenUpdates函数为ReactDOMIDOperations模块的dangerouslyProcessChildrenUpdates函数
+  
+  */
   ReactComponentEnvironment.processChildrenUpdates(
     inst,
     updateQueue,
@@ -188,8 +192,8 @@ var ReactMultiChild = {
     /**
      * 更新处理children
      * @param {*} prevChildren   一个对象，对象中存储子节点初始化的实例
-     * @param {*} nextNestedChildrenElements  新children
-     * @param {*} removedNodes    空对象
+     * @param {*} nextNestedChildrenElements  新children，数组
+     * @param {*} removedNodes    空对象，存储要卸载的dom节点
      * @param {*} transaction     事务
      * @param {*} context         上下文
      * @returns 
@@ -291,7 +295,7 @@ var ReactMultiChild = {
  
 
 
-          child._mountIndex = index++; // 先当前初始化实例中存储索引
+          child._mountIndex = index++; // 先向当前初始化实例中存储顺序索引
           mountImages.push(mountImage); // 将 lazyTree对象存到数组中
         }
       }
@@ -337,6 +341,9 @@ var ReactMultiChild = {
       processQueue(this, updates);
     },
 
+
+
+
     /**
      * 使用新的子对象更新渲染的子对象。
      * 更新children
@@ -350,6 +357,9 @@ var ReactMultiChild = {
       this._updateChildren(nextNestedChildrenElements, transaction, context);
     },
 
+
+
+
     /**
      * 更新children
      * @param {?object} nextNestedChildrenElements       新children
@@ -362,7 +372,7 @@ var ReactMultiChild = {
       // 获取旧的children，但是是被处理的对象，对象中包含子节点初始化实例
       var prevChildren = this._renderedChildren;  
 
-      var removedNodes = {};  // 声明一个对象，该对象会注入要卸载的组件
+      var removedNodes = {};  // 声明一个对象，该对象会注入要卸载的dom节点
 
       /* 
          更新处理children
@@ -385,11 +395,12 @@ var ReactMultiChild = {
 
       var updates = null;
       var name;
+
       // `nextIndex`将为“nextChildren”中的每个子级递增，但是
       // `lastIndex”将是“prevChildren”中访问的最后一个索引。
-      var lastIndex = 0;
-      var nextIndex = 0;
-      var lastPlacedNode = null;
+      var lastIndex = 0; // 最终会更新成children数组的最后一项的索引
+      var nextIndex = 0; // 会递增，表示该项在children数组中的索引
+      var lastPlacedNode = null; // 上一个的组件初始化实例的对应dom节点
 
 
       // 遍历新对象
@@ -406,12 +417,25 @@ var ReactMultiChild = {
         var nextChild = nextChildren[name]; // 获取新对象中的该属性（组件初始化实例）
 
         if (prevChild === nextChild) {
+         // 同一个引用，说明是使用的同一个component,所以我们需要做移动的操作
+         // 移动已有的子节点
+         // NOTICE：这里根据nextIndex, lastIndex决定是否移动
+
+          // 如果需要节点替换位置，则返回一个数组，数组每一项为对象
           updates = enqueue(
             updates,
+
+            // 参数为  子组件初始化实例、 上一个组件的dom节点、下一个索引、最后一个索引
             this.moveChild(prevChild, lastPlacedNode, nextIndex, lastIndex)
           );
-          lastIndex = Math.max(prevChild._mountIndex, lastIndex);
-          prevChild._mountIndex = nextIndex;
+
+          lastIndex = Math.max(prevChild._mountIndex, lastIndex);  // 返回最大那个参数
+
+          /* 
+            对组件初始化实例存储着在children数组中的索引为进行替换
+            相当于会移动节点
+          */
+          prevChild._mountIndex = nextIndex; 
         } else {
           if (prevChild) {
 
@@ -426,22 +450,23 @@ var ReactMultiChild = {
             updates,
             this._mountChildAtIndex(
               nextChild,   // 新子节点初始化实例
-              lastPlacedNode,  // 
-              nextIndex,
-              transaction,
-              context
+              lastPlacedNode,  // 上一次，组件初始化实例对应的dom节点
+              nextIndex,    // 该组件在children数组中的索引
+              transaction,  // 事务
+              context       // 上下文
             )
           );
         };
 
 
-        nextIndex++;
-        lastPlacedNode = ReactReconciler.getNativeNode(nextChild);
+        nextIndex++; // 索引加加
+
+        lastPlacedNode = ReactReconciler.getNativeNode(nextChild); // 获取该组件初始化实例对应的dom节点
       }
 
 
 
-      // Remove children that are no longer present.
+      // 删除不再存在的子项
       for (name in removedNodes) {
         if (removedNodes.hasOwnProperty(name)) {
           updates = enqueue(
@@ -449,11 +474,16 @@ var ReactMultiChild = {
             this._unmountChild(prevChildren[name], removedNodes[name])
           );
         }
-      }
+      };
+      
+
+      // 如果需要移动，会对节点进行移动
       if (updates) {
         processQueue(this, updates);
-      }
-      this._renderedChildren = nextChildren;
+      };
+      this._renderedChildren = nextChildren; // 将新 装载映对象 赋值到组件初始化实例中
+
+      // 来到这里时，代表更新完毕
     },
 
     /**
@@ -469,19 +499,28 @@ var ReactMultiChild = {
       this._renderedChildren = null;
     },
 
+   
+
     /**
-     * Moves a child component to the supplied index.
-     *
-     * @param {ReactComponent} child Component to move.
-     * @param {number} toIndex Destination index of the element.
-     * @param {number} lastIndex Last index visited of the siblings of `child`.
-     * @protected
+     * 将子组件移动到提供的索引。
+     * @param {*} child          子组件初始化实例
+     * @param {*} afterNode      上一个组件的dom节点
+     * @param {*} toIndex        下一个索引
+     * @param {*} lastIndex      最后一个索引
+     * @returns 
      */
     moveChild: function(child, afterNode, toIndex, lastIndex) {
-      // If the index of `child` is less than `lastIndex`, then it needs to
-      // be moved. Otherwise, we do not need to move it because a child will be
-      // inserted or moved before `child`.
+      /* 
+         如果“child”的索引小于“lastIndex”，则需要移动。否则，我们不需要移动它，因为孩子会在“child”之前插入或移动
+        
+      */
       if (child._mountIndex < lastIndex) {
+
+        /*  
+            构建一个两个节点交换位置的信息对象
+            
+            参数为  子组件初始化实例、上一个组件的dom节点、下一个索引
+        */
         return makeMove(child, afterNode, toIndex);
       }
     },
@@ -507,16 +546,16 @@ var ReactMultiChild = {
       return makeRemove(child, node);
     },
 
+    
+
     /**
-     * Mounts a child with the supplied name.
-     *
-     * NOTE: This is part of `updateChildren` and is here for readability.
-     *
-     * @param {ReactComponent} child Component to mount.
-     * @param {string} name Name of the child.
-     * @param {number} index Index at which to insert the child.
-     * @param {ReactReconcileTransaction} transaction
-     * @private
+     * 渲染新组件
+     * @param {*} child      新子节点初始化实例
+     * @param {*} afterNode  上一次，组件初始化实例对应的dom节点
+     * @param {*} index      该组件在children数组中的索引
+     * @param {*} transaction  事务
+     * @param {*} context      上下文
+     * @returns 
      */
     _mountChildAtIndex: function(
       child,

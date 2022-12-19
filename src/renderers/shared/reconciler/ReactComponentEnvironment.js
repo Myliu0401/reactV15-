@@ -44,11 +44,9 @@ var ReactComponentEnvironment = {
         !injected,
         'ReactCompositeComponent: injectEnvironment() can only be called once.'
       );
-      ReactComponentEnvironment.unmountIDFromEnvironment =
-        environment.unmountIDFromEnvironment;
+      ReactComponentEnvironment.unmountIDFromEnvironment = environment.unmountIDFromEnvironment;
       ReactComponentEnvironment.replaceNodeWithMarkup = environment.replaceNodeWithMarkup;
-      ReactComponentEnvironment.processChildrenUpdates =
-        environment.processChildrenUpdates;
+      ReactComponentEnvironment.processChildrenUpdates = environment.processChildrenUpdates;
       injected = true;
     },
   },

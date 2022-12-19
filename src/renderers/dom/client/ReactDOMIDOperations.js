@@ -21,13 +21,14 @@ var ReactPerf = require('ReactPerf');
 var ReactDOMIDOperations = {
 
   /**
-   * Updates a component's children by processing a series of updates.
-   *
-   * @param {array<object>} updates List of update configurations.
-   * @internal
+   * 通过处理一系列更新来更新组件的子级。 
+   * @param {*} parentInst   组件初始化实例
+   * @param {*} updates      数组
    */
   dangerouslyProcessChildrenUpdates: function(parentInst, updates) {
-    var node = ReactDOMComponentTree.getNodeFromInstance(parentInst);
+    var node = ReactDOMComponentTree.getNodeFromInstance(parentInst); // 获取组件对应的dom节点
+
+    /* 参数为  节点、数组 */
     DOMChildrenOperations.processUpdates(node, updates);
   },
 };

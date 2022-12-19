@@ -20,28 +20,49 @@ var createMicrosoftUnsafeLocalFunction = require('createMicrosoftUnsafeLocalFunc
 var setInnerHTML = require('setInnerHTML');
 var setTextContent = require('setTextContent');
 
+
+/**
+ * 
+ * @param {*} parentNode 父dom节点
+ * @param {*} node    上一个dom节点
+ * @returns 
+ */
 function getNodeAfter(parentNode, node) {
-  // Special case for text components, which return [open, close] comments
-  // from getNativeNode.
+  // 返回[open，close]注释的文本组件的特殊情况来自getNativeNode。
+
+  // 判断上一个dom节点是否为数组
   if (Array.isArray(node)) {
     node = node[1];
   }
+
+  /* 
+     nextSibling为 元素之后紧跟的元素（处于同一树层级中）。如果无此节点，则属性返回 null。
+
+     firstChild为 第一个子节点
+
+     react创建dom，添加时都是这样的 <div></div><div></div>  不会这样的<div></div>  <div></div>
+     所以nextSibling下一个元素就为dom节点或null
+  */
   return node ? node.nextSibling : parentNode.firstChild;
 }
 
 /**
- * Inserts `childNode` as a child of `parentNode` at the `index`.
+ * 在“索引”处插入“childNode”作为“parentNode”的子级。
  *
- * @param {DOMElement} parentNode Parent node in which to insert.
- * @param {DOMElement} childNode Child node to insert.
+ * @param {DOMElement} parentNode 父dom节点
+ * @param {DOMElement} childNode 当前子节点
  * @param {number} index Index at which to insert the child.
  * @internal
  */
 var insertChildAt = createMicrosoftUnsafeLocalFunction(
   function(parentNode, childNode, referenceNode) {
-    // We rely exclusively on `insertBefore(node, null)` instead of also using
-    // `appendChild(node)`. (Using `undefined` is not allowed by all browsers so
-    // we are careful to use `null`.)
+
+ 
+    /* 
+         insertBefore()方法将把一个给定的节点插入到一个给定元素节点的给定子节点前面
+         参数为  将要插入的节点、被参照的节点（即要插在该节点之前）
+         相当于替换位置，childNode和referenceNode 位置互换
+    */
     parentNode.insertBefore(childNode, referenceNode);
   }
 );
@@ -50,11 +71,20 @@ function insertLazyTreeChildAt(parentNode, childTree, referenceNode) {
   DOMLazyTree.insertTreeBefore(parentNode, childTree, referenceNode);
 }
 
+
+/**
+ * 
+ * @param {*} parentNode  父dom节点
+ * @param {*} childNode   当前dom节点
+ * @param {*} referenceNode 父dom节点的第一个子节点 或 当前dom节点的后一个元素，如果没有则为null
+ */
 function moveChild(parentNode, childNode, referenceNode) {
   if (Array.isArray(childNode)) {
     moveDelimitedText(parentNode, childNode[0], childNode[1], referenceNode);
   } else {
-    insertChildAt(parentNode, childNode, referenceNode);
+
+    // 对节点进行移动
+    insertChildAt(parentNode, childNode, referenceNode); 
   }
 }
 
@@ -132,15 +162,18 @@ var DOMChildrenOperations = {
   replaceDelimitedText: replaceDelimitedText,
 
   /**
-   * Updates a component's children by processing a series of updates. The
-   * update configurations are each expected to have a `parentNode` property.
-   *
-   * @param {array<object>} updates List of update configurations.
-   * @internal
+   * 通过处理一系列更新来更新组件的子级。这个更新配置均应具有“parentNode”属性。
+   * @param {*} parentNode 父dom节点
+   * @param {*} updates    数组
    */
   processUpdates: function(parentNode, updates) {
+
+    // 循环数组
     for (var k = 0; k < updates.length; k++) {
-      var update = updates[k];
+
+      var update = updates[k]; // 获取数组的每一项
+
+      // 判断类型、如要移动的类型为 MOVE_EXISTING
       switch (update.type) {
         case ReactMultiChildUpdateTypes.INSERT_MARKUP:
           insertLazyTreeChildAt(
@@ -150,11 +183,13 @@ var DOMChildrenOperations = {
           );
           break;
         case ReactMultiChildUpdateTypes.MOVE_EXISTING:
-          moveChild(
-            parentNode,
-            update.fromNode,
-            getNodeAfter(parentNode, update.afterNode)
-          );
+
+          /* 
+          
+              参数为 父dom节点、当前项组件对应的dom节点、紧跟的元素
+          */                                      // 参数为 父dom节点、上一个dom节点， 返回紧跟的元素
+          moveChild( parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode) );
+
           break;
         case ReactMultiChildUpdateTypes.SET_MARKUP:
           setInnerHTML(

@@ -552,6 +552,8 @@ var ReactCompositeComponentMixin = {
     return markup;
   },
 
+
+  
   getNativeNode: function () {
     return ReactReconciler.getNativeNode(this._renderedComponent);
   },
@@ -1129,7 +1131,8 @@ var ReactCompositeComponentMixin = {
           参数为  旧dom节点 、LazyTree对象
       */
       this._replaceNodeWithMarkup(oldNativeNode, nextMarkup);
-    }
+    };
+    
   },
 
   /**

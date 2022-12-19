@@ -284,6 +284,7 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
   });
 }
 
+
 function putListener() {
   var listenerToPut = this; // this为存储时对应的信息对象
 
@@ -294,6 +295,8 @@ function putListener() {
   );
 
 };
+
+
 
 function optionPostMount() {
   var inst = this;
@@ -856,6 +859,8 @@ ReactDOMComponent.Mixin = {
     }
   },
 
+
+
   // 参数为 事务、属性、上下文、lazyTree对象
   _createInitialChildren: function(transaction, props, context, lazyTree) {
  
@@ -868,7 +873,7 @@ ReactDOMComponent.Mixin = {
         DOMLazyTree.queueHTML(lazyTree, innerHTML.__html); // 为lazyTree对象中标签的innHTML注入内容
       }
 
-    } else {
+    } else { 
 
       // 判断子节点是否是字符串或数字
       var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null; 
@@ -914,9 +919,12 @@ ReactDOMComponent.Mixin = {
    * @param {object} context  上次文
    */
   receiveComponent: function(nextElement, transaction, context) {
-    var prevElement = this._currentElement;
-    this._currentElement = nextElement;
-    this.updateComponent(transaction, prevElement, nextElement, context);
+
+    var prevElement = this._currentElement; // 获取旧的babel转义
+
+    this._currentElement = nextElement; // 将新的babel转义，赋值到组件初始化实例中
+
+    this.updateComponent(transaction, prevElement, nextElement, context);  // 对该组件的属性、子节点等进行更新
   },
 
 
@@ -931,8 +939,8 @@ ReactDOMComponent.Mixin = {
    * @overridable
    */
   updateComponent: function(transaction, prevElement, nextElement, context) {
-    var lastProps = prevElement.props;
-    var nextProps = this._currentElement.props;
+    var lastProps = prevElement.props; // 旧的属性
+    var nextProps = this._currentElement.props; // 新的属性
 
     switch (this._tag) {
       case 'button':
@@ -971,7 +979,7 @@ ReactDOMComponent.Mixin = {
     */
     this._updateDOMProperties(lastProps, nextProps, transaction);
 
-    this._updateDOMChildren(lastProps, nextProps, transaction, context);
+    this._updateDOMChildren(lastProps, nextProps, transaction, context); //更新子节点
 
 
     if (this._tag === 'select') {
@@ -1191,8 +1199,10 @@ ReactDOMComponent.Mixin = {
       this.updateChildren(null, transaction, context);
     } else if (lastHasContentOrHtml && !nextHasContentOrHtml) {
       this.updateTextContent('');
-    }
+    };
 
+
+    // 判断子节点是否都不为空
     if (nextContent != null) {
       if (lastContent !== nextContent) {
         this.updateTextContent('' + nextContent);

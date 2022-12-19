@@ -83,7 +83,7 @@ var ReactReconciler = {
 
   /**
    * @param {ReactComponent} internalInstance    组件初始化实例
-   * @param {ReactElement} nextElement    新节点（babel转义后）
+   * @param {ReactElement} nextElement    新节点（babel转义后）/ 组件初始化实例
    * @param {ReactReconcileTransaction} transaction  事务
    * @param {object} context  处理后的上下文
    * @internal
@@ -112,7 +112,10 @@ var ReactReconciler = {
       ReactRef.detachRefs(internalInstance, prevElement);
     }
 
-    // 更新组件
+    /* 
+        更新组件
+        参数为新 babel转义、事务、上下文
+    */
     internalInstance.receiveComponent(nextElement, transaction, context);
 
     if (refsChanged &&
