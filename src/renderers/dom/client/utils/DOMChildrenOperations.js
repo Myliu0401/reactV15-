@@ -188,7 +188,7 @@ var DOMChildrenOperations = {
           
               参数为 父dom节点、当前项组件对应的dom节点、紧跟的元素
           */                                      // 参数为 父dom节点、上一个dom节点， 返回紧跟的元素
-          moveChild( parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode) );
+          moveChild(parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode));
 
           break;
         case ReactMultiChildUpdateTypes.SET_MARKUP:
