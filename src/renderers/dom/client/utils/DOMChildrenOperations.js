@@ -28,9 +28,8 @@ var setTextContent = require('setTextContent');
  * @returns 
  */
 function getNodeAfter(parentNode, node) {
-  // 返回[open，close]注释的文本组件的特殊情况来自getNativeNode。
 
-  // 判断上一个dom节点是否为数组
+  // 文本组件的返回格式 [open, close] comments，需要做特殊处理 
   if (Array.isArray(node)) {
     node = node[1];
   }
@@ -60,6 +59,7 @@ var insertChildAt = createMicrosoftUnsafeLocalFunction(
  
     /* 
          insertBefore()方法将把一个给定的节点插入到一个给定元素节点的给定子节点前面
+         当传入null时，新插入的元素将会插入到父元素的子元素列表末尾。
          参数为  将要插入的节点、被参照的节点（即要插在该节点之前）
          相当于替换位置，childNode和referenceNode 位置互换
     */
@@ -73,7 +73,7 @@ function insertLazyTreeChildAt(parentNode, childTree, referenceNode) {
 
 
 /**
- * 
+ * 移动已有节点的操作
  * @param {*} parentNode  父dom节点
  * @param {*} childNode   当前dom节点
  * @param {*} referenceNode 父dom节点的第一个子节点 或 当前dom节点的后一个元素，如果没有则为null

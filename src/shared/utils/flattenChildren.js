@@ -36,7 +36,10 @@ function flattenSingleChildIntoContext(traverseContext, child, name) {
   if (keyUnique && child != null) {
     result[name] = child;
   }
-}
+};
+
+
+
 
 /**
  * 处理props的children属性
