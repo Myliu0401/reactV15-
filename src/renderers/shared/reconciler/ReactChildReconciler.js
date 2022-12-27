@@ -86,15 +86,17 @@ var ReactChildReconciler = {
     return childInstances;  // 返回存储子节点初始化的实例的对象
   },
 
+
+
+
   /**
-   * 更新渲染子对象并返回一组新的子对象。
-   *
-   * @param {?object} prevChildren 以前初始化的子集。如 {[name]: 组件初始化的实例}
-   * @param {?object} nextChildren 子元素映射 如 {[name]: babel转义后的组件, [name]: 文本}
-   * @param {ReactReconcileTransaction} transaction  事务
-   * @param {object} context  上下文
-   * @return {?object} A new set of child instances.
-   * @internal
+   * 更新渲染的子对象并返回一组新的子对象。
+   * @param {*} prevChildren           以前初始化的子集。如 {[name]: 组件初始化的实例}
+   * @param {*} nextChildren           子元素映射 如 {[name]: babel转义后的组件, [name]: 文本}
+   * @param {*} removedNodes           空对象，会将要删除的dom节点，注入到该对象
+   * @param {*} transaction            事务
+   * @param {*} context                上下文
+   * @returns 
    */
   updateChildren: function(
     prevChildren,
@@ -162,6 +164,27 @@ var ReactChildReconciler = {
 
 
         // 对新组件进行初始化
+        /* 
+                进到这里来只有两种情况：
+                    1. 新旧节点对比不一致
+                    2. 该新组件，在旧组件中没有
+        
+        */
+
+
+        if (prevChild) {
+          // 进到这里来代表 新旧节点对比不一致
+
+          // 旧dom节点添加到removedNodes对象中
+          removedNodes[name] = ReactReconciler.getNativeNode(prevChild); 
+
+
+          ReactReconciler.unmountComponent(prevChild, false); // 卸载旧组件,释放“mountComponent”分配的所有资源
+        };
+
+
+
+        // 子级必须在装入之前实例化。
         var nextChildInstance = instantiateReactComponent(nextElement);
 
         nextChildren[name] = nextChildInstance;  // 存储初始化实例

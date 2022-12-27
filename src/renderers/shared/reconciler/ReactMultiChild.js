@@ -518,9 +518,15 @@ var ReactMultiChild = {
     moveChild: function(child, afterNode, toIndex, lastIndex) {
       /* 
          如果“child”的索引小于“lastIndex”，则需要移动。否则，我们不需要移动它，因为孩子会在“child”之前插入或移动
+
+         满足两个条件方可移动
+          1. prevChild === nextChild，这个条件是必然的，因为在之前reconcile的时候我们就已经把prevChild更新为nextChild了，除非nextChild是全新节点或者删除节点的情况。
+          2. child._mountIndex < lastIndex。这个条件就值得思考一下了。
         
       */
       if (child._mountIndex < lastIndex) {
+
+
 
         /*  
             构建一个两个节点交换位置的信息对象
