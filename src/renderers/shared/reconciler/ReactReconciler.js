@@ -67,15 +67,22 @@ var ReactReconciler = {
     return internalInstance.getNativeNode();
   },
 
+  
   /**
    * 释放“mountComponent”分配的所有资源。
-   *
-   * @final
-   * @internal
+   * @param {*} internalInstance   组件初始化实例
+   * @param {Boolean} safely             布尔值
    */
   unmountComponent: function(internalInstance, safely) {
+
+    /* 
+        释放ref资源
+        参数为 组件初始化实例、babel转义
+    */
     ReactRef.detachRefs(internalInstance, internalInstance._currentElement);
+
     internalInstance.unmountComponent(safely);  // 卸载组件
+    
     if (__DEV__) {
       ReactInstrumentation.debugTool.onUnmountComponent(internalInstance);
     }

@@ -62,11 +62,19 @@ var insertChildAt = createMicrosoftUnsafeLocalFunction(
          insertBefore()方法将把一个给定的节点插入到一个给定元素节点的给定子节点前面
          参数为  将要插入的节点、被参照的节点（即要插在该节点之前）
          相当于替换位置，childNode和referenceNode 位置互换
+         如果第二个参数为null,则会将第一个参数插到最后面
     */
     parentNode.insertBefore(childNode, referenceNode);
   }
 );
 
+
+/**
+ * 
+ * @param {*} parentNode     父节点
+ * @param {*} childTree      添加的内容
+ * @param {*} referenceNode  紧跟的元素
+ */
 function insertLazyTreeChildAt(parentNode, childTree, referenceNode) {
   DOMLazyTree.insertTreeBefore(parentNode, childTree, referenceNode);
 }
@@ -79,6 +87,8 @@ function insertLazyTreeChildAt(parentNode, childTree, referenceNode) {
  * @param {*} referenceNode 父dom节点的第一个子节点 或 当前dom节点的后一个元素，如果没有则为null
  */
 function moveChild(parentNode, childNode, referenceNode) {
+
+  // 判断是否是数组
   if (Array.isArray(childNode)) {
     moveDelimitedText(parentNode, childNode[0], childNode[1], referenceNode);
   } else {
@@ -86,17 +96,29 @@ function moveChild(parentNode, childNode, referenceNode) {
     // 对节点进行移动
     insertChildAt(parentNode, childNode, referenceNode); 
   }
-}
+};
 
+
+/**
+ * 卸载节点
+ * @param {*} parentNode 父节点
+ * @param {*} childNode  要卸载的节点
+ */
 function removeChild(parentNode, childNode) {
+  
+  // 判断是否为数组
   if (Array.isArray(childNode)) {
     var closingComment = childNode[1];
     childNode = childNode[0];
     removeDelimitedText(parentNode, childNode, closingComment);
     parentNode.removeChild(closingComment);
-  }
+  };
+
+  // 卸载节点
   parentNode.removeChild(childNode);
-}
+};
+
+
 
 function moveDelimitedText(
   parentNode,
@@ -176,16 +198,19 @@ var DOMChildrenOperations = {
       // 判断类型、如要移动的类型为 MOVE_EXISTING
       switch (update.type) {
         case ReactMultiChildUpdateTypes.INSERT_MARKUP:
-          insertLazyTreeChildAt(
-            parentNode,
-            update.content,
-            getNodeAfter(parentNode, update.afterNode)
-          );
+
+          /* 
+             添加
+
+             参数为 父dom节点、节点内容（dom、文本）
+          */                                                 // 参数为 父dom节点、上一个dom节点， 返回紧跟的元素
+          insertLazyTreeChildAt(parentNode, update.content, getNodeAfter(parentNode, update.afterNode));
           break;
         case ReactMultiChildUpdateTypes.MOVE_EXISTING:
 
           /* 
-          
+              移动
+
               参数为 父dom节点、当前项组件对应的dom节点、紧跟的元素
           */                                      // 参数为 父dom节点、上一个dom节点， 返回紧跟的元素
           moveChild(parentNode, update.fromNode, getNodeAfter(parentNode, update.afterNode));
@@ -204,6 +229,12 @@ var DOMChildrenOperations = {
           );
           break;
         case ReactMultiChildUpdateTypes.REMOVE_NODE:
+          
+          /* 
+              卸载
+              
+              参数为 父dom节点、组件对应的dom节点
+          */
           removeChild(parentNode, update.fromNode);
           break;
       }

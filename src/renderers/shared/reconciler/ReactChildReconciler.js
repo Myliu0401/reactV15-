@@ -87,7 +87,7 @@ var ReactChildReconciler = {
   },
 
   /**
-   * 更新渲染的子对象并返回一组新的子对象。
+   * 更新渲染子对象并返回一组新的子对象。
    *
    * @param {?object} prevChildren 以前初始化的子集。如 {[name]: 组件初始化的实例}
    * @param {?object} nextChildren 子元素映射 如 {[name]: babel转义后的组件, [name]: 文本}
@@ -144,17 +144,34 @@ var ReactChildReconciler = {
         nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
 
       } else {
+        // 进到这里来代表children数组中对比不相同，将是 创建或删除
+
+        // 判断是否有旧实例
         if (prevChild) {
-          removedNodes[name] = ReactReconciler.getNativeNode(prevChild);
-          ReactReconciler.unmountComponent(prevChild, false);
-        }
-        // The child must be instantiated before it's mounted.
+           // 进到这里来，代表要销毁该实例和节点
+
+          removedNodes[name] = ReactReconciler.getNativeNode(prevChild); // 获取该实例的dom节点
+
+
+          /* 
+              进行卸载组件操作（释放对应的ref资源、卸载对应的子组件）
+              参数为 组件初始化实例、false
+          */
+          ReactReconciler.unmountComponent(prevChild, false); 
+        };
+
+
+        // 对新组件进行初始化
         var nextChildInstance = instantiateReactComponent(nextElement);
-        nextChildren[name] = nextChildInstance;
+
+        nextChildren[name] = nextChildInstance;  // 存储初始化实例
       };
 
       
-    }
+    };
+
+
+
     // 卸载不再存在的子项。
     for (name in prevChildren) {
 
