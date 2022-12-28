@@ -18,10 +18,11 @@ var ReactNativeComponent = require('ReactNativeComponent');
 var invariant = require('invariant');
 var warning = require('warning');
 
-// To avoid a cyclic dependency, we create the final class in this module
+// 为了避免循环依赖，我们在这个模块中创建最后一个类
 var ReactCompositeComponentWrapper = function(element) {
   this.construct(element);
 };
+
 
 // 将属性混进ReactCompositeComponentWrapper的原型中
 Object.assign(
@@ -75,15 +76,7 @@ function instantiateReactComponent(node) {
   } else if (typeof node === 'object') { // 判断是否是babel转义后的组件
 
     var element = node;
-    
-    invariant(
-      element && (typeof element.type === 'function' ||
-                  typeof element.type === 'string'),
-      'Element type is invalid: expected a string (for built-in components) ' +
-      'or a class/function (for composite components) but got: %s.%s',
-      element.type == null ? element.type : typeof element.type,
-      getDeclarationErrorAddendum(element._owner)
-    );
+  
 
     // 判断是否是标签组件
     if (typeof element.type === 'string') {
@@ -107,7 +100,8 @@ function instantiateReactComponent(node) {
     instance = ReactNativeComponent.createInstanceForText(node);  // 初始化文本节点
 
   } else {
-
+    
+    // 匹配不到对应的类型
     invariant(
       false,
       'Encountered invalid React node of type %s',
@@ -116,34 +110,16 @@ function instantiateReactComponent(node) {
     
   }
 
-  if (__DEV__) {
-    warning(
-      typeof instance.mountComponent === 'function' &&
-      typeof instance.receiveComponent === 'function' &&
-      typeof instance.getNativeNode === 'function' &&
-      typeof instance.unmountComponent === 'function',
-      'Only React Components can be mounted.'
-    );
-  }
 
-  // These two fields are used by the DOM and ART diffing algorithms
-  // respectively. Instead of using expandos on components, we should be
-  // storing the state needed by the diffing algorithms elsewhere.
+
+  /* 
+     DOM和ART区分算法使用这两个字段分别地与其在组件上使用expandos，我们应该将不同算法所需的状态存储在其他地方。   
+  */
+
   instance._mountIndex = 0;
   instance._mountImage = null;
 
-  if (__DEV__) {
-    instance._isOwnerNecessary = false;
-    instance._warnedAboutRefsInRender = false;
-  }
-
-  // Internal instances should fully constructed at this point, so they should
-  // not get any new fields added to them at this point.
-  if (__DEV__) {
-    if (Object.preventExtensions) {
-      Object.preventExtensions(instance);
-    }
-  }
+ 
 
   return instance;
 }

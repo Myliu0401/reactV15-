@@ -90,15 +90,13 @@ function getReactRootElementInContainer(container) {
 }
 
 function internalGetID(node) {
-  // If node is something like a window, document, or text node, none of
-  // which support attributes or a .getAttribute method, gracefully return
-  // the empty string, as if the attribute were missing.
 
   /* 
-      node.getAttribute(ATTR_NAME)为获取节点data-reactid属性的值，如果没有则为null
+     判断该节点有没有该函数如果有则执行该函数，参数为data-reactid
   */
   return node.getAttribute && node.getAttribute(ATTR_NAME) || '';
-}
+};
+
 
 /**
  * 装载此组件并将其插入DOM。
@@ -229,17 +227,20 @@ function unmountComponentFromNode(instance, container, safely) {
 
 /**
  * 如果提供的DOM节点具有直接反应呈现的子节点，则为True，即不是React根元素。用于“渲染”中的警告，`卸载组件AtNode‘，等等。
- *
- * @param {?DOMElement} node 节点
- * @return {boolean} True if the DOM element contains a direct child that was
- * rendered by React but is not a root element.
- * @internal
+ * @param {*} container 容器
+ * @returns 
  */
 function hasNonRootReactChild(container) {
-  var rootEl = getReactRootElementInContainer(container); // 判断节点的类型
+
+   // 判断节点的类型, 参数是document,则返回html节点，否则返回参数的第一个子节点
+  var rootEl = getReactRootElementInContainer(container);
+
+  // 判断是否有值
   if (rootEl) {
-    var inst = ReactDOMComponentTree.getInstanceFromNode(rootEl);
-    return !!(inst && inst._nativeParent);
+    var inst = ReactDOMComponentTree.getInstanceFromNode(rootEl); // 获取组件初始化实例
+
+    // 根react节点，根节点_nativeParent属性为null
+    return !!(inst && inst._nativeParent); 
   }
 }
 
@@ -265,9 +266,9 @@ function getNativeRootInstanceInContainer(container) {
   */
   var prevNativeInstance = rootEl && ReactDOMComponentTree.getInstanceFromNode(rootEl);
 
-  return (
-    prevNativeInstance && !prevNativeInstance._nativeParent ? prevNativeInstance : null
-  );
+
+  // 因为最高层的react元素_nativeParent为null, 所以取反
+  return (prevNativeInstance && !prevNativeInstance._nativeParent ? prevNativeInstance : null);
 
 }
 
@@ -279,6 +280,7 @@ function getNativeRootInstanceInContainer(container) {
  */
 function getTopLevelWrapperInContainer(container) {
 
+  // 获取旧的根组件（容器的下一级），没有则返回null，有则返回根组件初始化实例
   var root = getNativeRootInstanceInContainer(container);
 
   return root ? root._nativeContainerInfo._topLevelWrapper : null;
@@ -367,8 +369,10 @@ var ReactMount = {
     return prevComponent;
   },
 
+
+
   /**
-   * 将新组件呈现到DOM中。被devtools钩住了！
+   * 将新组件呈现到DOM中。
    *
    * @param {ReactElement} nextElement 要渲染的元素,该元素是经过进一层封装过的
    * @param {DOMElement} container 要渲染到的容器
@@ -383,28 +387,6 @@ var ReactMount = {
     context
   ) {
 
-
-   /* 
-      我们代码的各个部分（例如ReactCompositeComponent的_renderValidatedComponent）假定渲染调用没有嵌套；确认情况属实。
-   */
-    warning(
-      ReactCurrentOwner.current == null,
-      '_renderNewRootComponent(): Render methods should be a pure function ' +
-      'of props and state; triggering nested component updates from ' +
-      'render is not allowed. If necessary, trigger nested updates in ' +
-      'componentDidUpdate. Check the render method of %s.',
-      ReactCurrentOwner.current && ReactCurrentOwner.current.getName() ||
-        'ReactCompositeComponent'
-    );
-
-    invariant(
-      container && (
-        container.nodeType === ELEMENT_NODE_TYPE ||
-        container.nodeType === DOC_NODE_TYPE ||
-        container.nodeType === DOCUMENT_FRAGMENT_NODE_TYPE
-      ),
-      '_registerComponent(...): Target container is not a DOM element.'
-    );
 
 
     ReactBrowserEventEmitter.ensureScrollValueMonitoring(); //侦听窗口滚动和调整大小事件
@@ -433,12 +415,13 @@ var ReactMount = {
     var wrapperID = componentInstance._instance.rootID;
     instancesByReactRootID[wrapperID] = componentInstance;
 
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onMountRootComponent(componentInstance);
-    }
+   
 
     return componentInstance; // 外层实例
   },
+
+
+
 
   /**
    * Renders a React component into the DOM in the supplied `container`.
@@ -487,39 +470,6 @@ var ReactMount = {
 
 
 
-
-    invariant(
-      ReactElement.isValidElement(nextElement),
-      'ReactDOM.render(): Invalid component element.%s',
-      (
-        typeof nextElement === 'string' ?
-          ' Instead of passing a string like \'div\', pass ' +
-          'React.createElement(\'div\') or <div />.' :
-        typeof nextElement === 'function' ?
-          ' Instead of passing a class like Foo, pass ' +
-          'React.createElement(Foo) or <Foo />.' :
-        // Check if it quacks like an element
-        nextElement != null && nextElement.props !== undefined ?
-          ' This may be caused by unintentionally loading two independent ' +
-          'copies of React.' :
-          ''
-      )
-    );
-
-    warning(
-      !container || !container.tagName ||
-      container.tagName.toUpperCase() !== 'BODY',
-      'render(): Rendering components directly into document.body is ' +
-      'discouraged, since its children are often manipulated by third-party ' +
-      'scripts and browser extensions. This may lead to subtle ' +
-      'reconciliation issues. Try rendering into a container element created ' +
-      'for your app.'
-    );
-
-
-
-
-
     /* 
           会将根组件进一步封装，封装多一层，得到一个新react元素，此时该新的react元素的props就是根组件
           相当于将根组件作为新react元素的子组件存在
@@ -557,21 +507,30 @@ var ReactMount = {
       nextElement
     );
 
+
     /* 
-       如果容器不是document文档节点或容器没有子节点，则返回null
-    
+       获取旧组件
+          如果渲染过，则返回_topLevelWrapper
+          如果没渲染过，则返回null
     */
     var prevComponent = getTopLevelWrapperInContainer(container);  
 
+
     // 判断是否有该组件，如果有则做出相应的处理
     if (prevComponent) {
-      var prevWrappedElement = prevComponent._currentElement;
-      var prevElement = prevWrappedElement.props;
+      var prevWrappedElement = prevComponent._currentElement; // 因为根组件该参数是nextWrappedElement
+
+      var prevElement = prevWrappedElement.props;  // 获取nextWrappedElement对象的props,为旧组件babel转义
+
+
+      // 判断新旧元素是否一致
       if (shouldUpdateReactComponent(prevElement, nextElement)) {
         var publicInst = prevComponent._renderedComponent.getPublicInstance();
         var updatedCallback = callback && function() {
           callback.call(publicInst);
         };
+
+        // 更新组件
         ReactMount._updateRootComponent(
           prevComponent,
           nextWrappedElement,
@@ -580,62 +539,37 @@ var ReactMount = {
         );
         return publicInst;
       } else {
-        ReactMount.unmountComponentAtNode(container);
-      }
-    }
+        ReactMount.unmountComponentAtNode(container);  // 卸载组件
+      };
+    };
+
 
     /* 
-        如果该容器没有子节点并且不是document文档节点，则返回null
+        如果参数是document文档节点，则返回html节点，否则返回参数的第一个子节点
     */
-
     var reactRootElement = getReactRootElementInContainer(container);  
 
 
     /* 
         如果reactRootElement没值，则containerHasReactMarkup为null
-        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性 如果有containerHasReactMarkup则为该属性，如果没有containerHasReactMarkup则为null
-    
+        如果reactRootElement有值，则看reactRootElement节点有没有data-reactid属性 如果有则返回该属性，如果没有则返回null
     */
     var containerHasReactMarkup = reactRootElement && !!internalGetID(reactRootElement);
 
 
     /* 
-        如果容器节点不是document文档或没有子节点就返回unedfined
+        如果参数有子节点，则获取该参数组件初始化实例，并返回false 
+        否则返回 unedfined
     */
     var containerHasNonRootReactChild = hasNonRootReactChild(container); 
 
 
 
-    if (__DEV__) {
-      warning(
-        !containerHasNonRootReactChild,
-        'render(...): Replacing React-rendered children with a new root ' +
-        'component. If you intended to update the children of this node, ' +
-        'you should instead have the existing children update their state ' +
-        'and render the new components instead of calling ReactDOM.render.'
-      );
-
-      if (!containerHasReactMarkup || reactRootElement.nextSibling) {
-        var rootElementSibling = reactRootElement;
-        while (rootElementSibling) {
-          if (internalGetID(rootElementSibling)) {
-            warning(
-              false,
-              'render(): Target node has markup rendered by React, but there ' +
-              'are unrelated nodes as well. This is most commonly caused by ' +
-              'white-space inserted around server-rendered markup.'
-            );
-            break;
-          }
-          rootElementSibling = rootElementSibling.nextSibling;
-        }
-      }
-    }
-
 
     /* 
-         根据上面  containerHasReactMarkup  prevComponent  containerHasNonRootReactChild 进行对比
-         如果containerHasReactMarkup没有就直接返回undefined给shouldReuseMarkup
+         containerHasReactMarkup为根react节点的data-reactid属性，没有则为null
+         prevComponent为旧组件初始化实例，没有则为null
+         containerHasNonRootReactChild为false
     
     */
     var shouldReuseMarkup = containerHasReactMarkup && !prevComponent && !containerHasNonRootReactChild;

@@ -20,9 +20,8 @@ var canDefineProperty = require('canDefineProperty');
 这个属性是用来标记当前对象是一个ReactElement，如果不是原生Symbol类型或者填充，
 则使用普通数字来代替，这也区分了element并非普通对象，而是特殊的ReactElement。
 */
-var REACT_ELEMENT_TYPE =
-  (typeof Symbol === 'function' && Symbol.for && Symbol.for('react.element')) ||
-  0xeac7;
+var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' && Symbol.for && Symbol.for('react.element')) || 0xeac7;
+
 
 var RESERVED_PROPS = {
   key: true,
@@ -33,25 +32,21 @@ var RESERVED_PROPS = {
 
 var specialPropKeyWarningShown, specialPropRefWarningShown;
 
+
+
 /**
  * 工厂方法创建新的React元素。这不再符合类模式，所以不要使用new来调用它。此外，
- * 没有检查的实例这将起作用。相反，针对Symbol.for（'react.element'）测试$$typeof字段以检查如果某物是反应元素。
- * 对react根组件进一层封装，得到一个新react元素，此时该新的react元素的props就是根组件
- * @param {*} type
- * @param {*} key
- * @param {string|object} ref
- * @param {*} self A *temporary* helper to detect places where `this` is
- * different from the `owner` when React.createElement is called, so that we
- * can warn. We want to get rid of owner and replace string `ref`s with arrow
- * functions, and as long as `this` and owner are the same, there will be no
- * change in behavior.
- * @param {*} source An annotation object (added by a transpiler or otherwise)
- * indicating filename, line number, and/or other information.
- * @param {*} owner
- * @param {*} props  根组件转换后的babel
- * @internal
+    没有检查的实例这将起作用。相反，针对Symbol.for（'react.element'）测试$$typeof字段以检查如果某物是反应元素。
+    对react根组件进一层封装，得到一个新react元素，此时该新的react元素的props就是根组件
+ * @param {*} type        首次执行时 type为TopLevelWrapper函数、
+ * @param {*} key         首次执行时为 null
+ * @param {*} ref         首次执行时为 null
+ * @param {*} self        首次执行时为 null
+ * @param {*} source      首次执行时为 null
+ * @param {*} owner       首次执行时为 null
+ * @param {*} props       首次执行时  props为根组件
+ * @returns 
  */
-// 首次执行时 type为TopLevelWrapper函数、 props为根组件 其他参数都为null
 var ReactElement = function(type, key, ref, self, source, owner, props) {
 
   // 对组件进一步封装
@@ -119,6 +114,14 @@ var ReactElement = function(type, key, ref, self, source, owner, props) {
   return element;
 };
 
+
+/**
+ * 创建元素
+ * @param {*} type 
+ * @param {*} config 
+ * @param {*} children 
+ * @returns 
+ */
 ReactElement.createElement = function(type, config, children) {
   var propName;
 
@@ -229,6 +232,7 @@ ReactElement.createElement = function(type, config, children) {
   );
 };
 
+
 ReactElement.createFactory = function(type) {
   var factory = ReactElement.createElement.bind(null, type);
   // Expose the type on the factory and the prototype so that it can be
@@ -239,6 +243,7 @@ ReactElement.createFactory = function(type) {
   factory.type = type;
   return factory;
 };
+
 
 ReactElement.cloneAndReplaceKey = function(oldElement, newKey) {
   var newElement = ReactElement(
@@ -254,6 +259,15 @@ ReactElement.cloneAndReplaceKey = function(oldElement, newKey) {
   return newElement;
 };
 
+
+
+/**
+ * 克隆元素
+ * @param {*} element 
+ * @param {*} config 
+ * @param {*} children 
+ * @returns 
+ */
 ReactElement.cloneElement = function(element, config, children) {
   var propName;
 

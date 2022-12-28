@@ -203,38 +203,11 @@ var ReactCompositeComponentMixin = {
     if (!shouldConstruct(Component) && (inst == null || inst.render == null)) {
       renderedElement = inst;
       warnIfInvalidElement(Component, renderedElement); // 该函数会进行警告验证，判断是否要进行警告
-      invariant(
-        inst === null ||
-        inst === false ||
-        ReactElement.isValidElement(inst),
-        '%s(...): A valid React element (or null) must be returned. You may have ' +
-        'returned undefined, an array or some other invalid object.',
-        Component.displayName || Component.name || 'Component'
-      );
+    
       inst = new StatelessComponent(Component); // 会创建一个无状态组件
-    }
+    };
 
-    if (__DEV__) {
-
-      if (inst.render == null) {
-        warning(
-          false,
-          '%s(...): No `render` method found on the returned component ' +
-          'instance: you may have forgotten to define `render`.',
-          Component.displayName || Component.name || 'Component'
-        );
-      }
-
-      var propsMutated = inst.props !== publicProps;
-      var componentName = Component.displayName || Component.name || 'Component';
-
-      warning(
-        inst.props === undefined || !propsMutated,
-        '%s(...): When calling super() in `%s`, make sure to pass ' +
-        'up the same props that your component\'s constructor was passed.',
-        componentName, componentName
-      );
-    }
+ 
 
     inst.props = publicProps;         // 首次执行时该属性为根组件，否则为传给自定义组件的属性
     inst.context = publicContext;     // 首次执行时该属性为emptyObject
@@ -269,57 +242,6 @@ var ReactCompositeComponentMixin = {
     ReactInstanceMap.set(inst, this);
 
 
-    if (__DEV__) {
-      warning(
-        !inst.getInitialState ||
-        inst.getInitialState.isReactClassApproved,
-        'getInitialState was defined on %s, a plain JavaScript class. ' +
-        'This is only supported for classes created using React.createClass. ' +
-        'Did you mean to define a state property instead?',
-        this.getName() || 'a component'
-      );
-      warning(
-        !inst.getDefaultProps ||
-        inst.getDefaultProps.isReactClassApproved,
-        'getDefaultProps was defined on %s, a plain JavaScript class. ' +
-        'This is only supported for classes created using React.createClass. ' +
-        'Use a static property to define defaultProps instead.',
-        this.getName() || 'a component'
-      );
-      warning(
-        !inst.propTypes,
-        'propTypes was defined as an instance property on %s. Use a static ' +
-        'property to define propTypes instead.',
-        this.getName() || 'a component'
-      );
-      warning(
-        !inst.contextTypes,
-        'contextTypes was defined as an instance property on %s. Use a ' +
-        'static property to define contextTypes instead.',
-        this.getName() || 'a component'
-      );
-      warning(
-        typeof inst.componentShouldUpdate !== 'function',
-        '%s has a method called ' +
-        'componentShouldUpdate(). Did you mean shouldComponentUpdate()? ' +
-        'The name is phrased as a question because the function is ' +
-        'expected to return a value.',
-        (this.getName() || 'A component')
-      );
-      warning(
-        typeof inst.componentDidUnmount !== 'function',
-        '%s has a method called ' +
-        'componentDidUnmount(). But there is no such lifecycle method. ' +
-        'Did you mean componentWillUnmount()?',
-        this.getName() || 'A component'
-      );
-      warning(
-        typeof inst.componentWillRecieveProps !== 'function',
-        '%s has a method called ' +
-        'componentWillRecieveProps(). Did you mean componentWillReceiveProps()?',
-        (this.getName() || 'A component')
-      );
-    }
 
 
     /* 
@@ -329,15 +251,9 @@ var ReactCompositeComponentMixin = {
     var initialState = inst.state; // 首次执行时为undefined
     if (initialState === undefined) {
       inst.state = initialState = null;
-    }
+    };
 
 
-
-    invariant(
-      typeof initialState === 'object' && !Array.isArray(initialState),
-      '%s.state: must be set to an object or null',
-      this.getName() || 'ReactCompositeComponent'
-    );
 
     this._pendingStateQueue = null;  // 状态队列, 该属性更新时将是数组，会存储 执行setState的新状态
     this._pendingReplaceState = false;  // 状态更新
@@ -383,16 +299,9 @@ var ReactCompositeComponentMixin = {
    * @returns 
    */
   _constructComponent: function (publicProps, publicContext) {
-    if (__DEV__) {
-      ReactCurrentOwner.current = this;
-      try {
-        return this._constructComponentWithoutOwner(publicProps, publicContext);
-      } finally {
-        ReactCurrentOwner.current = null;
-      }
-    } else {
+    
       return this._constructComponentWithoutOwner(publicProps, publicContext);
-    }
+  
   },
 
 
@@ -411,7 +320,10 @@ var ReactCompositeComponentMixin = {
     var Component = this._currentElement.type;
 
 
-    // 判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数 或 是否是类组件
+    /* 
+        判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数 或 是否是类组件
+        类组件必须继承ReactComponent模块，所以原型上会有isReactComponent属性
+    */
     if (shouldConstruct(Component)) {
 
       return new Component(publicProps, publicContext, ReactUpdateQueue);  // 执行TopLevelWrapper函数，或类组件
@@ -1181,14 +1093,7 @@ var ReactCompositeComponentMixin = {
     */
     var renderedComponent = inst.render();
 
-    if (__DEV__) {
-
-      if (renderedComponent === undefined &&
-        inst.render._isMockFunction) {
-
-        renderedComponent = null;
-      }
-    }
+  
 
     return renderedComponent;
   },
@@ -1222,14 +1127,7 @@ var ReactCompositeComponentMixin = {
 
     }
 
-    invariant(
-      // TODO: An `isValidNode` function would probably be more appropriate
-      renderedComponent === null || renderedComponent === false ||
-      ReactElement.isValidElement(renderedComponent),
-      '%s.render(): A valid React element (or null) must be returned. You may have ' +
-      'returned undefined, an array or some other invalid object.',
-      this.getName() || 'ReactCompositeComponent'
-    );
+
 
     return renderedComponent;  // 首次执行时返回根组件，如果不是首次执行那么返回render函数的返回值
   },

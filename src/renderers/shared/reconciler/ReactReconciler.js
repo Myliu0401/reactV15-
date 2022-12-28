@@ -28,7 +28,7 @@ var ReactReconciler = {
  * 
  * @param {*} internalInstance        组件初始化的实例
  * @param {*} transaction             事务
- * @param {*} nativeParent            首次时为null
+ * @param {*} nativeParent            父组件初始化实例（dom组件初始化实例）
  * @param {*} nativeContainerInfo     首次为集装信息，为一个对象，存储参数的一些信息
  * @param {*} context                 上下文
  * @returns 
