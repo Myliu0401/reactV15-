@@ -46,10 +46,19 @@ function precacheNode(inst, node) {
   node[internalInstanceKey] = nativeInst; // 将组件实例存到标签的随机生成的属性中
 }
 
+
+/**
+ * 
+ * @param {*} inst 组件初始化实例
+ */
 function uncacheNode(inst) {
-  var node = inst._nativeNode;
+  var node = inst._nativeNode; // 获取组件的dom节点
+
+  // 判断有没有该节点
   if (node) {
-    delete node[internalInstanceKey];
+    // 删除掉dom节点中存储的组件实例 和 组件实例中存储的dom节点
+
+    delete node[internalInstanceKey]; 
     inst._nativeNode = null;
   }
 }

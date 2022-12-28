@@ -1220,13 +1220,15 @@ ReactDOMComponent.Mixin = {
     return getNode(this);
   },
 
+ 
+
   /**
-   * Destroys all event registrations for this instance. Does not remove from
-   * the DOM. That must be done by the parent.
-   *
-   * @internal
+   * 销毁此实例的所有事件注册。不从中删除DOM。这必须由家长完成。
+   * @param {Boolean} safely 布尔值
    */
   unmountComponent: function(safely) {
+
+    // 判断是那种标签
     switch (this._tag) {
       case 'iframe':
       case 'object':
@@ -1262,10 +1264,17 @@ ReactDOMComponent.Mixin = {
         break;
     }
 
-    this.unmountChildren(safely);
+    // 释放子组件
+    this.unmountChildren(safely); 
+
+    // 删除 组件初始化实例中存储的dom节点 和 dom节点中存储的组件初始化实例
     ReactDOMComponentTree.uncacheNode(this);
+
+    // 释放 存储的事件
     EventPluginHub.deleteAllListeners(this);
+
     ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID);
+
     this._rootNodeID = null;
     this._domID = null;
     this._wrapperState = null;

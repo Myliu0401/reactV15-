@@ -191,14 +191,15 @@ var ReactChildReconciler = {
     }
   },
 
+
   /**
-   * Unmounts all rendered children. This should be used to clean up children
-   * when this component is unmounted.
-   *
-   * @param {?object} renderedChildren Previously initialized set of children.
-   * @internal
+   * 卸载所有渲染的子级。这应该用来清理孩子当卸载此组件时。
+   * @param {*} renderedChildren 存储子节点初始化实例的对象
+   * @param {*} safely  布尔值
    */
   unmountChildren: function(renderedChildren, safely) {
+
+    // 遍历子节点初始化实例逐个释放资源
     for (var name in renderedChildren) {
       if (renderedChildren.hasOwnProperty(name)) {
         var renderedChild = renderedChildren[name];

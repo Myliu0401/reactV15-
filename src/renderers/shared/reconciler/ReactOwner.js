@@ -79,11 +79,11 @@ var ReactOwner = {
   },
 
   /**
-   * Removes a component by ref from an owner component.
+   * 通过引用从所有者组件中删除组件。
    *
-   * @param {ReactComponent} component Component to dereference.
-   * @param {string} ref Name of the ref to remove.
-   * @param {ReactOwner} owner Component on which the ref is recorded.
+   * @param {ReactComponent} component 组件初始化实例
+   * @param {string} ref 要删除的引用
+   * @param {ReactOwner} owner 记录引用的组件。
    * @final
    * @internal
    */

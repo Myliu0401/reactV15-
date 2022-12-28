@@ -24,7 +24,16 @@ function attachRef(ref, component, owner) {
   }
 }
 
+
+/**
+ * 
+ * @param {*} ref   ref对象/函数
+ * @param {*} component 
+ * @param {*} owner 
+ */
 function detachRef(ref, component, owner) {
+
+  // 判断是否为函数
   if (typeof ref === 'function') {
     ref(null);
   } else {
@@ -61,12 +70,27 @@ ReactRef.shouldUpdateRefs = function(prevElement, nextElement) {
   );
 };
 
+
+
+/**
+ * 
+ * @param {*} instance 组件初始化实例
+ * @param {*} element  babel转义
+ * @returns 
+ */
 ReactRef.detachRefs = function(instance, element) {
+
+  // 判断是否为空和false
   if (element === null || element === false) {
     return;
   }
-  var ref = element.ref;
+
+  var ref = element.ref; // 获取ref属性，该属性 对象/函数 存储着dom节点
+
+  // 判断该属性是否有值
   if (ref != null) {
+
+    // 参数为 ref对象/函数 、组件初始化实例、
     detachRef(ref, instance, element._owner);
   }
 };

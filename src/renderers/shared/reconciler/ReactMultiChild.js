@@ -486,17 +486,27 @@ var ReactMultiChild = {
       // 来到这里时，代表更新完毕
     },
 
+    
+
     /**
-     * Unmounts all rendered children. This should be used to clean up children
-     * when this component is unmounted. It does not actually perform any
-     * backend operations.
-     *
-     * @internal
+     * 卸载所有渲染的子级。这应该用来清理孩子当卸载此组件时。它实际上不执行任何后端操作。
+     * @param {Boolean} safely   布尔值 
      */
     unmountChildren: function(safely) {
-      var renderedChildren = this._renderedChildren;
+
+      /* 
+           获取该节点下的子节点
+           该属性为一个对象：{[name]: 组件初始化实例, ...}
+      
+      */
+      var renderedChildren = this._renderedChildren; 
+
+
+      // 参数为 子节点、布尔值
       ReactChildReconciler.unmountChildren(renderedChildren, safely);
-      this._renderedChildren = null;
+
+
+      this._renderedChildren = null; // 将该存储子节点的属性置为空
     },
 
    
