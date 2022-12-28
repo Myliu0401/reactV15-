@@ -25,22 +25,25 @@ function attachRef(ref, component, owner) {
 }
 
 
-/**
- * 
- * @param {*} ref   ref对象/函数
- * @param {*} component 
- * @param {*} owner 
+ /*
+ * 释放ref资源
+ * @param {Object/Function} ref   ref对象/ref函数
+ * @param {*} component           组件初始化实例
+ * @param {*} owner               null
  */
 function detachRef(ref, component, owner) {
 
-  // 判断是否为函数
+  // 判断ref是否为函数
   if (typeof ref === 'function') {
-    ref(null);
+    ref(null); // 执行该函数，参数为null
   } else {
-    // Legacy ref
-    ReactOwner.removeComponentAsRefFrom(component, ref, owner);
+
+    ReactOwner.removeComponentAsRefFrom(component, ref, owner); // 释放ref资源
+
   }
-}
+};
+
+
 
 ReactRef.attachRefs = function(instance, element) {
   if (element === null || element === false) {
@@ -73,9 +76,9 @@ ReactRef.shouldUpdateRefs = function(prevElement, nextElement) {
 
 
 /**
- * 
- * @param {*} instance 组件初始化实例
- * @param {*} element  babel转义
+ * 释放ref资源
+ * @param {*} instance    组件初始化实例
+ * @param {*} element     babel转义
  * @returns 
  */
 ReactRef.detachRefs = function(instance, element) {
@@ -90,7 +93,10 @@ ReactRef.detachRefs = function(instance, element) {
   // 判断该属性是否有值
   if (ref != null) {
 
-    // 参数为 ref对象/函数 、组件初始化实例、
+    /* 
+       释放ref
+       参数为 ref对象/ref函数、组件初始化实例、null
+    */
     detachRef(ref, instance, element._owner);
   }
 };

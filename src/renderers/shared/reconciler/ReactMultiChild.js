@@ -454,7 +454,7 @@ var ReactMultiChild = {
               nextIndex,    // 该组件在children数组中的索引
               transaction,  // 事务
               context       // 上下文
-            )
+            ) // _mountChildAtIndex函数会创建并返回一个信息对象
           );
         };
 
@@ -469,10 +469,16 @@ var ReactMultiChild = {
       // 删除不再存在的子项
       for (name in removedNodes) {
         if (removedNodes.hasOwnProperty(name)) {
+
           updates = enqueue(
             updates,
-            this._unmountChild(prevChildren[name], removedNodes[name])
+
+            /* 
+                参数为 对应旧的初始化实例、dom节点
+            */
+            this._unmountChild(prevChildren[name], removedNodes[name]) // 创建一个信息对象并返回
           );
+
         }
       };
       
@@ -579,28 +585,31 @@ var ReactMultiChild = {
       index,
       transaction,
       context) {
+      
+      // 渲染组件
       var mountImage = ReactReconciler.mountComponent(
-        child,
-        transaction,
-        this,
-        this._nativeContainerInfo,
-        context
+        child,  // 组件初始化实例
+        transaction,  // 事务
+        this,   // 父级组件初始化实例
+        this._nativeContainerInfo,  // 集装信息
+        context  // 上下文
       );
-      child._mountIndex = index;
-      return this.createChild(child, afterNode, mountImage);
+      child._mountIndex = index; // 该节点在数组中的目标位置
+
+      return this.createChild(child, afterNode, mountImage); // 返回一个信息对象
     },
 
+    
+
     /**
-     * Unmounts a rendered child.
-     *
-     * NOTE: This is part of `updateChildren` and is here for readability.
-     *
-     * @param {ReactComponent} child Component to unmount.
-     * @private
+     * 卸载渲染的子级。
+     * @param {*} child    组件初始化实例
+     * @param {*} node     dom节点
+     * @returns 
      */
     _unmountChild: function(child, node) {
-      var update = this.removeChild(child, node);
-      child._mountIndex = null;
+      var update = this.removeChild(child, node);  // 返回一个信息对象
+      child._mountIndex = null; // 将索引置为null
       return update;
     },
 

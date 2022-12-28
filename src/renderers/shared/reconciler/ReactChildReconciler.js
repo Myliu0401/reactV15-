@@ -146,6 +146,24 @@ var ReactChildReconciler = {
         nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
 
       } else {
+        // 进到这里来代表children数组中对比不相同，将是 创建或删除
+
+        // 判断是否有旧实例
+        if (prevChild) {
+           // 进到这里来，代表要销毁该实例和节点
+
+          removedNodes[name] = ReactReconciler.getNativeNode(prevChild); // 获取该实例的dom节点
+
+
+          /* 
+              进行卸载组件操作（释放对应的ref资源、卸载对应的子组件）
+              参数为 组件初始化实例、false
+          */
+          ReactReconciler.unmountComponent(prevChild, false); 
+        };
+
+
+        // 对新组件进行初始化
         /* 
                 进到这里来只有两种情况：
                     1. 新旧节点对比不一致
@@ -168,7 +186,8 @@ var ReactChildReconciler = {
 
         // 子级必须在装入之前实例化。
         var nextChildInstance = instantiateReactComponent(nextElement);
-        nextChildren[name] = nextChildInstance;
+
+        nextChildren[name] = nextChildInstance;  // 存储初始化实例
       };
 
       

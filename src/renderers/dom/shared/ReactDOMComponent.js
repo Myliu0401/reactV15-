@@ -1228,7 +1228,6 @@ ReactDOMComponent.Mixin = {
    */
   unmountComponent: function(safely) {
 
-    // 判断是那种标签
     switch (this._tag) {
       case 'iframe':
       case 'object':
@@ -1264,6 +1263,7 @@ ReactDOMComponent.Mixin = {
         break;
     }
 
+
     // 释放子组件
     this.unmountChildren(safely); 
 
@@ -1274,6 +1274,17 @@ ReactDOMComponent.Mixin = {
     EventPluginHub.deleteAllListeners(this);
 
     ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID);
+
+
+    this.unmountChildren(safely); // 卸载该节点下的子节点
+
+    ReactDOMComponentTree.uncacheNode(this); // 卸载相互存储的东西（实例中存储的dom节点、dom节点中存储的初始化实例）
+
+    EventPluginHub.deleteAllListeners(this); // 卸载注册的事件
+
+    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID); // 从环境卸载ID
+
+    // 重置
 
     this._rootNodeID = null;
     this._domID = null;
