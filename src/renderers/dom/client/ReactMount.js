@@ -449,6 +449,8 @@ var ReactMount = {
     );
   },
 
+
+  
   /**
    * 渲染子树容器，相当于渲染子组件
    * @param {*} parentComponent 父组件，如果是ReactDOM.render执行的则为null
@@ -510,7 +512,7 @@ var ReactMount = {
 
     /* 
        获取旧组件
-          如果渲染过，则返回_topLevelWrapper
+          如果渲染过，则返回_nativeContainerInfo._topLevelWrapper
           如果没渲染过，则返回null
     */
     var prevComponent = getTopLevelWrapperInContainer(container);  
@@ -525,7 +527,7 @@ var ReactMount = {
 
       // 判断新旧元素是否一致
       if (shouldUpdateReactComponent(prevElement, nextElement)) {
-        var publicInst = prevComponent._renderedComponent.getPublicInstance();
+        var publicInst = prevComponent._renderedComponent.getPublicInstance(); // 获取new 函数 的实例
         var updatedCallback = callback && function() {
           callback.call(publicInst);
         };

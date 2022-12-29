@@ -30,53 +30,21 @@ function ReactComponent(props, context, updater) {
   this.props = props;
   this.context = context;
   this.refs = emptyObject;
+
   // 我们初始化了默认的更新程序，但真正的更新程序由渲染器
   this.updater = updater || ReactNoopUpdateQueue;
 }
 
 ReactComponent.prototype.isReactComponent = {};
 
+
+
 /**
- * Sets a subset of the state. Always use this to mutate
- * state. You should treat `this.state` as immutable.
- *
- * There is no guarantee that `this.state` will be immediately updated, so
- * accessing `this.state` after calling this method may return the old value.
- *
- * There is no guarantee that calls to `setState` will run synchronously,
- * as they may eventually be batched together.  You can provide an optional
- * callback that will be executed when the call to setState is actually
- * completed.
- *
- * When a function is provided to setState, it will be called at some point in
- * the future (not synchronously). It will be called with the up to date
- * component arguments (state, props, context). These values can be different
- * from this.* because your function may be called after receiveProps but before
- * shouldComponentUpdate, and this new state, props, and context will not yet be
- * assigned to this.
- *
- * @param {object|function} partialState 新状态
- *        produce next partial state to be merged with current state.
- * @param {?function} callback 回调
- * @final
- * @protected
+ * 修改状态
+ * @param {*} partialState   新状态
+ * @param {*} callback       回调
  */
 ReactComponent.prototype.setState = function(partialState, callback) {
-  invariant(
-    typeof partialState === 'object' ||
-    typeof partialState === 'function' ||
-    partialState == null,
-    'setState(...): takes an object of state variables to update or a ' +
-    'function which returns an object of state variables.'
-  );
-  if (__DEV__) {
-    ReactInstrumentation.debugTool.onSetState();
-    warning(
-      partialState != null,
-      'setState(...): You passed an undefined or null state object; ' +
-      'instead, use forceUpdate().'
-    ); // 错误校验
-  }
 
   /* 
       this为类实例
@@ -85,6 +53,7 @@ ReactComponent.prototype.setState = function(partialState, callback) {
   */
   this.updater.enqueueSetState(this, partialState); // 进行更新操作
 
+  
   // 判断是否有回调函数
   if (callback) {
     this.updater.enqueueCallback(this, callback, 'setState');

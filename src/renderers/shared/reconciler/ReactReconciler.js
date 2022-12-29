@@ -52,9 +52,7 @@ var ReactReconciler = {
     if (internalInstance._currentElement && internalInstance._currentElement.ref != null) {
       transaction.getReactMountReady().enqueue(attachRefs, internalInstance);
     }
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onMountComponent(internalInstance);
-    }
+  
     return markup;
 
   },

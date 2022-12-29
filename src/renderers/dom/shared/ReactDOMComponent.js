@@ -148,7 +148,8 @@ function assertValidProps(component, props) {
   if (!props) {
     return;  // 没有属性则直接结束
   }
-  // Note the use of `==` which checks for null or undefined. 注意`=`的使用，它检查是否为空或未定义
+  
+
   // 判断是否是voidElementTags对象里的其中一个标签类型
   if (voidElementTags[component._tag]) {
     invariant(
@@ -161,7 +162,7 @@ function assertValidProps(component, props) {
         component._currentElement._owner.getName() + '.' :
         ''
     );
-  }
+  };
 
   // 判断是否有插入标签的html的属性
   if (props.dangerouslySetInnerHTML != null) {
@@ -178,29 +179,7 @@ function assertValidProps(component, props) {
     );
   }
 
-  if (__DEV__) {
-    warning(
-      props.innerHTML == null,
-      'Directly setting property `innerHTML` is not permitted. ' +
-      'For more information, lookup documentation on `dangerouslySetInnerHTML`.'
-    );
-    warning(
-      props.suppressContentEditableWarning ||
-      !props.contentEditable ||
-      props.children == null,
-      'A component is `contentEditable` and contains `children` managed by ' +
-      'React. It is now your responsibility to guarantee that none of ' +
-      'those nodes are unexpectedly modified or duplicated. This is ' +
-      'probably not intentional.'
-    );
-    warning(
-      props.onFocusIn == null &&
-      props.onFocusOut == null,
-      'React uses onFocus and onBlur instead of onFocusIn and onFocusOut. ' +
-      'All React events are normalized to bubble, so onFocusIn and onFocusOut ' +
-      'are not needed/supported by React.'
-    );
-  }
+
 
   invariant(
     props.style == null || typeof props.style === 'object',
@@ -539,7 +518,7 @@ ReactDOMComponent.Mixin = {
 
     this._rootNodeID = globalIdCounter++;
     this._domID = nativeContainerInfo._idCounter++;
-    this._nativeParent = nativeParent;
+    this._nativeParent = nativeParent;   // （父dom组件初始化实例，最高层为null）
     this._nativeContainerInfo = nativeContainerInfo; // 集装信息，为一个对象，存储一些基础信息
 
     var props = this._currentElement.props;  // props属性
@@ -585,8 +564,14 @@ ReactDOMComponent.Mixin = {
         transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
         break;
     }
+   
 
-    assertValidProps(this, props); // 判断指定的属性是否有效
+    /* 
+      判断指定的属性是否有效 dangerouslySetInnerHTML
+      以及标签是否是特殊的
+    */
+    assertValidProps(this, props); 
+    
 
     // 我们在其父容器的命名空间中创建标记，HTML除外
     // 标签没有名称空间
@@ -622,21 +607,7 @@ ReactDOMComponent.Mixin = {
     }
     this._namespaceURI = namespaceURI;  // 存储容器的3wc地址到初始化实例中
 
-    if (__DEV__) {
-      var parentInfo;
-      if (nativeParent != null) {
-        parentInfo = nativeParent._ancestorInfo;
-      } else if (nativeContainerInfo._tag) {
-        parentInfo = nativeContainerInfo._ancestorInfo;
-      }
-      if (parentInfo) {
-        // parentInfo should always be present except for the top-level
-        // component when server rendering
-        validateDOMNesting(this._tag, this, parentInfo);
-      }
-      this._ancestorInfo =
-        validateDOMNesting.updatedAncestorInfo(parentInfo, this._tag, this);
-    }
+
 
     var mountImage;  
 

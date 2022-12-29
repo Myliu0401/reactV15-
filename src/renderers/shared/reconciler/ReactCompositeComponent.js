@@ -136,7 +136,7 @@ var ReactCompositeComponentMixin = {
     this._pendingForceUpdate = false;   // 强制更新
 
     this._renderedNodeType = null;
-    this._renderedComponent = null; // render返回的节点组件的入口实例
+    this._renderedComponent = null; // 存储render返回的节点组件的初始化实例
     this._context = null;
     this._mountOrder = 0;
     this._topLevelWrapper = null;
@@ -169,19 +169,19 @@ var ReactCompositeComponentMixin = {
 
     this._context = context;   // 将上下文存到实例的_context属性中
     this._mountOrder = nextMountID++;  // 首次执行时为1,存到实例的_mountOrder属性中
-    this._nativeParent = nativeParent; // 首次执行时为null，存到实例中
+    this._nativeParent = nativeParent; // 首次执行时为null，（dom组件初始化实例）存到实例中
     this._nativeContainerInfo = nativeContainerInfo;  // 首次执行时为 集装信息，为一个对象，存储参数的一些信息，存到实例中
 
 
     /* 
-        获取属性，如果不是开发环境则直接将参数返回
+        直接返回参数
         首次执行时因为根据组件会被包一层，所以首次执行时 props为根组件,经babel转义后的
     */
     var publicProps = this._processProps(this._currentElement.props);
 
     var publicContext = this._processContext(context); // 首次执行时返回emptyObject
 
-    var Component = this._currentElement.type; // 首次执行时为 TopLevelWrapper函数。后面就是对应的函数了
+    var Component = this._currentElement.type; // 首次执行时为 TopLevelWrapper函数。
 
 
     /* 
@@ -197,6 +197,7 @@ var ReactCompositeComponentMixin = {
     
     */
     var inst = this._constructComponent(publicProps, publicContext);
+
     var renderedElement;
 
     // 判断是否是无状态组件
@@ -255,7 +256,7 @@ var ReactCompositeComponentMixin = {
 
 
 
-    this._pendingStateQueue = null;  // 状态队列, 该属性更新时将是数组，会存储 执行setState的新状态
+    this._pendingStateQueue = null;     // 状态队列, 该属性更新时将是数组，会存储 执行setState的新状态
     this._pendingReplaceState = false;  // 状态更新
     this._pendingForceUpdate = false;   // 强制更新
 
@@ -415,7 +416,8 @@ var ReactCompositeComponentMixin = {
 
       inst.componentWillMount(); //执行生命周期
 
-      if (this._pendingStateQueue) { // 判断是否有更新队列
+      // 判断是否需要更新状态
+      if (this._pendingStateQueue) { 
         inst.state = this._processPendingState(inst.props, inst.context); // 更新状态
       }
     }
@@ -423,7 +425,6 @@ var ReactCompositeComponentMixin = {
 
     /* 
         首次执行时该属性为 undefined
-    
     */
     if (renderedElement === undefined) {
       /* 
@@ -451,6 +452,7 @@ var ReactCompositeComponentMixin = {
     this._renderedComponent = this._instantiateReactComponent(
       renderedElement
     );
+
 
     // 进行递归渲染子节点
     var markup = ReactReconciler.mountComponent(
@@ -557,19 +559,7 @@ var ReactCompositeComponentMixin = {
    * @private
    */
   _processContext: function (context) {
-    var maskedContext = this._maskContext(context); // 首次执行时返回 emptyObject
-
-    // 判断是否是开发环境
-    if (__DEV__) {
-      var Component = this._currentElement.type;
-      if (Component.contextTypes) {
-        this._checkPropTypes(
-          Component.contextTypes,
-          maskedContext,
-          ReactPropTypeLocations.context
-        );
-      }
-    }
+    var maskedContext = this._maskContext(context); // 首次执行时返回 emptyObject，或者直接浅复制一份返回
 
     return maskedContext;
   },
@@ -581,28 +571,12 @@ var ReactCompositeComponentMixin = {
    */
   _processChildContext: function (currentContext) {
     var Component = this._currentElement.type; // 获取组件函数
-    var inst = this._instance;
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onBeginProcessingChildContext();
-    }
+    var inst = this._instance; // 获取 new 函数 返回的实例
+   
     var childContext = inst.getChildContext && inst.getChildContext();
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onEndProcessingChildContext();
-    }
+   
     if (childContext) {
-      invariant(
-        typeof Component.childContextTypes === 'object',
-        '%s.getChildContext(): childContextTypes must be defined in order to ' +
-        'use getChildContext().',
-        this.getName() || 'ReactCompositeComponent'
-      );
-      if (__DEV__) {
-        this._checkPropTypes(
-          Component.childContextTypes,
-          childContext,
-          ReactPropTypeLocations.childContext
-        );
-      }
+      
       for (var name in childContext) {
         invariant(
           name in Component.childContextTypes,
@@ -623,17 +597,7 @@ var ReactCompositeComponentMixin = {
    * @private
    */
   _processProps: function (newProps) {
-    // 判断是否是开发环境
-    if (__DEV__) {
-      var Component = this._currentElement.type;
-      if (Component.propTypes) {
-        this._checkPropTypes(
-          Component.propTypes,
-          newProps,
-          ReactPropTypeLocations.prop
-        );
-      }
-    }
+  
     return newProps;
   },
 
@@ -824,14 +788,6 @@ var ReactCompositeComponentMixin = {
     //  如果没有该生命周期，则将返回true, 并存到变量中
 
 
-    if (__DEV__) {
-      warning(
-        shouldUpdate !== undefined,
-        '%s.shouldComponentUpdate(): Returned undefined instead of a ' +
-        'boolean value. Make sure to return true or false.',
-        this.getName() || 'ReactCompositeComponent'
-      );
-    }
 
 
     /* 
