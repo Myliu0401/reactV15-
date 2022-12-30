@@ -30,15 +30,6 @@ function instantiateChild(childInstances, child, name) {
   // We found a component instance.
   var keyUnique = (childInstances[name] === undefined);
 
-  if (__DEV__) {
-    warning(
-      keyUnique,
-      'flattenChildren(...): Encountered two children with the same key, ' +
-      '`%s`. Child keys must be unique; when two children share a key, only ' +
-      'the first child will be used.',
-      KeyEscapeUtils.unescape(name)
-    );
-  }
 
   // 判断是否有子节点并且有对象中目前没有该实例
   if (child != null && keyUnique) {

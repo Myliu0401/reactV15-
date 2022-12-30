@@ -43,8 +43,8 @@ function insertTreeChildren(tree) {
   if (!enableLazy) {
     return;
   };
-  var node = tree.node;  // 跟节点dom
-  var children = tree.children;   //跟节点
+  var node = tree.node;  // 节点dom
+  var children = tree.children;   
   
   // 判断是否有子节点
   if (children.length) {
@@ -62,7 +62,7 @@ var insertTreeBefore = createMicrosoftUnsafeLocalFunction(
   /**
    * 
    * @param {*} parentNode      容器
-   * @param {*} tree            一整棵节点树渲染后的对象
+   * @param {*} tree            一整棵节点树渲染后的对象 lazyTree对象
    * @param {*} referenceNode 
    */
   function(parentNode, tree, referenceNode) {
@@ -74,7 +74,7 @@ var insertTreeBefore = createMicrosoftUnsafeLocalFunction(
       insertTreeChildren(tree);
       parentNode.insertBefore(tree.node, referenceNode);
     } else {
-      parentNode.insertBefore(tree.node, referenceNode);  // 在某个节点之前插入，将根节点插到容器中
+      parentNode.insertBefore(tree.node, referenceNode);  // 两个节点位置互换，如果第二个参数为null，则将第一个节点插到最后面
       insertTreeChildren(tree);  
     }
   }

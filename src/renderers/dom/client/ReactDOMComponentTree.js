@@ -36,9 +36,12 @@ function getRenderedNativeOrTextFromComponent(component) {
   return component;
 }
 
+
 /**
  * 使用给定的DOM节点。传递的“inst”可以是复合的。
  * 该函数会在ReactDOMComponent模块中的mountComponent函数中被调用
+ * @param {*} inst    实例
+ * @param {*} node    节点
  */
 function precacheNode(inst, node) {
   var nativeInst = getRenderedNativeOrTextFromComponent(inst); // 返回处理后的inst参数

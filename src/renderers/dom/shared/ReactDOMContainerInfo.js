@@ -37,10 +37,7 @@ function ReactDOMContainerInfo(topLevelWrapper, node) {
     _tag: node ? node.nodeName.toLowerCase() : null,  // 首次为装修渲染组件的dom容器的名称
     _namespaceURI: node ? node.namespaceURI : null,   // 首次为装渲染组件的dom容器的文档url
   };
-  if (__DEV__) {
-    info._ancestorInfo = node ?
-      validateDOMNesting.updatedAncestorInfo(null, info._tag, null) : null;
-  }
+
   return info;
 }
 

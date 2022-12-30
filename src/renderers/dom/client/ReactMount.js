@@ -127,6 +127,8 @@ function mountComponentIntoNode(
     console.time(markerName);
   }
 
+
+  // 返回一个lazyTree对象
   var markup = ReactReconciler.mountComponent(
     wrapperInstance,  // 组件初始化的实例
     transaction, // 事务
@@ -135,13 +137,16 @@ function mountComponentIntoNode(
     context // 上下文
   );
 
+
   if (markerName) {
     console.timeEnd(markerName);
   }
 
+  //在组件初始化实例中添加_topLevelWrapper属性，值为包装层的组件初始化实例
   wrapperInstance._renderedComponent._topLevelWrapper = wrapperInstance;
+
   ReactMount._mountImageIntoNode(
-    markup,             // 一整科节点树渲染后的对象
+    markup,             // 一整科节点树渲染后的对象  lazyTree对象
     container,          // 容器
     wrapperInstance,    // 组件初始化实例
     shouldReuseMarkup,  // 首次为false
@@ -700,7 +705,7 @@ var ReactMount = {
 
   /**
    * 
-   * @param {*} markup               // 一整科节点树渲染后的对象 
+   * @param {*} markup               // 一整科节点树渲染后的对象  lazyTree对象
    * @param {*} container            // 容器
    * @param {*} instance             // 组件初始化实例
    * @param {*} shouldReuseMarkup    // 首次为false
@@ -714,14 +719,7 @@ var ReactMount = {
     shouldReuseMarkup,
     transaction
   ) {
-    invariant(
-      container && (
-        container.nodeType === ELEMENT_NODE_TYPE ||
-        container.nodeType === DOC_NODE_TYPE ||
-        container.nodeType === DOCUMENT_FRAGMENT_NODE_TYPE
-      ),
-      'mountComponentIntoNode(...): Target container is not valid.'
-    );
+    
 
     if (shouldReuseMarkup) {
       var rootElement = getReactRootElementInContainer(container);
@@ -741,67 +739,18 @@ var ReactMount = {
         );
 
         var normalizedMarkup = markup;
-        if (__DEV__) {
-          // because rootMarkup is retrieved from the DOM, various normalizations
-          // will have occurred which will not be present in `markup`. Here,
-          // insert markup into a <div> or <iframe> depending on the container
-          // type to perform the same normalizations before comparing.
-          var normalizer;
-          if (container.nodeType === ELEMENT_NODE_TYPE) {
-            normalizer = document.createElement('div');
-            normalizer.innerHTML = markup;
-            normalizedMarkup = normalizer.innerHTML;
-          } else {
-            normalizer = document.createElement('iframe');
-            document.body.appendChild(normalizer);
-            normalizer.contentDocument.write(markup);
-            normalizedMarkup = normalizer.contentDocument.documentElement.outerHTML;
-            document.body.removeChild(normalizer);
-          }
-        }
+        
 
         var diffIndex = firstDifferenceIndex(normalizedMarkup, rootMarkup);
         var difference = ' (client) ' +
           normalizedMarkup.substring(diffIndex - 20, diffIndex + 20) +
           '\n (server) ' + rootMarkup.substring(diffIndex - 20, diffIndex + 20);
 
-        invariant(
-          container.nodeType !== DOC_NODE_TYPE,
-          'You\'re trying to render a component to the document using ' +
-          'server rendering but the checksum was invalid. This usually ' +
-          'means you rendered a different component type or props on ' +
-          'the client from the one on the server, or your render() ' +
-          'methods are impure. React cannot handle this case due to ' +
-          'cross-browser quirks by rendering at the document root. You ' +
-          'should look for environment dependent code in your components ' +
-          'and ensure the props are the same client and server side:\n%s',
-          difference
-        );
-
-        if (__DEV__) {
-          warning(
-            false,
-            'React attempted to reuse markup in a container but the ' +
-            'checksum was invalid. This generally means that you are ' +
-            'using server rendering and the markup generated on the ' +
-            'server was not what the client was expecting. React injected ' +
-            'new markup to compensate which works but you have lost many ' +
-            'of the benefits of server rendering. Instead, figure out ' +
-            'why the markup being generated is different on the client ' +
-            'or server:\n%s',
-            difference
-          );
-        }
+        
       }
     }
 
-    invariant(
-      container.nodeType !== DOC_NODE_TYPE,
-      'You\'re trying to render a component to the document but ' +
-        'you didn\'t use server rendering. We can\'t do this ' +
-        'without using server rendering due to cross-browser quirks. ' +
-        'See ReactDOMServer.renderToString() for server rendering.'
-    );
+   
     
     // 首次时为true
     if (transaction.useCreateElement) {

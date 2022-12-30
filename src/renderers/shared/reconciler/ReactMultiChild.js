@@ -170,18 +170,7 @@ var ReactMultiChild = {
      * @returns 
      */
     _reconcilerInstantiateChildren: function(nestedChildren, transaction, context) {
-      if (__DEV__) {
-        if (this._currentElement) {
-          try {
-            ReactCurrentOwner.current = this._currentElement._owner;
-            return ReactChildReconciler.instantiateChildren(
-              nestedChildren, transaction, context
-            );
-          } finally {
-            ReactCurrentOwner.current = null;
-          }
-        }
-      }
+    
 
       return ReactChildReconciler.instantiateChildren(
         nestedChildren, transaction, context

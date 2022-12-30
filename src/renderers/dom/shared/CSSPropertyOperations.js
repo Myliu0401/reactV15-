@@ -203,10 +203,6 @@ var CSSPropertyOperations = {
         continue;  // 跳过本次循环
       };
 
-      if (__DEV__) {
-        warnValidStyle(styleName, styles[styleName], component);
-      };
-
       // 会返回符合css规则的对应属性值
       var styleValue = dangerousStyleValue(
         styleName,  // 样式名

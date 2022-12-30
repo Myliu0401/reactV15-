@@ -563,7 +563,7 @@ ReactDOMComponent.Mixin = {
         props = ReactDOMTextarea.getNativeProps(this, props);
         transaction.getReactMountReady().enqueue(trapBubbledEventsLocal, this);
         break;
-    }
+    };
    
 
     /* 
@@ -573,10 +573,9 @@ ReactDOMComponent.Mixin = {
     assertValidProps(this, props); 
     
 
-    // 我们在其父容器的命名空间中创建标记，HTML除外
-    // 标签没有名称空间
-    var namespaceURI;
-    var parentTag;
+    // 我们在其父容器的命名空间中创建标记
+    var namespaceURI;  // 存储父节点的文档url
+    var parentTag;     // 父节点的标签名称
 
     // 判断nativeParent是否有值
     if (nativeParent != null) {
@@ -598,6 +597,7 @@ ReactDOMComponent.Mixin = {
     
     // 判断是否是xhtml地址
     if (namespaceURI === DOMNamespaces.html) {
+
       // 判断容器类型，进行修正文档地址
       if (this._tag === 'svg') {
         namespaceURI = DOMNamespaces.svg;
@@ -616,7 +616,10 @@ ReactDOMComponent.Mixin = {
     */
     if (transaction.useCreateElement) {
       var ownerDocument = nativeContainerInfo._ownerDocument; // 获取文档节点
-      var el;
+
+      var el;  // 存储创建的标签
+
+      // 判断是否文档地址是否是xhtml
       if (namespaceURI === DOMNamespaces.html) {
 
         // 判断标签是否是script标签
@@ -881,6 +884,8 @@ ReactDOMComponent.Mixin = {
     }
   },
 
+  
+
   /**
    * 接收下一个元素并更新组件。
    *
@@ -971,7 +976,7 @@ ReactDOMComponent.Mixin = {
   _updateDOMProperties: function(lastProps, nextProps, transaction) {
     var propKey;  // 遍历时，属性当前项的名字
     var styleName;  // style遍历时, 属性的当前项的名字
-    var styleUpdates; // 存储style属性对象中的属性，并且属性赋值为空字符串
+    var styleUpdates; // 存储要更新的style
 
     // 遍历旧属性
     for (propKey in lastProps) {
@@ -1038,14 +1043,6 @@ ReactDOMComponent.Mixin = {
 
         // 判断是否有值
         if (nextProp) {
-          if (__DEV__) {
-            checkAndWarnForMutatedStyle(
-              this._previousStyleCopy,
-              this._previousStyle,
-              this
-            );
-            this._previousStyle = nextProp;
-          }
 
           // 将style的值混入到新对象中，并赋值给初始化实例的_previousStyleCopy属性，并重新赋值给当前的nextProp属性
           // 相当于克隆一份副本给_previousStyleCopy
@@ -1130,7 +1127,7 @@ ReactDOMComponent.Mixin = {
       CSSPropertyOperations.setValueForStyles(
         getNode(this), // 当前dom节点
         styleUpdates,  // 样式对象
-        this           // 组件
+        this           // 组件初始化实例
       );
     }
   },

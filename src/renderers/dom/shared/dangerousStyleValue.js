@@ -45,35 +45,7 @@ function dangerousStyleValue(name, value, component) {
 
   // 判断该值是否为字符串
   if (typeof value === 'string') {
-    if (__DEV__) {
-      if (component) {
-        var owner = component._currentElement._owner;
-        var ownerName = owner ? owner.getName() : null;
-        if (ownerName && !styleWarnings[ownerName]) {
-          styleWarnings[ownerName] = {};
-        }
-        var warned = false;
-        if (ownerName) {
-          var warnings = styleWarnings[ownerName];
-          warned = warnings[name];
-          if (!warned) {
-            warnings[name] = true;
-          }
-        }
-        if (!warned) {
-          warning(
-            false,
-            'a `%s` tag (owner: `%s`) was passed a numeric string value ' +
-            'for CSS property `%s` (value: `%s`) which will be treated ' +
-            'as a unitless number in a future version of React.',
-            component._currentElement.type,
-            ownerName || 'unknown',
-            name,
-            value
-          );
-        }
-      }
-    }
+  
     value = value.trim(); // 清除字符串中的头尾空白
   }
   return value + 'px'; // 加上px返回
