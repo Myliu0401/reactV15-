@@ -123,11 +123,7 @@ var EventPluginHub = {
    * @param {function} listener 事件处理函数
    */
   putListener: function(inst, registrationName, listener) {
-    invariant(
-      typeof listener === 'function',
-      'Expected %s listener to be a function, instead got type %s',
-      registrationName, typeof listener
-    );
+    
 
     /* 
          判断是否有该事件属性有就直接取该属性对象，没有就赋值后取该对象
@@ -162,7 +158,7 @@ var EventPluginHub = {
    * 从注册库中删除侦听器。
    *
    * @param {object} inst this 也就是组件初始化实例
-   * @param {string} registrationName 事件名
+   * @param {string} registrationName 事件名 如 onClick
    */
   deleteListener: function(inst, registrationName) {
     var PluginModule = EventPluginRegistry.registrationNameModules[registrationName]; // 取出事件库中对应的模块
@@ -170,13 +166,14 @@ var EventPluginHub = {
     // 判断有没有对应的事件库 并且 该事件库中有willDeleteListener函数
     if (PluginModule && PluginModule.willDeleteListener) {
 
+      // 参数为 组件初始化实例、事件名 如 onClick
       PluginModule.willDeleteListener(inst, registrationName); // 执行该对应事件库中的willDeleteListener函数
     }
 
-    var bankForRegistrationName = listenerBank[registrationName];
-    // TODO: This should never be null -- when is it?
+    var bankForRegistrationName = listenerBank[registrationName]; // 取出存储对应事件函数的对象
+  
     if (bankForRegistrationName) {
-      delete bankForRegistrationName[inst._rootNodeID];
+      delete bankForRegistrationName[inst._rootNodeID]; // 删除存储的对应事件函数
     }
   },
 
@@ -287,11 +284,7 @@ var EventPluginHub = {
         executeDispatchesAndReleaseTopLevel
       );
     }
-    invariant(
-      !eventQueue,
-      'processEventQueue(): Additional events were enqueued while processing ' +
-      'an event queue. Support for this has not yet been implemented.'
-    );
+  
     // This would be a good time to rethrow if any of the event handlers threw.
     ReactErrorUtils.rethrowCaughtError();
   },

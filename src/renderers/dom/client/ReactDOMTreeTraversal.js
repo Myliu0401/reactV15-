@@ -94,7 +94,7 @@ function traverseTwoPhase(inst, fn, arg) {
     inst = inst._nativeParent; // 该属性就是父节点的组件初始化实例，最高一层为null
   }
 
-  // 上面循环后 path数组 将填充 从事件目标dom开始到react的跟dom组件 的dom组件初始化实例
+  // 上面循环后 path数组 将填充 从事件目标dom开始到react的根dom组件 的dom组件初始化实例
 
   var i;
   

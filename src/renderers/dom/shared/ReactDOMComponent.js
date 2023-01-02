@@ -202,14 +202,6 @@ function assertValidProps(component, props) {
  */
 function enqueuePutListener(inst, registrationName, listener, transaction) {
 
-  if (__DEV__) {
-    // IE8 has no API for event capturing and the `onScroll` event doesn't
-    // bubble.
-    warning(
-      registrationName !== 'onScroll' || isEventSupported('scroll', true),
-      'This browser doesn\'t support the `onScroll` event'
-    );
-  }
 
   var containerInfo = inst._nativeContainerInfo;   // 集装信息，主要存储容器和包装后的根组件的一些信息
 
@@ -261,7 +253,9 @@ function enqueuePutListener(inst, registrationName, listener, transaction) {
     registrationName: registrationName, // 事件名 如： onClick
     listener: listener, // 事件处理函数
   });
-}
+};
+
+
 
 
 function putListener() {

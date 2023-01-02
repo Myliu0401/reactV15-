@@ -485,7 +485,7 @@ for (var type in topLevelEventsToDispatchConfig) {
 }
 
 var ON_CLICK_KEY = keyOf({onClick: null});
-var onClickListeners = {};
+var onClickListeners = {};  // 存储点击事件的删除事件函数
 
 var SimpleEventPlugin = {
 
@@ -615,13 +615,9 @@ var SimpleEventPlugin = {
       case topLevelTypes.topPaste:
         EventConstructor = SyntheticClipboardEvent;
         break;
-    }
+    };
 
-    invariant(
-      EventConstructor,
-      'SimpleEventPlugin: Unhandled event type, `%s`.',
-      topLevelType
-    );
+  
 
     // 生成对应类型事件的合成事件对象
     var event = EventConstructor.getPooled(
@@ -650,7 +646,7 @@ var SimpleEventPlugin = {
     // fire. The workaround for this bug involves attaching an empty click
     // listener on the target node.
 
-    // 判断是否是点击事件
+    // 判断是否是点击事件 onClick
     if (registrationName === ON_CLICK_KEY) {
       var id = inst._rootNodeID;
       var node = ReactDOMComponentTree.getNodeFromInstance(inst);
@@ -664,8 +660,10 @@ var SimpleEventPlugin = {
     }
   },
 
+
+
   /**
-   * 
+   * 删除事件
    * @param {*} inst 组件初始化的实例对象
    * @param {*} registrationName  事件名称
    */
@@ -674,8 +672,8 @@ var SimpleEventPlugin = {
     // 判断该事件是否是 onClick 事件
     if (registrationName === ON_CLICK_KEY) {
       var id = inst._rootNodeID;
-      onClickListeners[id].remove();   // 删除事件的处理函数
-      delete onClickListeners[id];     // 删除事件的处理函数
+      onClickListeners[id].remove();   // 删除点击事件的处理函数
+      delete onClickListeners[id];     // 删除点击事件的处理函数
     }
   },
 

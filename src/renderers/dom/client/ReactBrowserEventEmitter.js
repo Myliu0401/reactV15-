@@ -165,7 +165,7 @@ function getListeningForDocument(mountAt) {
   
   // 判断该文档节点中有没有 topListenersIDKey这个属性，如果没有则进入该判断
   if (!Object.prototype.hasOwnProperty.call(mountAt, topListenersIDKey)) {
-    mountAt[topListenersIDKey] = reactTopListenersCounter++;  // 表示当前事件处理器的数量 
+    mountAt[topListenersIDKey] = reactTopListenersCounter++;   // 表示当前第几次渲
 
 
     // 向该对象中存储一个对象，属性名为执行该函数时事件处理函数的数量，属性值为一个对象
@@ -378,7 +378,9 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
         // 对该对象进行赋值，属性名为事件名如 topClick  值为true。下次有其他dom注册该事件，就进不了这个判断
         isListening[dependency] = true; 
       
-      }
+      };
+
+      
     }
   },
 

@@ -49,7 +49,9 @@ function findParent(inst) {
 
   // 获取容器初始化实例，如果没有就返回document文档节点
   return ReactDOMComponentTree.getClosestInstanceFromNode(container);  
-}
+};
+
+
 
 // Used to store ancestor hierarchy in top level callback
 function TopLevelCallbackBookKeeping(topLevelType, nativeEvent) {
@@ -90,8 +92,10 @@ PooledClass.addPoolingTo(
  * @param {*} bookKeeping TopLevelCallbackBookKeeping实例
  */
 function handleTopLevelImpl(bookKeeping) {
+
   // 找到事件触发的DOM和React Component
-  var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);  // 获取事件对象的目标节点
+  var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);  // 获取事件对象的目标dom节点
+
 
   // 该dom节点对应的组件初始化实例
   var targetInst = ReactDOMComponentTree.getClosestInstanceFromNode(
@@ -134,7 +138,9 @@ function handleTopLevelImpl(bookKeeping) {
       bookKeeping.nativeEvent, // 事件对象
       getEventTarget(bookKeeping.nativeEvent) // 触发事件目标节点的dom
     );
-  }
+  };
+
+  
 }
 
 function scrollValueMonitor(cb) {
@@ -267,6 +273,7 @@ var ReactEventListener = {
     if (!ReactEventListener._enabled) {
       return;
     };
+
   
     /* 
         如果TopLevelCallbackBookKeeping函数的静态属性instancePool数组没有项则会 new TopLevelCallbackBookKeeping函数

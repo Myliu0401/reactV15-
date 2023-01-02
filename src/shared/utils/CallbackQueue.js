@@ -60,10 +60,7 @@ Object.assign(CallbackQueue.prototype, {
 
     // 判断是否有存储putListener函数的数组
     if (callbacks) {
-      invariant(
-        callbacks.length === contexts.length,
-        'Mismatched list of contexts in callback queue'
-      );
+    
       this._callbacks = null;  // 重置为null
       this._contexts = null;   // 重置为null
 

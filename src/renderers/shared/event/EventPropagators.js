@@ -50,12 +50,7 @@ function listenerAtPhase(inst, event, propagationPhase) {
  * @param {*} event     合成事件对象
  */
 function accumulateDirectionalDispatches(inst, upwards, event) {
-  if (__DEV__) {
-    warning(
-      inst,
-      'Dispatching inst must not be null'
-    );
-  }
+  
 
   // 根据布尔值来获取冒泡还是捕获
   var phase = upwards ? PropagationPhases.bubbled : PropagationPhases.captured; 

@@ -131,23 +131,21 @@ function executeDispatch(event, simulated, listener, inst) {
 
 
 /**
- * executeDispatchesInOrder会先得到event对应的listeners队列，然后从当前元素向父元素遍历执行注册的callback。
+ * executeDispatchesInOrder会先得到event对应的listeners队列，然后  从（当前元素向react根元素/react根元素向当前元素）遍历执行注册的callback。
  * @param {*} event   合成事件对象
  * @param {*} simulated 布尔值
  */
 function executeDispatchesInOrder(event, simulated) {
   var dispatchListeners = event._dispatchListeners;   // 当前组件处理函数
   var dispatchInstances = event._dispatchInstances;   // 当前组件实例
-  if (__DEV__) {
-    validateEventDispatches(event);
-  }
+
   if (Array.isArray(dispatchListeners)) {
     // 如果有多个listener,则遍历执行数组中event
     for (var i = 0; i < dispatchListeners.length; i++) {
 
       // 判断是否有事件执行了 阻止捕获 或 阻止冒泡
       if (event.isPropagationStopped()) {
-        break;
+        break; // 停止循环
       }
 
       // 执行event的分发,从当前触发事件元素向父元素遍历

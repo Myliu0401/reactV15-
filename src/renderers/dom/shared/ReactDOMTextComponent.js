@@ -36,10 +36,12 @@ var validateDOMNesting = require('validateDOMNesting');
  * @internal
  */
 var ReactDOMTextComponent = function(text) {
-  // TODO: This is really a ReactText (ReactNode), not a ReactElement
-  this._currentElement = text;
-  this._stringText = '' + text;
-  // ReactDOMComponentTree uses these:
+  // TODO: 这实际上是一个ReactText（ReactNode），而不是ReactElement
+  this._currentElement = text;  // 文本
+ 
+
+  this._stringText = '' + text; // 将文本以字符串形式存储
+  
   this._nativeNode = null;
   this._nativeParent = null;
 
@@ -68,19 +70,7 @@ Object.assign(ReactDOMTextComponent.prototype, {
     nativeContainerInfo,
     context
   ) {
-    if (__DEV__) {
-      var parentInfo;
-      if (nativeParent != null) {
-        parentInfo = nativeParent._ancestorInfo;
-      } else if (nativeContainerInfo != null) {
-        parentInfo = nativeContainerInfo._ancestorInfo;
-      }
-      if (parentInfo) {
-        // parentInfo should always be present except for the top-level
-        // component when server rendering
-        validateDOMNesting('#text', this, parentInfo);
-      }
-    }
+    
 
     var domID = nativeContainerInfo._idCounter++;    // 递增集装对象的_idCounter属性
     var openingValue = ' react-text: ' + domID + ' '; // 声明一个开始字符串
@@ -88,7 +78,7 @@ Object.assign(ReactDOMTextComponent.prototype, {
 
     this._domID = domID;  // 将递增的值存到实例中
 
-    this._nativeParent = nativeParent; // 将父组件初始化实例存到 实例中
+    this._nativeParent = nativeParent; // 将父组件初始化实例存到 实例中（dom组件）
 
     // 判断事务中有没有该属性
     if (transaction.useCreateElement) {
@@ -138,6 +128,8 @@ Object.assign(ReactDOMTextComponent.prototype, {
 
       // 将结束的html注释存到组件初始化实例中
       this._closingComment = closingComment;
+
+      
       return lazyTree;
     } else {
       var escapedText = escapeTextContentForBrowser(this._stringText);

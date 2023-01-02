@@ -35,10 +35,7 @@ var invariant = require('invariant');
  * @return {*} 
  */
 function accumulateInto(current, next) {
-  invariant(
-    next != null,
-    'accumulateInto(...): Accumulated items must not be null or undefined.'
-  );
+ 
 
   // 如果是首次则直接返回合成事件对象
   if (current == null) {
