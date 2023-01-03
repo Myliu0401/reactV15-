@@ -177,13 +177,7 @@ function mountOrderComparator(c1, c2) {
  */
 function runBatchedUpdates(transaction) {
   var len = transaction.dirtyComponentsLength; // 获取数组的长度
-  invariant(
-    len === dirtyComponents.length,
-    'Expected flush transaction\'s stored dirty-components length (%s) to ' +
-    'match dirty-components array length (%s).',
-    len,
-    dirtyComponents.length
-  );
+  
 
 
   dirtyComponents.sort(mountOrderComparator); // 对数组进行排序操作
@@ -211,7 +205,7 @@ function runBatchedUpdates(transaction) {
       }
       markerName = 'React update: ' + namedComponent.getName();
       console.time(markerName);
-    }
+    };
 
 
     ReactReconciler.performUpdateIfNecessary(
@@ -272,6 +266,7 @@ var flushBatchedUpdates = function() {
              原型...
        
        */
+
 
       transaction.perform(runBatchedUpdates, null, transaction); // 调用事务
 

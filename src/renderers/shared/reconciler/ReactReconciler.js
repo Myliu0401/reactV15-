@@ -149,9 +149,7 @@ var ReactReconciler = {
 
     internalInstance.performUpdateIfNecessary(transaction);  // 更新组件
 
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onUpdateComponent(internalInstance);
-    }
+    
   },
 
 };

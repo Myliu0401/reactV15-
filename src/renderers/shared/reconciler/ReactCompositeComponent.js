@@ -693,6 +693,7 @@ var ReactCompositeComponentMixin = {
       );
     };
 
+
     /* 
        因为受setState函数的操作该_pendingStateQueue属性将是数组并且存储值新状态
        _pendingForceUpdate 表示是否强制更新
@@ -716,11 +717,11 @@ var ReactCompositeComponentMixin = {
 
   /**
    * 更新组件
-   * @param {ReactReconcileTransaction} transaction  事务
-   * @param {ReactElement} prevParentElement  
-   * @param {ReactElement} nextParentElement
-   * @internal
-   * @overridable
+   * @param {*} transaction            事务
+   * @param {*} prevParentElement      旧babel转义
+   * @param {*} nextParentElement      新babel转义
+   * @param {*} prevUnmaskedContext    旧上下文
+   * @param {*} nextUnmaskedContext    新上下文
    */
   updateComponent: function (
     transaction,  // 事务
@@ -789,7 +790,6 @@ var ReactCompositeComponentMixin = {
 
 
 
-
     /* 
         会根据shouldComponentUpdate生命周期返回的布尔值来判断是否需要重新渲染
     */
@@ -798,7 +798,7 @@ var ReactCompositeComponentMixin = {
 
       // 更新组件
       this._performComponentUpdate(
-        nextParentElement,  // 新元素
+        nextParentElement,  // 新元素 （babel转义）
         nextProps,          // 新属性
         nextState,          // 新状态
         nextContext,        // 新上下文 ---- 浅复制一份的上下文类型对象
