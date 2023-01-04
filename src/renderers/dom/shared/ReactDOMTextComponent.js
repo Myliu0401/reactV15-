@@ -200,6 +200,7 @@ Object.assign(ReactDOMTextComponent.prototype, {
     return nativeNode;
   },
 
+  // 卸载
   unmountComponent: function() {
     this._closingComment = null;
     this._commentNodes = null;

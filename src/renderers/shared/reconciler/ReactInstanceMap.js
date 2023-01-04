@@ -22,9 +22,8 @@
 var ReactInstanceMap = {
 
   /**
-   * This API should be called `delete` but we'd have to make sure to always
-   * transform these to strings for IE support. When this transform is fully
-   * supported we can rename it.
+   * 
+   * @param {*} key   new 类的实例
    */
   remove: function(key) {
     key._reactInternalInstance = undefined;

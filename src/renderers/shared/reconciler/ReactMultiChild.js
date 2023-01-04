@@ -197,20 +197,6 @@ var ReactMultiChild = {
 
       var nextChildren; // 声明一个变量
 
-      if (__DEV__) {
-        if (this._currentElement) {
-          try {
-            ReactCurrentOwner.current = this._currentElement._owner;
-            nextChildren = flattenChildren(nextNestedChildrenElements);
-          } finally {
-            ReactCurrentOwner.current = null;
-          }
-          ReactChildReconciler.updateChildren(
-            prevChildren, nextChildren, removedNodes, transaction, context
-          );
-          return nextChildren;
-        }
-      };
 
       // 生成一个对象，如 {[name]: babel转义后的组件, 0: 文本, ...}
       nextChildren = flattenChildren(nextNestedChildrenElements);
@@ -351,10 +337,10 @@ var ReactMultiChild = {
 
     /**
      * 更新children
-     * @param {?object} nextNestedChildrenElements       新children
-     * @param {ReactReconcileTransaction} transaction    事务
-     * @final
-     * @protected
+     * @param {*} nextNestedChildrenElements    新children
+     * @param {*} transaction                   事务
+     * @param {*} context                       上下文
+     * @returns 
      */
     _updateChildren: function(nextNestedChildrenElements, transaction, context) {
 

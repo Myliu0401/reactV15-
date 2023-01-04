@@ -178,9 +178,8 @@ var EventPluginHub = {
   },
 
   /**
-   * Deletes all listeners for the DOM element with the supplied ID.
-   *
-   * @param {object} inst The instance, which is the source of events.
+   * 卸载注册的事件
+   * @param {*} inst 组件初始化实例
    */
   deleteAllListeners: function(inst) {
     for (var registrationName in listenerBank) {

@@ -82,9 +82,7 @@ var ReactReconciler = {
     // 参数为布尔值
     internalInstance.unmountComponent(safely);  // 卸载组件
 
-    if (__DEV__) {
-      ReactInstrumentation.debugTool.onUnmountComponent(internalInstance);
-    }
+   
   },
 
   /**

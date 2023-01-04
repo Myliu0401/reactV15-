@@ -344,6 +344,7 @@ var ReactCompositeComponentMixin = {
     }
   },
 
+  
   performInitialMountWithErrorHandling: function (
     renderedElement,
     nativeParent,
@@ -473,29 +474,32 @@ var ReactCompositeComponentMixin = {
   },
 
   /**
-   * Releases any resources allocated by `mountComponent`.
-   *
-   * @final
-   * @internal
+   * 卸载组件
+   * @param {*} safely  布尔值， 一般都为false
+   * @returns 
    */
   unmountComponent: function (safely) {
+     // 没有render返回的节点组件的初始化实例，则直接结束
     if (!this._renderedComponent) {
       return;
     }
-    var inst = this._instance;
+    var inst = this._instance; // 获取 new 函数的实例
 
+    // 判断有没有该生命周期
     if (inst.componentWillUnmount && !inst._calledComponentWillUnmount) {
       inst._calledComponentWillUnmount = true;
       if (safely) {
         var name = this.getName() + '.componentWillUnmount()';
         ReactErrorUtils.invokeGuardedCallback(name, inst.componentWillUnmount.bind(inst));
       } else {
-        inst.componentWillUnmount();
+        inst.componentWillUnmount(); // 执行生命周期
       }
     }
 
+    
+    // 判断有没有render返回的节点组件的初始化实例
     if (this._renderedComponent) {
-      ReactReconciler.unmountComponent(this._renderedComponent, safely);
+      ReactReconciler.unmountComponent(this._renderedComponent, safely); // 卸载render返回的节点组件的初始化实例
       this._renderedNodeType = null;
       this._renderedComponent = null;
       this._instance = null;

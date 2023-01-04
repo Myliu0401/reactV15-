@@ -1223,20 +1223,7 @@ ReactDOMComponent.Mixin = {
           this._tag
         );
         break;
-    }
-
-
-    // 释放子组件
-    this.unmountChildren(safely); 
-
-    // 删除 组件初始化实例中存储的dom节点 和 dom节点中存储的组件初始化实例
-    ReactDOMComponentTree.uncacheNode(this);
-
-    // 释放 存储的事件
-    EventPluginHub.deleteAllListeners(this);
-
-    ReactComponentBrowserEnvironment.unmountIDFromEnvironment(this._rootNodeID);
-
+    };
 
     this.unmountChildren(safely); // 卸载该节点下的子节点
 
