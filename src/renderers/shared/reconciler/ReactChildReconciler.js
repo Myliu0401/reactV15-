@@ -132,7 +132,7 @@ var ReactChildReconciler = {
             对以前子集对应组件进行更新
             参数为，旧项的组件初始化实例、新项的babel转义、事务、上下文
         */
-        ReactReconciler.receiveComponent( prevChild, nextElement, transaction, context );
+        ReactReconciler.receiveComponent(prevChild, nextElement, transaction, context);
 
         nextChildren[name] = prevChild; // 将以前子集对应的属性赋值到 对应的子元素映射属性
 
@@ -152,27 +152,6 @@ var ReactChildReconciler = {
           */
           ReactReconciler.unmountComponent(prevChild, false); 
         };
-
-
-        // 对新组件进行初始化
-        /* 
-                进到这里来只有两种情况：
-                    1. 新旧节点对比不一致
-                    2. 该新组件，在旧组件中没有
-        
-        */
-
-
-        if (prevChild) {
-          // 进到这里来代表 新旧节点对比不一致
-
-          // 旧dom节点添加到removedNodes对象中
-          removedNodes[name] = ReactReconciler.getNativeNode(prevChild); 
-
-
-          ReactReconciler.unmountComponent(prevChild, false); // 卸载旧组件,释放“mountComponent”分配的所有资源
-        };
-
 
 
         // 子级必须在装入之前实例化。

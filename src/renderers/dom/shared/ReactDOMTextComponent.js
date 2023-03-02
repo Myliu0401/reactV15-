@@ -149,11 +149,9 @@ Object.assign(ReactDOMTextComponent.prototype, {
   },
 
   /**
-   * Updates this component by updating the text content.
-   *
-   * @param {ReactText} nextText The next text content
-   * @param {ReactReconcileTransaction} transaction
-   * @internal
+   * 更新组件
+   * @param {*} nextText   新文本 
+   * @param {*} transaction 事务
    */
   receiveComponent: function(nextText, transaction) {
     if (nextText !== this._currentElement) {
@@ -164,12 +162,10 @@ Object.assign(ReactDOMTextComponent.prototype, {
         // and/or updateComponent to do the actual update for consistency with
         // other component types?
         this._stringText = nextStringText;
-        var commentNodes = this.getNativeNode();
-        DOMChildrenOperations.replaceDelimitedText(
-          commentNodes[0],
-          commentNodes[1],
-          nextStringText
-        );
+        var commentNodes = this.getNativeNode(); // 得到一个数组，数组中为 头和尾注释
+
+        //  参数为  头注释、尾注释、文本
+        DOMChildrenOperations.replaceDelimitedText(commentNodes[0], commentNodes[1], nextStringText);
       }
     }
   },
@@ -180,8 +176,10 @@ Object.assign(ReactDOMTextComponent.prototype, {
       return nativeNode;
     }
     if (!this._closingComment) {
-      var openingComment = ReactDOMComponentTree.getNodeFromInstance(this);
-      var node = openingComment.nextSibling;
+      var openingComment = ReactDOMComponentTree.getNodeFromInstance(this); // 获取 头的注释
+      var node = openingComment.nextSibling; // 头注释的下一节点，也就是文本节点
+
+      // 循环将node变量变为 尾注释 为止
       while (true) {
         invariant(
           node != null,
@@ -195,8 +193,9 @@ Object.assign(ReactDOMTextComponent.prototype, {
         node = node.nextSibling;
       }
     }
-    nativeNode = [this._nativeNode, this._closingComment];
-    this._commentNodes = nativeNode;
+
+    nativeNode = [this._nativeNode, this._closingComment];  // 数组中为 头注释、尾注释
+    this._commentNodes = nativeNode; 
     return nativeNode;
   },
 

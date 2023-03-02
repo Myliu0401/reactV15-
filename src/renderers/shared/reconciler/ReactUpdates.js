@@ -54,8 +54,6 @@ var NESTED_UPDATES = {
       dirtyComponents.length = 0;  // 将存储类组件实例的数组置为空
 
 
-      dirtyComponents.length = 0;  // 将数组置为空
-
     }
   },
 };
@@ -166,7 +164,7 @@ function batchedUpdates(callback, a, b, c, d, e) {
  * @return {number} Return value usable by Array.prototype.sort().
  */
 function mountOrderComparator(c1, c2) {
-  // _mountOrder属性为当前数量值，越低表示越高和实例跟先被创建
+  // _mountOrder属性为当前数量值，越低表示越高和实例更先被创建
   return c1._mountOrder - c2._mountOrder;  
 }
 

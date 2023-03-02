@@ -523,7 +523,7 @@ var ReactCompositeComponentMixin = {
     // Delete the reference from the instance to this internal representation
     // which allow the internals to be properly cleaned up even if the user
     // leaks a reference to the public instance.
-    ReactInstanceMap.remove(inst);
+    ReactInstanceMap.remove(inst); // 清空 类实例中存储的组件初始化实例
 
     // Some existing components rely on inst.props even after they've been
     // destroyed (in event handlers).
@@ -738,7 +738,7 @@ var ReactCompositeComponentMixin = {
     var inst = this._instance; // 获取组件new的实例
     var willReceive = false; // 是否为新的
     var nextContext;  // 要存储新上下文的变量
-    var nextProps;    // 要存储旧属性的变量
+    var nextProps;    // 要存储新属性的变量
 
 
 
@@ -956,7 +956,7 @@ var ReactCompositeComponentMixin = {
     /* 
          参数为 旧子组件  新子组件
          该函数会判断
-           新旧子组件是否有某一方为空或false，就判断新旧是否相等并返回
+           新旧子组件是否有一方为空或false，就判断新旧是否相等并返回
            或 新旧子组件是否是文本并且相同
            或 新旧子组件 类型和key 是否相同           
         
@@ -975,7 +975,7 @@ var ReactCompositeComponentMixin = {
     } else { // 新旧节点发生变化的情况下
      
       //                                                   旧子组件初始化实例
-      var oldNativeNode = ReactReconciler.getNativeNode(prevComponentInstance); // 获取旧dom节点
+      var oldNativeNode = ReactReconciler.getNativeNode(prevComponentInstance); // 获取旧子dom节点
 
       ReactReconciler.unmountComponent(prevComponentInstance, false); // 卸载render返回组件节点
 

@@ -21,12 +21,14 @@ var ReactChildReconciler = require('ReactChildReconciler');
 var flattenChildren = require('flattenChildren');
 var invariant = require('invariant');
 
+
+
 /**
- * Make an update for markup to be rendered and inserted at a supplied index.
- *
- * @param {string} markup Markup that renders into an element.
- * @param {number} toIndex Destination index.
- * @private
+ * 
+ * @param {*} markup     新组件的lazyTree对象
+ * @param {*} afterNode  上一次组件对应的dom标签
+ * @param {*} toIndex    新组件的位置
+ * @returns 
  */
 function makeInsertMarkup(markup, afterNode, toIndex) {
   // NOTE: Null values reduce hidden classes.
@@ -64,10 +66,10 @@ function makeMove(child, afterNode, toIndex) {
 
 
 /**
- * Make an update for removing an element at an index.
- *
- * @param {number} fromIndex Index of the element to remove.
- * @private
+ * 
+ * @param {*} child 虚拟dom
+ * @param {*} node  dom标签
+ * @returns 
  */
 function makeRemove(child, node) {
   // NOTE: Null values reduce hidden classes.
@@ -128,10 +130,11 @@ function enqueue(queue, update) {
   return queue;
 }
 
+
 /**
- * Processes any enqueued updates.
- *
- * @private
+ * 
+ * @param {*} inst  组件初始化实例 
+ * @param {*} updateQueue  数组
  */
 function processQueue(inst, updateQueue) {
 
@@ -523,21 +526,22 @@ var ReactMultiChild = {
     },
 
     /**
-     * Creates a child component.
-     *
-     * @param {ReactComponent} child Component to create.
-     * @param {string} mountImage Markup to insert.
-     * @protected
+     * 
+     * @param {*} child  组件初始化实例
+     * @param {*} afterNode 上一次组件对应的dom标签
+     * @param {*} mountImage 新组件lazyTree对象
+     * @returns 
      */
     createChild: function(child, afterNode, mountImage) {
       return makeInsertMarkup(mountImage, afterNode, child._mountIndex);
     },
 
+   
     /**
-     * Removes a child component.
-     *
-     * @param {ReactComponent} child Child to remove.
-     * @protected
+     * 
+     * @param {*} child 虚拟dom
+     * @param {*} node  dom标签
+     * @returns 
      */
     removeChild: function(child, node) {
       return makeRemove(child, node);

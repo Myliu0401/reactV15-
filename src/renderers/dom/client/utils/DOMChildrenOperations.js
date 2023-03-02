@@ -58,7 +58,7 @@ var insertChildAt = createMicrosoftUnsafeLocalFunction(
 
  
     /* 
-         insertBefore()方法将把一个给定的节点插入到一个给定元素节点的给定子节点前面
+         insertBefore()方法将把一个给定的节点插入到另一个给定节点前面
          当传入null时，新插入的元素将会插入到父元素的子元素列表末尾。
          参数为  将要插入的节点、被参照的节点（即要插在该节点之前）
          相当于替换位置，childNode和referenceNode 位置互换
@@ -137,9 +137,16 @@ function moveDelimitedText(
   }
 }
 
+
+/**
+ * 
+ * @param {*} parentNode     父节点
+ * @param {*} startNode      旧文本几点
+ * @param {*} closingComment  尾注释
+ */
 function removeDelimitedText(parentNode, startNode, closingComment) {
   while (true) {
-    var node = startNode.nextSibling;
+    var node = startNode.nextSibling;  // 下一个节点（尾注释节点）
     if (node === closingComment) {
       // The closing comment is removed by ReactMultiChild.
       break;
@@ -149,26 +156,38 @@ function removeDelimitedText(parentNode, startNode, closingComment) {
   }
 }
 
+
+/**
+ * 
+ * @param {*} openingComment    头注释
+ * @param {*} closingComment    尾注释
+ * @param {*} stringText        文本
+ */
 function replaceDelimitedText(openingComment, closingComment, stringText) {
-  var parentNode = openingComment.parentNode;
-  var nodeAfterComment = openingComment.nextSibling;
+  var parentNode = openingComment.parentNode; // 头注释的父节点  （dom节点）
+  var nodeAfterComment = openingComment.nextSibling; // 头注释的下个节点 （文本节点）
+
+  // 尾注释和文本是否一致 （如果一致，那么文本为空字符串）
   if (nodeAfterComment === closingComment) {
-    // There are no text nodes between the opening and closing comments; insert
-    // a new one if stringText isn't empty.
+
     if (stringText) {
-      insertChildAt(
-        parentNode,
-        document.createTextNode(stringText),
-        nodeAfterComment
-      );
+      // 参数为 父节点  新创建的文本节点  旧文本节点
+      insertChildAt(parentNode, document.createTextNode(stringText), nodeAfterComment);
+      // 将新创建的文本节点插到旧文本节点之前
     }
   } else {
+
+    // 判断是否不为空
     if (stringText) {
-      // Set the text content of the first node after the opening comment, and
-      // remove all following nodes up until the closing comment.
-      setTextContent(nodeAfterComment, stringText);
-      removeDelimitedText(parentNode, nodeAfterComment, closingComment);
+     
+      // 参数为 旧文本节点、新文本字符串
+      setTextContent(nodeAfterComment, stringText); // 将旧文本节点的textContent属性置为新文本
+
+      // 参数为 父节点 旧文本节点 尾注释
+      removeDelimitedText(parentNode, nodeAfterComment, closingComment); // 如果 旧文本节点下个节点不是尾注释节点，则删除尾注释节点
     } else {
+
+      // 如果 旧文本节点下个节点不是尾注释节点，则删除尾注释节点
       removeDelimitedText(parentNode, openingComment, closingComment);
     }
   }

@@ -1240,6 +1240,7 @@ ReactDOMComponent.Mixin = {
     this._wrapperState = null;
   },
 
+  
   getPublicInstance: function() {
     return getNode(this);
   },
