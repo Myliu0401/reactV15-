@@ -42,11 +42,11 @@ var NESTED_UPDATES = {
 
   close: function() {
 
-    // 判断是否不相等
+    // 判断是否不相等,如果组件渲染过程中执行了setState函数，则dirtyComponents数组长度会变化
     if (this.dirtyComponentsLength !== dirtyComponents.length) {
       
-      dirtyComponents.splice(0, this.dirtyComponentsLength);
-      flushBatchedUpdates();
+      dirtyComponents.splice(0, this.dirtyComponentsLength); // 截取掉旧的，剩余的就是渲染过程中执行setState的组件
+      flushBatchedUpdates(); // 渲染中途setState的组件
 
     } else {
 
