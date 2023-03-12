@@ -127,11 +127,7 @@ var Mixin = {
    * @return {*} Return value from `method`.
    */
   perform: function(method, scope, a, b, c, d, e, f) {
-    invariant(
-      !this.isInTransaction(),
-      'Transaction.perform(...): Cannot initialize a transaction when there ' +
-      'is already an outstanding transaction.'
-    );
+
 
     var errorThrown; // 存储是否出错
     var ret;

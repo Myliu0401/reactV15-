@@ -641,10 +641,7 @@ var SimpleEventPlugin = {
    * @param {*} listener 事件处理函数
    */
   didPutListener: function(inst, registrationName, listener) {
-    // Mobile Safari does not fire properly bubble click events on
-    // non-interactive elements, which means delegated click listeners do not
-    // fire. The workaround for this bug involves attaching an empty click
-    // listener on the target node.
+
 
     // 判断是否是点击事件 onClick
     if (registrationName === ON_CLICK_KEY) {

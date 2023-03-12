@@ -69,7 +69,7 @@ var ON_DOM_READY_QUEUEING = {
    * Initializes the internal `onDOMReady` queue.
    */
   initialize: function() {
-    this.reactMountReady.reset();
+    this.reactMountReady.reset(); // 释放内存
   },
 
   /**

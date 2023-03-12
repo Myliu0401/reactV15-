@@ -363,7 +363,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
           // to make sure blur and focus event listeners are only attached once
           isListening[topLevelTypes.topBlur] = true;
           isListening[topLevelTypes.topFocus] = true;
-        } else if (topEventMapping.hasOwnProperty(dependency)) { // 判断该事件是不是名是不是这个 topEventMapping对象中的其中一个
+        } else if (topEventMapping.hasOwnProperty(dependency)) { // 判断该事件名是不是这个 topEventMapping对象中的其中一个
          
           // 进行事件的注册
           ReactBrowserEventEmitter.ReactEventListener.trapBubbledEvent(
@@ -382,6 +382,7 @@ var ReactBrowserEventEmitter = Object.assign({}, ReactEventEmitterMixin, {
 
       
     }
+
   },
 
   trapBubbledEvent: function(topLevelType, handlerBaseName, handle) {

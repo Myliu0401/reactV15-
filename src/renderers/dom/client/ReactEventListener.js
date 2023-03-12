@@ -276,7 +276,7 @@ var ReactEventListener = {
 
   
     /* 
-        如果TopLevelCallbackBookKeeping函数的静态属性instancePool数组没有项则会 new TopLevelCallbackBookKeeping函数
+        如果TopLevelCallbackBookKeeping函数的静态属性instancePool数组没有项，则会 new TopLevelCallbackBookKeeping函数
         后返回的实例
         {
           topLevelType: 参数1
