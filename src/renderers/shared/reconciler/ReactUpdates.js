@@ -63,7 +63,7 @@ var UPDATE_QUEUEING = {
     this.callbackQueue.reset();  // 重置
   },
   close: function() {
-    this.callbackQueue.notifyAll();
+    this.callbackQueue.notifyAll(); // 该函数中会执行 CallbackQueue实例存储的_callbacks数组里每一项的函数
   },
 };
 
