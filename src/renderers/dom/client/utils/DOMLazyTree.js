@@ -74,7 +74,10 @@ var insertTreeBefore = createMicrosoftUnsafeLocalFunction(
       insertTreeChildren(tree);
       parentNode.insertBefore(tree.node, referenceNode);
     } else {
-      parentNode.insertBefore(tree.node, referenceNode);  // 两个节点位置互换，如果第二个参数为null，则将第一个节点插到最后面
+      parentNode.insertBefore(tree.node, referenceNode);  
+      // 两个节点位置互换，如果第二个参数为null，则将第一个节点插到最后面
+      // 会在referenceNode之前插入tree.node节点
+
       insertTreeChildren(tree);  
     }
   }
