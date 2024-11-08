@@ -9,11 +9,11 @@
  * @providesModule CallbackQueue
  */
 
-'use strict';
+"use strict";
 
-var PooledClass = require('PooledClass');
+var PooledClass = require("PooledClass");
 
-var invariant = require('invariant');
+var invariant = require("invariant");
 
 /**
  * A specialized pseudo-event module to help keep track of components waiting to
@@ -32,7 +32,6 @@ function CallbackQueue() {
 }
 
 Object.assign(CallbackQueue.prototype, {
-
   /**
    * 对调用`notifyAll`时要调用的回调进行排队。
    *
@@ -42,11 +41,11 @@ Object.assign(CallbackQueue.prototype, {
                                                      listener: listener, // 事件处理函数
    * @internal
    */
-  enqueue: function(callback, context) {
-    this._callbacks = this._callbacks || [];   // 向实例中该属性注入为数组
-    this._contexts = this._contexts || [];     // 向实例中该属性注入为数组
-    this._callbacks.push(callback);            // 添加回调到数组中
-    this._contexts.push(context);              // 添加对象信息到数组中
+  enqueue: function (callback, context) {
+    this._callbacks = this._callbacks || []; // 向实例中该属性注入为数组
+    this._contexts = this._contexts || []; // 向实例中该属性注入为数组
+    this._callbacks.push(callback); // 添加回调到数组中
+    this._contexts.push(context); // 添加对象信息到数组中
   },
 
   /**
@@ -54,31 +53,30 @@ Object.assign(CallbackQueue.prototype, {
    *
    * @internal
    */
-  notifyAll: function() { 
-    var callbacks = this._callbacks;  // 取出注册事件时存储putListener函数的数组
-    var contexts = this._contexts;    // 取出注册事件时存储信息对象的数组
+  notifyAll: function () {
+    var callbacks = this._callbacks; // 取出注册事件时存储putListener函数的数组
+    var contexts = this._contexts; // 取出注册事件时存储信息对象的数组
 
     // 判断是否有存储putListener函数的数组
     if (callbacks) {
-    
-      this._callbacks = null;  // 重置为null
-      this._contexts = null;   // 重置为null
+      this._callbacks = null; // 重置为null
+      this._contexts = null; // 重置为null
 
       // 循环该数组
       for (var i = 0; i < callbacks.length; i++) {
-        callbacks[i].call(contexts[i]);  // 执行存储的putListener函数，并且该函数的this置为对应的信息对象
+        callbacks[i].call(contexts[i]); // 执行存储的putListener函数，并且该函数的this置为对应的信息对象
       }
 
-      callbacks.length = 0;  // 数组长度重置为0
-      contexts.length = 0;   // 数组长度重置为0
+      callbacks.length = 0; // 数组长度重置为0
+      contexts.length = 0; // 数组长度重置为0
     }
   },
 
-  checkpoint: function() {
+  checkpoint: function () {
     return this._callbacks ? this._callbacks.length : 0;
   },
 
-  rollback: function(len) {
+  rollback: function (len) {
     if (this._callbacks) {
       this._callbacks.length = len;
       this._contexts.length = len;
@@ -90,7 +88,7 @@ Object.assign(CallbackQueue.prototype, {
    *
    * @internal
    */
-  reset: function() {
+  reset: function () {
     this._callbacks = null;
     this._contexts = null;
   },
@@ -98,13 +96,12 @@ Object.assign(CallbackQueue.prototype, {
   /**
    * `PooledClass` looks for this.
    */
-  destructor: function() {
+  destructor: function () {
     this.reset();
   },
-
 });
 
-PooledClass.addPoolingTo(CallbackQueue);  // 对CallbackQueue函数的静态属性进行扩展
+PooledClass.addPoolingTo(CallbackQueue); // 对CallbackQueue函数的静态属性进行扩展
 /* 
    扩展后该函数拥有以下静态属性
    instancePool为空数组

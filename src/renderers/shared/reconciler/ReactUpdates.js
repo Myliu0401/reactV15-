@@ -201,6 +201,7 @@ function runBatchedUpdates(transaction) {
       if ( component._currentElement.props === component._renderedComponent._currentElement) {
         namedComponent = component._renderedComponent;
       }
+      
       markerName = 'React update: ' + namedComponent.getName();
       console.time(markerName);
     };
@@ -298,7 +299,7 @@ function enqueueUpdate(component) {
   // 判断是否不处于批量更新模式
   if (!batchingStrategy.isBatchingUpdates) {
     // 事务会执行该回调函数，并且将component参数传进来
-    batchingStrategy.batchedUpdates(enqueueUpdate, component); 
+    batchingStrategy.batchedUpdates(enqueueUpdate, component);
     return;
   }
 

@@ -214,10 +214,7 @@ function getNodeFromInstance(inst) {
 
   while (!inst._nativeNode) {
     parents.push(inst); 
-    invariant(
-      inst._nativeParent,
-      'React DOM tree root should always have a node reference.'
-    );
+
     inst = inst._nativeParent;
   };
 

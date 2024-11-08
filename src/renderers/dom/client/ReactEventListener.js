@@ -21,7 +21,7 @@ var getEventTarget = require('getEventTarget');
 var getUnboundedScrollPosition = require('getUnboundedScrollPosition');
 
 /**
- * 
+ *  返回的是逐级的父组件
  * @param {*} inst  组件初始化实例
  * @returns 
  */
@@ -32,6 +32,8 @@ function findParent(inst) {
        只有标签组件初始化实例中有该属性，所以是遍历标签组件。
    
        遍历到inst变成最高一层的根节点组件的初始化实例
+
+       向上遍历寻找最顶层父组件
    */
   while (inst._nativeParent) {
     inst = inst._nativeParent;
@@ -97,7 +99,7 @@ function handleTopLevelImpl(bookKeeping) {
   var nativeEventTarget = getEventTarget(bookKeeping.nativeEvent);  // 获取事件对象的目标dom节点
 
 
-  // 该dom节点对应的组件初始化实例
+  // 获取该dom节点对应的组件初始化实例
   var targetInst = ReactDOMComponentTree.getClosestInstanceFromNode(
     nativeEventTarget
   );  // 从该参数节点开始并往上找，有没有internalInstanceKey这个属性的节点，有就返回给节点，没有就返回null
@@ -117,8 +119,6 @@ function handleTopLevelImpl(bookKeeping) {
     // 所以ancestors数组中的存储从触发事件的组件开始到根节点组件的组件初始化实例
   } while (ancestor);
 
-
-  // 上面循环后 ancestor数组只存储了一个实例，该实例为事件触发的组件的初始化实例
 
 
   /* 
@@ -186,7 +186,7 @@ var ReactEventListener = {
     }
 
     // 进行事件的注册
-    return EventListener.listen( 
+    return EventListener.listen(
       element,        // 文档节点
       handlerBaseName, // 对应原生事件名
 
@@ -206,7 +206,6 @@ var ReactEventListener = {
              remove: function remove() {
                  target.removeEventListener(eventType, callback, false);  // 解绑事件
              }
-
          }
 
      }

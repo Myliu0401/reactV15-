@@ -195,6 +195,7 @@ var ReactChildReconciler = {
         ReactReconciler.unmountComponent(renderedChild, safely);
       }
     }
+    
   },
 
 };

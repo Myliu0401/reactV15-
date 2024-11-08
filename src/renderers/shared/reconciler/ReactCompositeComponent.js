@@ -196,7 +196,7 @@ var ReactCompositeComponentMixin = {
           不是首次执行那么判断是否是类组件如果是那么将返回一个类实例
     
     */
-    var inst = this._constructComponent(publicProps, publicContext);
+    var inst = this._constructComponent(publicProps, publicContext); // 返回类函数的实例
 
     var renderedElement;
 
@@ -322,7 +322,7 @@ var ReactCompositeComponentMixin = {
 
 
     /* 
-        判断是不是跟组件的包装层，也就是判断是不是TopLevelWrapper函数 或 是否是类组件
+        判断是不是根组件的包装层，也就是判断是不是TopLevelWrapper函数 或 是否是类组件
         类组件必须继承ReactComponent模块，所以原型上会有isReactComponent属性
     */
     if (shouldConstruct(Component)) {
@@ -418,7 +418,7 @@ var ReactCompositeComponentMixin = {
       inst.componentWillMount(); //执行生命周期
 
       // 判断是否需要更新状态
-      if (this._pendingStateQueue) { 
+      if (this._pendingStateQueue) {
         inst.state = this._processPendingState(inst.props, inst.context); // 更新状态
       }
     }

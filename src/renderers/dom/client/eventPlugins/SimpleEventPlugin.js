@@ -514,6 +514,15 @@ var SimpleEventPlugin = {
 
     var EventConstructor;
 
+
+    /* 
+    
+    switch 语句中的分支匹配是只进行一次的，也就是它找到第一个匹配的 case 后就停止检查其他分支。如果没有break
+    它会继续顺序执行后面的代码，不会再检查条件是否匹配。这就是 fall-through 的行为，
+    跟 if-else 的逐条件匹配机制不同。
+    
+    */
+
     // 判断事件类型，该topLevelTypes对象为EventConstants模块中的topLevelTypes对象
     switch (topLevelType) {
       case topLevelTypes.topAbort:
@@ -565,8 +574,7 @@ var SimpleEventPlugin = {
         EventConstructor = SyntheticFocusEvent;
         break;
       case topLevelTypes.topClick:
-        // Firefox在鼠标右键单击时创建单击事件。这将删除
-        // 不需要的点击事件。
+        // 如果等于 2，表示是鼠标右键点击事件，直接忽略。
         if (nativeEvent.button === 2) {
           return null;
         }

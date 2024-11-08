@@ -53,23 +53,14 @@ function recomputePluginOrdering() {
   for (var pluginName in namesToPlugins) {
     var PluginModule = namesToPlugins[pluginName]; // 获取该对象中的属性值
     var pluginIndex = EventPluginOrder.indexOf(pluginName); // 获取该属性名在EventPluginOrder数组中的索引
-    invariant(
-      pluginIndex > -1,
-      'EventPluginRegistry: Cannot inject event plugins that do not exist in ' +
-      'the plugin ordering, `%s`.',
-      pluginName
-    );
+
+  
 
     // 判断该数组中有没有该索引，有就跳过本次循环
     if (EventPluginRegistry.plugins[pluginIndex]) {
       continue;
     }
-    invariant(
-      PluginModule.extractEvents,
-      'EventPluginRegistry: Event plugins must implement an `extractEvents` ' +
-      'method, but `%s` does not.',
-      pluginName
-    );
+   
     EventPluginRegistry.plugins[pluginIndex] = PluginModule; // 按EventPluginOrder数组中的索引注入，根据EventPluginOrder数组的顺序进行注入
 
 

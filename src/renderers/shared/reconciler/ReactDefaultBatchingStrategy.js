@@ -122,16 +122,16 @@ var ReactDefaultBatchingStrategy = {
   batchedUpdates: function(callback, a, b, c, d, e) {
 
     // 这里是用于在修改isBatchingUpdates之前存储上次的isBatchingUpdates状态
-    var alreadyBatchingUpdates = ReactDefaultBatchingStrategy.isBatchingUpdates; 
+    var alreadyBatchingUpdates = ReactDefaultBatchingStrategy.isBatchingUpdates;
 
     // 只要调用batchedUpdates就会将isBatchingUpdates改为true
-    ReactDefaultBatchingStrategy.isBatchingUpdates = true; 
+    ReactDefaultBatchingStrategy.isBatchingUpdates = true;
 
     // 判断是否批量更新  
     // 如果在我们改isBatchingUpdates为true之前它就已经是true了，那说明改之前就已经处于批量更新状态中了
     if (alreadyBatchingUpdates) {
       // 那既然已经在更新了，就直接等待更新结束
-      callback(a, b, c, d, e); 
+      callback(a, b, c, d, e);
     } else {
       // 启动事务开始进行更新
       transaction.perform(callback, null, a, b, c, d, e); // 进入事务阶段

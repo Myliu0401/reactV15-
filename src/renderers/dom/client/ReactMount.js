@@ -393,7 +393,6 @@ var ReactMount = {
   ) {
 
 
-
     ReactBrowserEventEmitter.ensureScrollValueMonitoring(); //侦听窗口滚动和调整大小事件
 
 
@@ -486,7 +485,7 @@ var ReactMount = {
             // 此标记允许我们将其唯一标识为React元素，相当于将其标识为react元素
             $$typeof: REACT_ELEMENT_TYPE, 
 
-            // 属于元素的内置属性
+            // 为组件的类型，引用类型则为函数或类
             type:TopLevelWrapper,
 
             key: null,

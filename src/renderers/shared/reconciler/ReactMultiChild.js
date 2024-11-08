@@ -270,7 +270,6 @@ var ReactMultiChild = {
             this._nativeContainerInfo,  // 集装信息，为一个对象，存储一些基础信息
             context // 上下文
           );
- 
 
 
           child._mountIndex = index++; // 先向当前初始化实例中存储顺序索引

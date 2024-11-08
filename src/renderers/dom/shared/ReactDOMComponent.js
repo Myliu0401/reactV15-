@@ -180,7 +180,6 @@ function assertValidProps(component, props) {
   }
 
 
-
   invariant(
     props.style == null || typeof props.style === 'object',
     'The `style` prop expects a mapping from style properties to values, ' +
@@ -841,7 +840,7 @@ ReactDOMComponent.Mixin = {
         DOMLazyTree.queueHTML(lazyTree, innerHTML.__html); // 为lazyTree对象中标签的innHTML注入内容
       }
 
-    } else { 
+    } else {
 
       // 判断子节点是否是字符串或数字
       var contentToUse = CONTENT_TYPES[typeof props.children] ? props.children : null; 
@@ -939,7 +938,7 @@ ReactDOMComponent.Mixin = {
 
     
     /* 
-        判断制定的属性是否有效
+        判断指定的属性是否有效
         参数为 dom组件实例、新属性
     */
     assertValidProps(this, nextProps);
@@ -1088,7 +1087,6 @@ ReactDOMComponent.Mixin = {
         }
 
       } else if (isCustomComponent(this._tag, nextProps)) {  // 判断是否是自定义标签 即标签名有没有 - 符号，或者 有is属性不等于null undefined
-        
         /* 
             判断是否不是这几个特殊属性之一
             children、dangerouslySetInnerHTML、suppressContentEditableWarning

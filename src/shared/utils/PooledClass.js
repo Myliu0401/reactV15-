@@ -62,6 +62,14 @@ var threeArgumentPooler = function(a1, a2, a3) {
   }
 };
 
+/**
+ * 
+ * @param {*} a1 对应的事件类型块
+ * @param {*} a2 组件初始化实例
+ * @param {*} a3 原生事件对象
+ * @param {*} a4 触发事件目标节点的dom
+ * @returns 
+ */
 var fourArgumentPooler = function(a1, a2, a3, a4) {
   var Klass = this;
   if (Klass.instancePool.length) {

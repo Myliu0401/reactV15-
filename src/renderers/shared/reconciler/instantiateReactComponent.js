@@ -77,7 +77,6 @@ function instantiateReactComponent(node) {
 
     var element = node;
   
-
     // 判断是否是标签组件
     if (typeof element.type === 'string') {
 

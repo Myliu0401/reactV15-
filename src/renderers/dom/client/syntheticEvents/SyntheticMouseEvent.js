@@ -66,10 +66,12 @@ var MouseEventInterface = {
 };
 
 /**
- * @param {object} dispatchConfig Configuration used to dispatch this event.
- * @param {string} dispatchMarker Marker identifying the event target.
- * @param {object} nativeEvent Native browser event.
- * @extends {SyntheticUIEvent}
+ * 
+ * @param {*} dispatchConfig 对应的事件类型块
+ * @param {*} dispatchMarker 组件初始化实例
+ * @param {*} nativeEvent 原生事件对象
+ * @param {*} nativeEventTarget 触发事件目标节点的dom
+ * @returns 
  */
 function SyntheticMouseEvent(dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget) {
   return SyntheticUIEvent.call(this, dispatchConfig, dispatchMarker, nativeEvent, nativeEventTarget);

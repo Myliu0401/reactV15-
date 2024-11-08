@@ -54,8 +54,6 @@ var ReactDOMTextComponent = function(text) {
 
 Object.assign(ReactDOMTextComponent.prototype, {
 
-  
-
   /**
    * 渲染文本组件
    * @param {*} transaction                 事务
@@ -157,6 +155,7 @@ Object.assign(ReactDOMTextComponent.prototype, {
     if (nextText !== this._currentElement) {
       this._currentElement = nextText;
       var nextStringText = '' + nextText;
+      
       if (nextStringText !== this._stringText) {
         // TODO: Save this as pending props and use performUpdateIfNecessary
         // and/or updateComponent to do the actual update for consistency with
